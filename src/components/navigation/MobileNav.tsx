@@ -12,7 +12,8 @@ import {
   MessageSquare, 
   ShieldCheck, 
   CreditCard,
-  AlertTriangle
+  AlertTriangle,
+  Activity
 } from "lucide-react";
 
 interface MobileNavProps {
@@ -34,6 +35,7 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
     ];
   } else if (currentRole === "coach") {
     navItems = [
+      { id: "dashboard", label: "Hub", icon: <Activity className="w-5 h-5 text-brand" /> },
       { id: "queue", label: "Triage", icon: <AlertTriangle className="w-5 h-5 text-destructive" /> },
       { id: "roster", label: "Roster", icon: <Users className="w-5 h-5" /> },
       { id: "builder", label: "Programs", icon: <Layers className="w-5 h-5" /> },

@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { UserRole } from "@/types";
-import { Dumbbell, Shield, Users, Building, Activity, LogOut } from "lucide-react";
+import { Dumbbell, Shield, Users, Building, Activity, LogOut, Sun, Moon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -14,6 +14,30 @@ interface NavbarProps {
 
 export function Navbar({ activeTab, onTabChange }: NavbarProps) {
   const { currentRole, setRole, currentUser, logout } = useAuth();
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("coachpro_theme");
+    if (savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      setIsDark(true);
+      document.documentElement.classList.add("dark");
+    } else {
+      setIsDark(false);
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (isDark) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("coachpro_theme", "light");
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("coachpro_theme", "dark");
+      setIsDark(true);
+    }
+  };
 
   const roles: { role: UserRole; label: string; icon: React.ReactNode }[] = [
     { role: "athlete", label: "Athlete", icon: <Dumbbell className="w-3.5 h-3.5" /> },
@@ -59,7 +83,7 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
                     setRole(r.role);
                     // Reset active view tab on role switch to primary view
                     if (r.role === "athlete") onTabChange("today");
-                    else if (r.role === "coach") onTabChange("roster");
+                    else if (r.role === "coach") onTabChange("dashboard");
                     else if (r.role === "org_admin") onTabChange("overview");
                     else if (r.role === "platform_admin") onTabChange("overview");
                   }}
@@ -78,8 +102,19 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
           </div>
         </div>
 
-        {/* User Info & Sign Out */}
-        <div className="flex items-center gap-3">
+        {/* Theme Toggle, User Info & Sign Out */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleTheme}
+            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            aria-label="Toggle theme"
+            className="text-muted-foreground hover:text-foreground h-9 w-9 p-0 rounded-full"
+          >
+            {isDark ? <Sun className="w-4 h-4 text-warning" /> : <Moon className="w-4 h-4 text-muted-foreground" />}
+          </Button>
+
           <div className="text-right hidden sm:block">
             <div className="text-sm font-medium text-foreground leading-none">{currentUser.name}</div>
             <div className="text-[11px] text-muted-foreground capitalize mt-0.5">{currentUser.role.replace("_", " ")}</div>

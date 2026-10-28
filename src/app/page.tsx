@@ -11,6 +11,7 @@ import { RecoveryInjuryCard } from "@/components/athlete/RecoveryInjuryCard";
 import { AthleteRoster } from "@/components/coach/AthleteRoster";
 import { AthleteProfileView } from "@/components/coach/AthleteProfileView";
 import { PrioritizedAttentionQueue } from "@/components/coach/PrioritizedAttentionQueue";
+import { CoachDashboard } from "@/components/coach/CoachDashboard";
 import { ProgramBuilder } from "@/components/coach/ProgramBuilder";
 import { ExerciseLibraryView } from "@/components/coach/ExerciseLibraryView";
 import { MessagingView } from "@/components/shared/MessagingView";
@@ -28,7 +29,8 @@ import {
   ShieldCheck,
   CreditCard,
   MessageSquare,
-  AlertTriangle
+  AlertTriangle,
+  Activity
 } from "lucide-react";
 
 function AppContent() {
@@ -50,6 +52,7 @@ function AppContent() {
         ];
       case "coach":
         return [
+          { id: "dashboard", label: "Coach Hub", icon: <Activity className="w-4 h-4 text-brand" /> },
           { id: "queue", label: "Attention Queue", icon: <AlertTriangle className="w-4 h-4 text-destructive" /> },
           { id: "roster", label: "Athlete Roster", icon: <Users className="w-4 h-4" /> },
           { id: "builder", label: "Program Builder", icon: <Layers className="w-4 h-4" /> },
@@ -79,7 +82,7 @@ function AppContent() {
     const validIds = tabs.map(t => t.id);
     if (!validIds.includes(activeTab)) {
       if (currentRole === "athlete") setActiveTab("today");
-      else if (currentRole === "coach") setActiveTab("queue");
+      else if (currentRole === "coach") setActiveTab("dashboard");
       else setActiveTab(validIds[0] || "overview");
     }
   }, [currentRole, tabs, activeTab]);
@@ -140,6 +143,19 @@ function AppContent() {
         {/* COACH INDEPENDENT INTERFACE */}
         {currentRole === "coach" && (
           <>
+            {activeTab === "dashboard" && (
+              <CoachDashboard
+                onSelectAthlete={(ath) => {
+                  setTargetedAthlete(ath);
+                  setActiveTab("queue");
+                }}
+                onOpenMessages={(athId) => {
+                  setTargetedRecipientId(athId);
+                  setActiveTab("messages");
+                }}
+                onNavigateToBuilder={() => setActiveTab("builder")}
+              />
+            )}
             {activeTab === "queue" && (
               targetedAthlete ? (
                 <AthleteProfileView
