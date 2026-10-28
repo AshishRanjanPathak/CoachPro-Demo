@@ -53,7 +53,7 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-foreground text-lg tracking-tight">CoachPRO</span>
+              <span className="font-bold text-foreground text-lg tracking-tight" translate="no">CoachPRO</span>
               <Badge variant="brand" className="text-[10px] px-1.5 py-0 uppercase tracking-widest font-mono">
                 SaaS
               </Badge>
@@ -66,7 +66,7 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
 
         {/* Authenticated Workspace Security Indicator */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/60 border border-border text-xs">
-          <span className="w-2 h-2 rounded-full bg-success"></span>
+          <span className="w-2 h-2 rounded-full bg-success" aria-hidden="true"></span>
           <span className="font-mono text-[11px] text-muted-foreground uppercase">Authenticated Space:</span>
           <span className="font-semibold text-foreground capitalize">{currentUser.role.replace("_", " ")}</span>
         </div>
@@ -78,10 +78,10 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
             size="sm"
             onClick={toggleTheme}
             title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            aria-label="Toggle theme"
-            className="text-muted-foreground hover:text-foreground h-9 w-9 p-0 rounded-full"
+            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            className="text-muted-foreground hover:text-foreground h-9 w-9 p-0 rounded-full min-h-[44px] min-w-[44px]"
           >
-            {isDark ? <Sun className="w-4 h-4 text-warning" /> : <Moon className="w-4 h-4 text-muted-foreground" />}
+            {isDark ? <Sun className="w-4 h-4 text-warning" aria-hidden="true" /> : <Moon className="w-4 h-4 text-muted-foreground" aria-hidden="true" />}
           </Button>
 
           <div className="text-right hidden sm:block">
@@ -91,6 +91,8 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
           <img
             src={currentUser.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120"}
             alt={currentUser.name}
+            width={36}
+            height={36}
             className="w-9 h-9 rounded-full object-cover border border-border ring-1 ring-border"
           />
           <Button
@@ -98,10 +100,10 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
             size="sm"
             onClick={logout}
             title="Sign Out"
-            aria-label="Sign out"
-            className="text-muted-foreground hover:text-destructive h-9 px-2 min-h-[36px]"
+            aria-label="Sign out of CoachPRO"
+            className="text-muted-foreground hover:text-destructive h-9 px-2.5 min-h-[44px]"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4" aria-hidden="true" />
           </Button>
         </div>
       </div>

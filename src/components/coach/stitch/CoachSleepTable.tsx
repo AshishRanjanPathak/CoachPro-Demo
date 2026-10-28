@@ -83,19 +83,21 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
                   <div className="flex items-center justify-end gap-1">
                     <button
                       type="button"
+                      aria-label="Direct message Maya Patel"
                       onClick={() => onOpenMessages("ath-2")}
-                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
                       title="Direct Message"
                     >
-                      <MessageSquare className="w-3.5 h-3.5" />
+                      <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                     <button
                       type="button"
+                      aria-label="Inspect full telemetry for Maya Patel"
                       onClick={() => onSelectAthlete("ath-2")}
-                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-brand transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-brand transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
                       title="Inspect Full Telemetry"
                     >
-                      <LineChart className="w-3.5 h-3.5" />
+                      <LineChart className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                   </div>
                 </td>
@@ -144,19 +146,21 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
                   <div className="flex items-center justify-end gap-1">
                     <button
                       type="button"
+                      aria-label="Direct message Jordan Taylor"
                       onClick={() => onOpenMessages("ath-3")}
-                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
                       title="Direct Message"
                     >
-                      <MessageSquare className="w-3.5 h-3.5" />
+                      <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                     <button
                       type="button"
+                      aria-label="Inspect full telemetry for Jordan Taylor"
                       onClick={() => onSelectAthlete("ath-3")}
-                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-brand transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-brand transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
                       title="Inspect Full Telemetry"
                     >
-                      <LineChart className="w-3.5 h-3.5" />
+                      <LineChart className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                   </div>
                 </td>
@@ -205,19 +209,21 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
                   <div className="flex items-center justify-end gap-1">
                     <button
                       type="button"
+                      aria-label="Direct message Alex Chen"
                       onClick={() => onOpenMessages("usr-athlete-1")}
-                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
                       title="Direct Message"
                     >
-                      <MessageSquare className="w-3.5 h-3.5" />
+                      <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                     <button
                       type="button"
+                      aria-label="Inspect full telemetry for Alex Chen"
                       onClick={() => onSelectAthlete("usr-athlete-1")}
-                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-brand transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-brand transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
                       title="Inspect Full Telemetry"
                     >
-                      <LineChart className="w-3.5 h-3.5" />
+                      <LineChart className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                   </div>
                 </td>

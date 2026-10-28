@@ -227,17 +227,18 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
             <button
               type="button"
               onClick={() => onSelectAthlete(jordan)}
-              className="h-9 px-3.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+              className="h-10 px-3.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[44px]"
             >
               <span>Adjust Prescription</span>
             </button>
             <button
               type="button"
+              aria-label="Message Jordan Taylor"
               onClick={() => onOpenMessages(jordan.id)}
-              className="h-9 w-9 rounded-xl bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground flex items-center justify-center transition-all cursor-pointer"
+              className="h-10 w-10 rounded-xl bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer min-h-[44px] min-w-[44px]"
               title="Message Jordan"
             >
-              <MessageSquare className="w-4 h-4" />
+              <MessageSquare className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -274,18 +275,19 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
             <button
               type="button"
               onClick={() => onSelectAthlete(alex)}
-              className="h-9 px-3.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+              className="h-10 px-3.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[44px]"
             >
-              <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+              <Eye className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
               <span>Review Log</span>
             </button>
             <button
               type="button"
+              aria-label="Message Alex Chen"
               onClick={() => onOpenMessages(alex.id)}
-              className="h-9 w-9 rounded-xl bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground flex items-center justify-center transition-all cursor-pointer"
+              className="h-10 w-10 rounded-xl bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer min-h-[44px] min-w-[44px]"
               title="Message Alex"
             >
-              <MessageSquare className="w-4 h-4" />
+              <MessageSquare className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>

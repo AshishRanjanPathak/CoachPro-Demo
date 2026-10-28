@@ -94,15 +94,15 @@ export function LoginPage() {
         <header className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center text-brand shadow-xs">
-              <Layers className="w-4 h-4" />
+              <Layers className="w-4 h-4" aria-hidden="true" />
             </div>
-            <div className="flex items-baseline tracking-tight">
+            <div className="flex items-baseline tracking-tight" translate="no">
               <span className="text-lg font-semibold tracking-tight text-foreground">Coach</span>
               <span className="text-lg font-bold text-brand ml-0.5">PRO</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary border border-border text-muted-foreground text-xs font-medium">
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" aria-hidden="true"></span>
             <span className="text-[11px] font-mono tracking-wider uppercase">Platform v3.4</span>
           </div>
         </header>
@@ -126,10 +126,10 @@ export function LoginPage() {
 
         {/* Headline & Supporting Copy */}
         <div className="flex flex-col gap-1 text-left">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground text-balance">
             Train with purpose. Progress with confidence.
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground text-pretty">
             Your training, your coach, your progress — all in one place.
           </p>
         </div>
@@ -176,7 +176,7 @@ export function LoginPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Email Input */}
             <div className="flex flex-col gap-1.5 text-left">
-              <label className="text-xs font-semibold text-foreground" htmlFor="email">
+              <label className="text-xs font-semibold text-foreground cursor-pointer" htmlFor="email">
                 Email address
               </label>
               <input
@@ -184,27 +184,29 @@ export function LoginPage() {
                 type="email"
                 name="email"
                 autoComplete="email"
+                spellCheck={false}
+                autoCapitalize="none"
                 required
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setErrorMsg(null);
                 }}
-                placeholder="you@example.com"
-                className="w-full h-11 px-3.5 bg-background rounded-lg text-sm text-foreground placeholder:text-muted-foreground border border-border focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-colors"
+                placeholder="you@example.com…"
+                className="w-full h-11 px-3.5 bg-background rounded-lg text-sm text-foreground placeholder:text-muted-foreground border border-border focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand focus-visible:outline-hidden transition-colors"
               />
             </div>
 
             {/* Password Input */}
             <div className="flex flex-col gap-1.5 text-left">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-foreground" htmlFor="password">
+                <label className="text-xs font-semibold text-foreground cursor-pointer" htmlFor="password">
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setInfoNotice("Password reset link sent to registered email.")}
-                  className="text-xs font-semibold text-brand hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-brand hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-hidden rounded"
                 >
                   Forgot password?
                 </button>
@@ -215,38 +217,40 @@ export function LoginPage() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
+                  spellCheck={false}
+                  autoCapitalize="none"
                   required
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     setErrorMsg(null);
                   }}
-                  placeholder="Enter your password"
-                  className="w-full h-11 pl-3.5 pr-11 bg-background rounded-lg text-sm text-foreground placeholder:text-muted-foreground border border-border focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-colors"
+                  placeholder="Enter your password…"
+                  className="w-full h-11 pl-3.5 pr-11 bg-background rounded-lg text-sm text-foreground placeholder:text-muted-foreground border border-border focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand focus-visible:outline-hidden transition-colors"
                 />
                 <button
                   type="button"
-                  aria-label="Toggle password visibility"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-0 top-0 bottom-0 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground focus:outline-none transition-colors cursor-pointer"
+                  className="absolute right-0 top-0 bottom-0 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-hidden rounded-r-lg transition-colors cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
                 </button>
               </div>
             </div>
 
             {/* Error Feedback Banner */}
             {errorMsg && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/15 border border-destructive/20 text-destructive text-xs">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+              <div role="alert" aria-live="polite" className="flex items-center gap-2 p-3 rounded-lg bg-destructive/15 border border-destructive/20 text-destructive text-xs">
+                <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {/* Info Notice Banner */}
             {infoNotice && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-brand/15 border border-brand/20 text-brand text-xs">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <div role="status" aria-live="polite" className="flex items-center gap-2 p-3 rounded-lg bg-brand/15 border border-brand/20 text-brand text-xs">
+                <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
                 <span>{infoNotice}</span>
               </div>
             )}
@@ -256,10 +260,10 @@ export function LoginPage() {
               id="submit-btn"
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 rounded-lg bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-xs hover:opacity-90 active:scale-[0.99] cursor-pointer mt-1 min-h-[44px]"
+              className="w-full h-11 rounded-lg bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-xs hover:opacity-90 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-hidden cursor-pointer mt-1 min-h-[44px]"
             >
-              <span>{isLoading ? "Authenticating..." : currentInfo.btnText}</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>{isLoading ? "Authenticating…" : currentInfo.btnText}</span>
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </form>
 

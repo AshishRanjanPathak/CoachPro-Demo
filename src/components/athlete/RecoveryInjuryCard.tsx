@@ -47,8 +47,8 @@ export function RecoveryInjuryCard() {
     <div className="space-y-6">
       {/* Current Active Status Alert Banner */}
       {currentAthlete.injuryStatus?.hasInjury && (
-        <div className="p-4 rounded-xl border border-warning/40 bg-warning/10 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+        <div className="p-4 rounded-xl border border-warning/40 bg-warning/10 flex items-start gap-3" role="alert">
+          <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" aria-hidden="true" />
           <div className="text-xs">
             <span className="font-bold text-foreground block">Active Injury Flagged with Coach Sarah:</span>
             <span className="text-muted-foreground mt-0.5 block">
@@ -78,20 +78,22 @@ export function RecoveryInjuryCard() {
             {/* Readiness & Energy Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-sm">
-                <span className="font-semibold text-foreground flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-warning" /> Central Readiness Score
-                </span>
-                <span className="font-bold text-brand tabular-nums">{readiness} / 10</span>
+                <label htmlFor="readiness-slider" className="font-semibold text-foreground flex items-center gap-1.5 cursor-pointer">
+                  <Zap className="w-4 h-4 text-warning" aria-hidden="true" /> Central Readiness Score
+                </label>
+                <span className="font-bold text-brand tabular-nums">{readiness}&nbsp;/&nbsp;10</span>
               </div>
               <input
+                id="readiness-slider"
+                name="readinessScore"
                 type="range"
                 min="1"
                 max="10"
                 value={readiness}
                 onChange={(e) => setReadiness(parseInt(e.target.value))}
-                className="w-full accent-brand h-2.5 bg-secondary rounded-lg cursor-pointer"
+                className="w-full accent-brand h-2.5 bg-secondary rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
               />
-              <div className="flex justify-between text-[11px] text-muted-foreground">
+              <div className="flex justify-between text-[11px] text-muted-foreground tabular-nums">
                 <span>Severe Exhaustion (1)</span>
                 <span>Moderate (5)</span>
                 <span>Peak Recovery (10)</span>
@@ -99,17 +101,18 @@ export function RecoveryInjuryCard() {
             </div>
 
             {/* Fatigue Level Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
+            <div className="space-y-2" role="group" aria-label="Accumulated fatigue level">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
                 Accumulated Fatigue Level
-              </label>
+              </span>
               <div className="grid grid-cols-4 gap-2">
                 {(["low", "moderate", "high", "severe"] as const).map((lvl) => (
                   <button
                     key={lvl}
                     type="button"
+                    aria-pressed={fatigue === lvl}
                     onClick={() => setFatigue(lvl)}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border capitalize transition-all ${
+                    className={`py-2 px-3 rounded-lg text-xs font-semibold border capitalize min-h-[44px] cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none transition-colors ${
                       fatigue === lvl
                         ? "border-brand bg-brand/10 text-brand font-bold shadow-xs"
                         : "border-border bg-card text-muted-foreground hover:bg-secondary"
@@ -124,28 +127,32 @@ export function RecoveryInjuryCard() {
             {/* Sleep & Soreness */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <Moon className="w-4 h-4 text-brand" /> Sleep Duration (Hours)
+                <label htmlFor="sleep-hours-input" className="text-xs font-semibold text-foreground flex items-center gap-1.5 cursor-pointer">
+                  <Moon className="w-4 h-4 text-brand" aria-hidden="true" /> Sleep Duration (Hours)
                 </label>
                 <Input
+                  id="sleep-hours-input"
+                  name="sleepHours"
                   type="number"
                   step="0.5"
                   min="0"
                   max="24"
                   value={sleep}
                   onChange={(e) => setSleep(parseFloat(e.target.value) || 0)}
-                  className="tabular-nums font-semibold"
+                  className="tabular-nums font-semibold min-h-[44px]"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <HeartPulse className="w-4 h-4 text-destructive" /> Muscle Soreness (1–5)
+                <label htmlFor="soreness-select" className="text-xs font-semibold text-foreground flex items-center gap-1.5 cursor-pointer">
+                  <HeartPulse className="w-4 h-4 text-destructive" aria-hidden="true" /> Muscle Soreness (1–5)
                 </label>
                 <select
+                  id="soreness-select"
+                  name="sorenessRating"
                   value={soreness}
                   onChange={(e) => setSoreness(parseInt(e.target.value))}
-                  className="w-full text-xs bg-card border border-border rounded-md px-3 py-2.5 text-foreground font-semibold h-11"
+                  className="w-full text-xs bg-card border border-border rounded-md px-3 py-2.5 text-foreground font-semibold h-11 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                 >
                   <option value={1}>1 — Fresh / Zero Soreness</option>
                   <option value={2}>2 — Mild Stiffness</option>
@@ -160,7 +167,7 @@ export function RecoveryInjuryCard() {
             <div className="p-4 rounded-xl border border-border bg-secondary/40 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ShieldAlert className="w-5 h-5 text-destructive" />
+                  <ShieldAlert className="w-5 h-5 text-destructive" aria-hidden="true" />
                   <div>
                     <h4 className="text-sm font-bold text-foreground">Report Injury or Pain Flare-Up</h4>
                     <p className="text-xs text-muted-foreground">Flags profile for immediate coach intervention</p>
@@ -170,11 +177,13 @@ export function RecoveryInjuryCard() {
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
+                    aria-label="Report injury or pain flare-up"
+                    name="hasInjury"
                     checked={hasInjury}
                     onChange={(e) => setHasInjury(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-destructive"></div>
+                  <div className="w-11 h-6 bg-border peer-focus-visible:ring-2 peer-focus-visible:ring-destructive rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-transform peer-checked:bg-destructive"></div>
                 </label>
               </div>
 
@@ -182,11 +191,13 @@ export function RecoveryInjuryCard() {
                 <div className="space-y-3 pt-3 border-t border-border animate-in fade-in duration-200">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-muted-foreground">Pain / Injury Location</label>
+                      <label htmlFor="injury-location-select" className="text-xs font-semibold text-muted-foreground">Pain / Injury Location</label>
                       <select
+                        id="injury-location-select"
+                        name="injuryLocation"
                         value={injuryLocation}
                         onChange={(e) => setInjuryLocation(e.target.value)}
-                        className="w-full text-xs bg-card border border-border rounded-md px-3 py-2 text-foreground font-semibold h-10"
+                        className="w-full text-xs bg-card border border-border rounded-md px-3 py-2 text-foreground font-semibold h-11 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                       >
                         <option value="Right Knee / Patellar Tendon">Right Knee / Patellar Tendon</option>
                         <option value="Left Knee / Meniscus">Left Knee / Meniscus</option>
@@ -199,11 +210,13 @@ export function RecoveryInjuryCard() {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-muted-foreground">Severity Level</label>
+                      <label htmlFor="injury-severity-select" className="text-xs font-semibold text-muted-foreground">Severity Level</label>
                       <select
+                        id="injury-severity-select"
+                        name="injurySeverity"
                         value={injurySeverity}
                         onChange={(e) => setInjurySeverity(e.target.value as any)}
-                        className="w-full text-xs bg-card border border-border rounded-md px-3 py-2 text-foreground font-semibold h-10"
+                        className="w-full text-xs bg-card border border-border rounded-md px-3 py-2 text-foreground font-semibold h-11 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                       >
                         <option value="mild">Mild (Slight ache, movable)</option>
                         <option value="moderate">Moderate (Pain under load, modify exercises)</option>
@@ -213,13 +226,15 @@ export function RecoveryInjuryCard() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-muted-foreground">Specific Pain Symptoms & Trigger Cues</label>
+                    <label htmlFor="injury-notes-input" className="text-xs font-semibold text-muted-foreground">Specific Pain Symptoms &amp; Trigger Cues</label>
                     <Input
+                      id="injury-notes-input"
+                      name="injuryNotes"
                       type="text"
-                      placeholder="e.g. Sharp pain when hitting bottom of squat at >100kg..."
+                      placeholder="e.g. Sharp pain when hitting bottom of squat at >100kg…"
                       value={injuryNotes}
                       onChange={(e) => setInjuryNotes(e.target.value)}
-                      className="text-xs h-10"
+                      className="text-xs min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -228,13 +243,15 @@ export function RecoveryInjuryCard() {
 
             {/* General Notes */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">General Notes for Coach</label>
+              <label htmlFor="general-notes-input" className="text-xs font-semibold text-foreground">General Notes for Coach</label>
               <Input
+                id="general-notes-input"
+                name="generalNotes"
                 type="text"
-                placeholder="Nutrition, travel fatigue, or training feedback..."
+                placeholder="Nutrition, travel fatigue, or training feedback…"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="text-xs"
+                className="text-xs min-h-[44px]"
               />
             </div>
           </CardContent>
@@ -242,9 +259,9 @@ export function RecoveryInjuryCard() {
           <CardFooter className="bg-card border-t border-border flex justify-end p-4">
             <Button type="submit" variant="brand" disabled={submitted} className="min-h-[44px] gap-2 font-semibold">
               {submitted ? (
-                <>
-                  <CheckCircle2 className="w-4 h-4" /> Transmitted to Coach Attention Feed!
-                </>
+                <span className="flex items-center gap-1.5" role="status" aria-live="polite">
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> Transmitted to Coach Attention Feed!
+                </span>
               ) : (
                 "Transmit Recovery & Health Status"
               )}

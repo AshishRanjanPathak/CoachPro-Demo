@@ -131,40 +131,41 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Today's Prescribed Lineup:
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-2" role="group" aria-label="Prescribed exercises">
                   {prescriptions.map((rx, idx) => {
                     const count = session.sets.filter(s => s.exerciseId === rx.exerciseId).length;
                     const isDone = count >= rx.sets;
 
                     return (
-                      <div
+                      <button
                         key={rx.id}
+                        type="button"
                         onClick={() => handleSelectExercise(idx)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between min-h-[52px] ${
+                        className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-center justify-between min-h-[52px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none ${
                           idx === selectedExIndex
                             ? "border-brand bg-brand/10 shadow-xs"
                             : "border-border bg-card hover:bg-secondary/70"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center font-bold text-xs text-foreground">
+                          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center font-bold text-xs text-foreground shrink-0" aria-hidden="true">
                             {idx + 1}
                           </div>
                           <div>
-                            <h4 className="font-semibold text-sm text-foreground">{rx.exerciseName}</h4>
-                            <p className="text-xs text-muted-foreground">
-                              Target: {rx.sets} sets × {rx.repTarget} reps @ {rx.targetLoadKg}kg
+                            <h4 className="font-semibold text-sm text-foreground text-pretty">{rx.exerciseName}</h4>
+                            <p className="text-xs text-muted-foreground tabular-nums">
+                              Target: {rx.sets}&nbsp;sets × {rx.repTarget}&nbsp;reps @ {rx.targetLoadKg}&nbsp;kg
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
                           <Badge variant={isDone ? "success" : "secondary"} className="tabular-nums text-xs">
-                            {count} / {rx.sets} done
+                            {count}&nbsp;/&nbsp;{rx.sets}&nbsp;done
                           </Badge>
-                          <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                          <ArrowRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -189,8 +190,9 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
                       type="button"
                       variant="outline"
                       size="icon"
+                      aria-label="Decrease weight by 5 kilograms"
                       onClick={() => setWeight(w => Math.max(0, w - 5))}
-                      className="h-12 w-12 font-bold text-xs"
+                      className="h-12 w-12 font-bold text-xs min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand"
                     >
                       -5
                     </Button>
@@ -198,8 +200,9 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
                       type="button"
                       variant="outline"
                       size="icon"
+                      aria-label="Decrease weight by 2.5 kilograms"
                       onClick={() => setWeight(w => Math.max(0, w - 2.5))}
-                      className="h-12 w-12 font-bold text-xs"
+                      className="h-12 w-12 font-bold text-xs min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand"
                     >
                       -2.5
                     </Button>
@@ -208,11 +211,14 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
                       <Input
                         type="number"
                         step="0.5"
+                        name="weightKg"
+                        autoComplete="off"
+                        aria-label="Weight lifted in kilograms"
                         value={weight}
                         onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
                         className="text-center font-extrabold text-3xl tabular-nums h-16 w-36 bg-card"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none" aria-hidden="true">
                         KG
                       </span>
                     </div>
@@ -221,8 +227,9 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
                       type="button"
                       variant="outline"
                       size="icon"
+                      aria-label="Increase weight by 2.5 kilograms"
                       onClick={() => setWeight(w => w + 2.5)}
-                      className="h-12 w-12 font-bold text-xs"
+                      className="h-12 w-12 font-bold text-xs min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand"
                     >
                       +2.5
                     </Button>
@@ -230,8 +237,9 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
                       type="button"
                       variant="outline"
                       size="icon"
+                      aria-label="Increase weight by 5 kilograms"
                       onClick={() => setWeight(w => w + 5)}
-                      className="h-12 w-12 font-bold text-xs"
+                      className="h-12 w-12 font-bold text-xs min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand"
                     >
                       +5
                     </Button>
@@ -271,20 +279,24 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
                       type="button"
                       variant="outline"
                       size="icon"
+                      aria-label="Decrease repetitions by 1"
                       onClick={() => setReps(r => Math.max(0, r - 1))}
-                      className="h-12 w-12 font-bold text-base"
+                      className="h-12 w-12 font-bold text-base min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand"
                     >
-                      <Minus className="w-5 h-5" />
+                      <Minus className="w-5 h-5" aria-hidden="true" />
                     </Button>
 
                     <div className="relative">
                       <Input
                         type="number"
+                        name="completedReps"
+                        autoComplete="off"
+                        aria-label="Repetitions completed"
                         value={reps}
                         onChange={(e) => setReps(parseInt(e.target.value) || 0)}
                         className="text-center font-extrabold text-3xl tabular-nums h-16 w-32 bg-card"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none" aria-hidden="true">
                         REPS
                       </span>
                     </div>
@@ -293,10 +305,11 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
                       type="button"
                       variant="outline"
                       size="icon"
+                      aria-label="Increase repetitions by 1"
                       onClick={() => setReps(r => r + 1)}
-                      className="h-12 w-12 font-bold text-base"
+                      className="h-12 w-12 font-bold text-base min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand"
                     >
-                      <Plus className="w-5 h-5" />
+                      <Plus className="w-5 h-5" aria-hidden="true" />
                     </Button>
                   </div>
 
@@ -326,24 +339,27 @@ export function WorkoutLoggerModal({ open, onOpenChange }: WorkoutLoggerModalPro
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="font-semibold text-foreground flex items-center gap-1.5">
-                      <Zap className="w-4 h-4 text-warning" /> Rate of Perceived Exertion (RPE)
-                    </span>
+                    <label htmlFor="rpe-slider" className="font-semibold text-foreground flex items-center gap-1.5 cursor-pointer">
+                      <Zap className="w-4 h-4 text-warning" aria-hidden="true" /> Rate of Perceived Exertion (RPE)
+                    </label>
                     <span className="font-extrabold text-xl text-brand tabular-nums">RPE {rpe}</span>
                   </div>
 
                   <input
+                    id="rpe-slider"
+                    name="setRpe"
                     type="range"
                     min="6"
                     max="10"
                     step="0.5"
+                    aria-label="Rate of perceived exertion from 6 to 10"
                     value={rpe}
                     onChange={(e) => setRpe(parseFloat(e.target.value))}
-                    className="w-full accent-brand h-3 bg-secondary rounded-lg cursor-pointer"
+                    className="w-full accent-brand h-3 bg-secondary rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                   />
 
                   <div className="grid grid-cols-3 text-[11px] text-muted-foreground pt-1">
-                    <span className="text-left">RPE 6-7 (Comfortable)</span>
+                    <span className="text-left">RPE 6–7 (Comfortable)</span>
                     <span className="text-center font-medium">RPE 8 (2 Reps in Reserve)</span>
                     <span className="text-right">RPE 10 (Max Effort)</span>
                   </div>

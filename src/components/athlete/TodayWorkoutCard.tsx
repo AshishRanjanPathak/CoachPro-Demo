@@ -34,15 +34,15 @@ export function TodayWorkoutCard() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-white border-white/30 text-xs uppercase tracking-wider">
-                Today's Training
+                Today’s Training
               </Badge>
-              <span className="text-xs text-white/70 flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 inline" /> {currentDateStr}
+              <span className="text-xs text-white/70 flex items-center gap-1 font-mono">
+                <Calendar className="w-3.5 h-3.5 inline" aria-hidden="true" /> {currentDateStr}
               </span>
             </div>
             {isCompleted ? (
               <Badge variant="success" className="bg-success text-white border-none font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Session Completed
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1" aria-hidden="true" /> Session Completed
               </Badge>
             ) : (
               <Badge variant="brand" className="bg-brand text-white border-none font-medium">
@@ -84,7 +84,7 @@ export function TodayWorkoutCard() {
               return (
                 <div
                   key={rx.id}
-                  className={`p-3.5 rounded-lg border transition-all flex items-center justify-between ${
+                  className={`p-3.5 rounded-lg border transition-colors flex items-center justify-between ${
                     isRxComplete 
                       ? "border-success/30 bg-success/5" 
                       : "border-border bg-card hover:border-brand/40"
@@ -93,21 +93,21 @@ export function TodayWorkoutCard() {
                   <div className="flex items-start gap-3">
                     <div className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
                       isRxComplete ? "bg-success text-white" : "bg-secondary text-foreground"
-                    }`}>
-                      {isRxComplete ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+                    }`} aria-hidden="true">
+                      {isRxComplete ? <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> : idx + 1}
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-foreground leading-tight">
+                      <h4 className="text-sm font-semibold text-foreground leading-tight text-pretty">
                         {rx.exerciseName}
                       </h4>
-                      <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-2">
-                        <span>{rx.sets} sets × {rx.repTarget} reps</span>
+                      <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-2 tabular-nums">
+                        <span>{rx.sets}&nbsp;sets × {rx.repTarget}&nbsp;reps</span>
                         <span>•</span>
-                        <span>Target: {rx.targetLoadKg} kg</span>
+                        <span>Target: {rx.targetLoadKg}&nbsp;kg</span>
                         {rx.targetRpe && <span>• RPE {rx.targetRpe}</span>}
                       </div>
                       {rx.notes && (
-                        <p className="text-[11px] text-muted-foreground/90 italic mt-1">
+                        <p className="text-[11px] text-muted-foreground/90 italic mt-1 text-pretty">
                           Coach note: “{rx.notes}”
                         </p>
                       )}
@@ -116,7 +116,7 @@ export function TodayWorkoutCard() {
 
                   <div className="text-right shrink-0">
                     <Badge variant={isRxComplete ? "success" : "secondary"} className="tabular-nums text-xs">
-                      {loggedSets.length} / {rx.sets} sets
+                      {loggedSets.length}&nbsp;/&nbsp;{rx.sets}&nbsp;sets
                     </Badge>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export function TodayWorkoutCard() {
         {/* Footer Actions */}
         <CardFooter className="p-5 bg-card border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs text-muted-foreground w-full sm:w-auto text-center sm:text-left">
-            Rest periods between sets: 2–3 minutes recommended
+            Rest periods between sets: 2–3&nbsp;minutes recommended
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -137,18 +137,18 @@ export function TodayWorkoutCard() {
                 variant="outline"
                 size="sm"
                 onClick={resetWorkoutSession}
-                className="text-xs min-h-[44px]"
+                className="text-xs min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand"
               >
-                <RotateCcw className="w-3.5 h-3.5 mr-1" /> Reset
+                <RotateCcw className="w-3.5 h-3.5 mr-1" aria-hidden="true" /> Reset
               </Button>
             )}
 
             <Button
               variant="brand"
               onClick={() => setLoggerOpen(true)}
-              className="w-full sm:w-auto font-semibold shadow-xs min-h-[44px]"
+              className="w-full sm:w-auto font-semibold shadow-xs min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand"
             >
-              <Play className="w-4 h-4 mr-1.5 fill-current" />
+              <Play className="w-4 h-4 mr-1.5 fill-current" aria-hidden="true" />
               {completedSetsCount === 0 ? "Start Workout" : "Continue Logging Sets"}
             </Button>
           </div>

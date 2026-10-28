@@ -87,27 +87,27 @@ export function CoachDashboard({
             <button
               type="button"
               onClick={onNavigateToBuilder}
-              className="h-10 px-3.5 sm:px-4 rounded-xl bg-primary text-primary-foreground font-semibold text-xs flex items-center gap-1.5 shadow-xs hover:opacity-90 active:scale-[0.98] transition-all shrink-0 cursor-pointer min-h-[40px]"
+              className="h-10 px-3.5 sm:px-4 rounded-xl bg-primary text-primary-foreground font-semibold text-xs flex items-center gap-1.5 shadow-xs hover:opacity-90 active:scale-[0.98] transition-colors shrink-0 cursor-pointer min-h-[44px]"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-4 h-4" aria-hidden="true" />
               <span>New Program</span>
             </button>
             <button
               type="button"
               onClick={handleBroadcast}
-              className="h-10 px-3.5 sm:px-4 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-semibold text-xs flex items-center gap-1.5 border border-border transition-all shrink-0 cursor-pointer min-h-[40px]"
+              className="h-10 px-3.5 sm:px-4 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-semibold text-xs flex items-center gap-1.5 border border-border transition-colors shrink-0 cursor-pointer min-h-[44px]"
             >
-              <Megaphone className="w-4 h-4 text-muted-foreground" />
+              <Megaphone className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
               <span>Broadcast</span>
             </button>
             <button
               type="button"
-              aria-label="Unread alerts"
+              aria-label="View 2 critical alerts in attention queue"
               onClick={() => setActiveSegment("triage")}
-              className="h-10 w-10 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground flex items-center justify-center relative border border-border transition-all shrink-0 cursor-pointer min-h-[40px]"
+              className="h-10 w-10 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground flex items-center justify-center relative border border-border transition-colors shrink-0 cursor-pointer min-h-[44px] min-w-[44px]"
             >
-              <Bell className="w-4 h-4 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground font-mono text-[9px] flex items-center justify-center font-bold">
+              <Bell className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+              <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground font-mono text-[9px] flex items-center justify-center font-bold tabular-nums">
                 {injuredCount + highFatigueCount}
               </span>
             </button>
@@ -116,8 +116,8 @@ export function CoachDashboard({
 
         {/* Broadcast Toast Banner */}
         {broadcastNotice && (
-          <div className="p-3 rounded-xl bg-brand/15 border border-brand/20 text-brand text-xs font-medium flex items-center gap-2">
-            <Megaphone className="w-4 h-4 shrink-0" />
+          <div role="status" aria-live="polite" className="p-3 rounded-xl bg-brand/15 border border-brand/20 text-brand text-xs font-medium flex items-center gap-2">
+            <Megaphone className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>{broadcastNotice}</span>
           </div>
         )}
@@ -214,7 +214,7 @@ export function CoachDashboard({
             </span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums">
               3 Athletes
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">100% on scheduled microcycles</p>
@@ -247,7 +247,7 @@ export function CoachDashboard({
             </span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-destructive tracking-tight flex items-baseline gap-2">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-destructive tracking-tight flex items-baseline gap-2 tabular-nums">
               <span>1 Urgent</span>
               <span className="text-sm font-normal text-muted-foreground">/ 1 Caution</span>
             </div>
@@ -272,11 +272,11 @@ export function CoachDashboard({
             <span className="text-[10px] font-mono text-muted-foreground">Baseline: 7.5h</span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums">
               7.0 hrs
             </div>
             <p className="text-xs text-destructive mt-0.5 flex items-center gap-1">
-              <ArrowDown className="w-3.5 h-3.5" />
+              <ArrowDown className="w-3.5 h-3.5" aria-hidden="true" />
               -0.5h 7-day rolling deficit
             </p>
           </div>
@@ -305,7 +305,7 @@ export function CoachDashboard({
             </span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight flex items-baseline gap-1">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight flex items-baseline gap-1 tabular-nums">
               <span>6.3</span>
               <span className="text-sm text-muted-foreground">/ 10</span>
             </div>
