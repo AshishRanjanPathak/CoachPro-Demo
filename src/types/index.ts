@@ -124,6 +124,8 @@ export interface AthleteProfile {
   lastWorkoutDate: string;
   recentPrCount: number;
   trainingGoal: string;
+  squad?: string;
+  sleepHours?: number;
   // Fatigue, Injury & Recovery Status
   fatigueLevel: 'low' | 'moderate' | 'high' | 'severe';
   readinessScore: number; // 1-10
