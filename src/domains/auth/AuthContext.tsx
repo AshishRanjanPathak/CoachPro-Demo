@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { UserRole, User, WorkoutSet, CoachNote, CheckIn, Program, AthleteProfile, Message } from "@/types";
-import { loadSavedState, saveState, CoachProState } from "@/lib/store";
+import { loadSavedState, saveState, CoachProState, INITIAL_ATHLETES } from "@/lib/store";
 
 interface AuthContextType {
   state: CoachProState;
@@ -28,6 +28,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<CoachProState>(loadSavedState);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  // Ensure that state.athletes always contains all 20 INITIAL_ATHLETES even if an older state was in localStorage
+  useEffect(() => {
+    setState(prev => {
+      if (!prev.athletes || prev.athletes.length < INITIAL_ATHLETES.length) {
+        return { ...prev, athletes: INITIAL_ATHLETES };
+      }
+      return prev;
+    });
+  }, []);
 
   // Sync to localStorage
   useEffect(() => {

@@ -7,6 +7,7 @@ import { CoachTriageQueue } from "@/components/coach/stitch/CoachTriageQueue";
 import { CoachSleepTable } from "@/components/coach/stitch/CoachSleepTable";
 import { CoachActivityFeed } from "@/components/coach/stitch/CoachActivityFeed";
 import { CoachProgressionCurve } from "@/components/coach/stitch/CoachProgressionCurve";
+import { AthleteRoster } from "@/components/coach/AthleteRoster";
 import {
   TrendingUp,
   AlertTriangle,
@@ -42,7 +43,7 @@ export function CoachDashboard({
   const highFatigueCount = athletes.filter((a) => a.fatigueLevel === "high" || a.fatigueLevel === "severe").length;
 
   const handleBroadcast = () => {
-    setBroadcastNotice("Team Broadcast dispatched to all 3 athletes: 'Hydration & mobility check before tomorrow's squat session.'");
+    setBroadcastNotice(`Team Broadcast dispatched to all ${athletes.length} athletes: 'Hydration & mobility check before tomorrow\'s squat session.'`);
     setTimeout(() => {
       setBroadcastNotice(null);
     }, 3500);
@@ -215,23 +216,24 @@ export function CoachDashboard({
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums">
-              3 Athletes
+              {athletes.length} Athletes
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">100% on scheduled microcycles</p>
           </div>
           <div className="flex items-center justify-between pt-1">
             <div className="flex -space-x-2">
-              <div className="w-7 h-7 rounded-full bg-brand/20 text-brand text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card">
-                MP
-              </div>
-              <div className="w-7 h-7 rounded-full bg-warning/20 text-warning text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card">
-                JT
-              </div>
-              <div className="w-7 h-7 rounded-full bg-success/20 text-success text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card">
-                AC
-              </div>
+              {athletes.slice(0, 3).map(ath => (
+                <div key={ath.id} className="w-7 h-7 rounded-full bg-brand/20 text-brand text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card" title={ath.name}>
+                  {ath.name.split(" ").map(n => n[0]).join("")}
+                </div>
+              ))}
+              {athletes.length > 3 && (
+                <div className="w-7 h-7 rounded-full bg-secondary text-muted-foreground text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card">
+                  +{athletes.length - 3}
+                </div>
+              )}
             </div>
-            <span className="text-[11px] font-mono text-muted-foreground">Block W04 D02</span>
+            <span className="text-[11px] font-mono text-muted-foreground">Across 4 Squads</span>
           </div>
         </div>
 
@@ -355,13 +357,7 @@ export function CoachDashboard({
       )}
 
       {activeSegment === "roster" && (
-        <CoachSleepTable
-          onSelectAthlete={(athId) => {
-            const ath = athletes.find((a) => a.id === athId);
-            if (ath) onSelectAthlete(ath);
-          }}
-          onOpenMessages={onOpenMessages}
-        />
+        <AthleteRoster />
       )}
 
       {activeSegment === "builder" && (

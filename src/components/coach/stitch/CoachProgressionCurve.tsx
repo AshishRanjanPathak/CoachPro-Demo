@@ -40,19 +40,19 @@ export function CoachProgressionCurve() {
 
         {/* Scalable Athlete Selector with Squad Grouping & Quick Pinned Switchers */}
         <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
-          {/* Searchable Dropdown for 100+ Athletes */}
+          {/* Dropdown for All 20 Athletes across squads */}
           <div className="relative">
             <select
               value={selectedAthleteId}
               onChange={(e) => setSelectedAthleteId(e.target.value)}
               aria-label="Select athlete for telemetry progression"
-              className="text-xs bg-secondary border border-border rounded-xl pl-3 pr-8 py-2 text-foreground font-semibold h-10 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none cursor-pointer min-w-[210px] appearance-none"
+              className="text-xs bg-secondary border border-border rounded-xl pl-3 pr-8 py-2 text-foreground font-semibold h-10 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none cursor-pointer min-w-[240px] appearance-none"
             >
               {squads.map(([squadName, squadAthletes]) => (
-                <optgroup key={squadName} label={`── ${squadName} ──`}>
+                <optgroup key={squadName} label={`── ${squadName} (${squadAthletes.length}) ──`}>
                   {squadAthletes.map(ath => (
                     <option key={ath.id} value={ath.id}>
-                      {ath.name} {ath.status === "needs_attention" ? "⚠️ [Review]" : "✓ [Optimal]"}
+                      {ath.name} — {ath.squad || "General"} {ath.status === "needs_attention" ? "⚠️" : "✓"}
                     </option>
                   ))}
                 </optgroup>

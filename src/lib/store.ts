@@ -898,7 +898,7 @@ export const INITIAL_AUDIT_LOGS: AuditEvent[] = [
   }
 ];
 
-const STORAGE_KEY = "coachpro_state_v2";
+const STORAGE_KEY = "coachpro_state_v3";
 
 export interface CoachProState {
   currentRole: UserRole;
@@ -950,7 +950,12 @@ export function loadSavedState(): CoachProState {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
       return initial;
     }
-    return JSON.parse(raw);
+    const parsed: CoachProState = JSON.parse(raw);
+    if (!parsed.athletes || parsed.athletes.length < INITIAL_ATHLETES.length) {
+      parsed.athletes = INITIAL_ATHLETES;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+    }
+    return parsed;
   } catch {
     return {
       currentRole: "athlete",

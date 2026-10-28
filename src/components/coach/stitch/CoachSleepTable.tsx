@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { Activity, MessageSquare, LineChart } from "lucide-react";
 
@@ -12,6 +12,8 @@ interface CoachSleepTableProps {
 export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepTableProps) {
   const { state } = useAuth();
   const athletes = state.athletes;
+  const [showAll, setShowAll] = useState(false);
+  const displayedAthletes = showAll ? athletes : athletes.slice(0, 6);
 
   return (
     <section className="flex flex-col space-y-4">
@@ -21,8 +23,20 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
           <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
             Roster Autonomic &amp; Sleep Telemetry
           </h2>
+          <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-secondary text-muted-foreground border border-border">
+            {athletes.length} Athletes Active
+          </span>
         </div>
-        <span className="text-xs font-mono text-muted-foreground">Last synced: 14 mins ago</span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowAll(!showAll)}
+            className="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-secondary hover:bg-secondary/80 text-brand border border-border cursor-pointer transition-colors"
+          >
+            {showAll ? "Collapse to Top 6" : `View All ${athletes.length} Athletes`}
+          </button>
+          <span className="hidden sm:inline text-xs font-mono text-muted-foreground">Last synced: 14 mins ago</span>
+        </div>
       </div>
 
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-xs">
@@ -40,7 +54,7 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
               </tr>
             </thead>
             <tbody className="divide-y divide-border text-foreground">
-              {athletes.slice(0, 6).map((ath) => {
+              {displayedAthletes.map((ath) => {
                 const isInjured = ath.status === "needs_attention" || ath.injuryStatus?.hasInjury;
                 const initials = ath.name.split(" ").map(n => n[0]).join("");
                 const sleepH = ath.sleepHours || (ath.readinessScore >= 8 ? 8.2 : ath.readinessScore <= 4 ? 5.5 : 7.0);
