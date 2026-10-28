@@ -53,22 +53,28 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
             <p className="text-xs text-muted-foreground">Select an athlete to communicate</p>
           </div>
 
-          <div className="divide-y divide-border overflow-y-auto flex-1">
+          <div className="divide-y divide-border overflow-y-auto flex-1" role="tablist" aria-label="Athlete threads">
             {state.athletes.map((ath) => {
               const isSelected = ath.id === activeRecipientId;
               const hasInjury = ath.injuryStatus?.hasInjury;
 
               return (
-                <div
+                <button
                   key={ath.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSelected}
                   onClick={() => setActiveRecipientId(ath.id)}
-                  className={`p-3.5 flex items-center gap-3 cursor-pointer transition-colors ${
+                  className={`w-full text-left p-3.5 flex items-center gap-3 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none min-h-[56px] ${
                     isSelected ? "bg-brand/10 border-l-4 border-l-brand" : "hover:bg-secondary/60"
                   }`}
                 >
                   <img
                     src={ath.avatarUrl}
                     alt={ath.name}
+                    width={40}
+                    height={40}
+                    loading="lazy"
                     className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
                   />
                   <div className="flex-1 min-w-0">
@@ -84,7 +90,7 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
                       {ath.trainingGoal}
                     </p>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -157,13 +163,21 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
           <form onSubmit={handleSend} className="flex gap-2 w-full">
             <Input
               type="text"
-              placeholder={`Message ${activeRecipient.name}...`}
+              name="chatMessage"
+              autoComplete="off"
+              aria-label={`Message to ${activeRecipient.name}`}
+              placeholder={`Message ${activeRecipient.name}…`}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="text-xs h-11 flex-1"
+              className="text-xs h-11 flex-1 min-h-[44px]"
             />
-            <Button type="submit" variant="brand" className="gap-1.5 h-11 px-4 shrink-0 font-semibold">
-              <Send className="w-4 h-4" />
+            <Button
+              type="submit"
+              variant="brand"
+              aria-label="Send message"
+              className="gap-1.5 h-11 px-4 shrink-0 font-semibold min-h-[44px] min-w-[44px]"
+            >
+              <Send className="w-4 h-4" aria-hidden="true" />
               <span className="hidden sm:inline">Send</span>
             </Button>
           </form>

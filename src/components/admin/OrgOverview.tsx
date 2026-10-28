@@ -92,6 +92,9 @@ export function OrgOverview() {
                     <img
                       src={user.avatarUrl}
                       alt={user.name}
+                      width={28}
+                      height={28}
+                      loading="lazy"
                       className="w-7 h-7 rounded-full object-cover border border-border"
                     />
                     <span>{user.name}</span>

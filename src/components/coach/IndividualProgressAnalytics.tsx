@@ -70,11 +70,12 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
       <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between bg-card p-4 rounded-xl border border-border shadow-xs">
         {/* Exercise Explorer Selector */}
         <div className="flex items-center gap-2 flex-1 max-w-sm">
-          <Dumbbell className="w-4 h-4 text-brand shrink-0" />
+          <Dumbbell className="w-4 h-4 text-brand shrink-0" aria-hidden="true" />
           <select
+            aria-label="Select exercise to analyze"
             value={selectedExerciseId}
             onChange={(e) => setSelectedExerciseId(e.target.value)}
-            className="w-full text-xs bg-secondary border border-border rounded-lg px-3 py-2 text-foreground font-semibold h-10 cursor-pointer focus:ring-2 focus:ring-brand"
+            className="w-full text-xs bg-secondary border border-border rounded-lg px-3 py-2 text-foreground font-semibold h-10 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
           >
             {state.exercises.map((ex) => (
               <option key={ex.id} value={ex.id}>
@@ -85,7 +86,7 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
         </div>
 
         {/* Metric Selector Pills */}
-        <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border overflow-x-auto">
+        <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border overflow-x-auto" role="tablist" aria-label="Metric selector">
           {[
             { id: "est1rm", label: "Est. 1RM" },
             { id: "maxWeight", label: "Working Load" },
@@ -95,8 +96,10 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
             <button
               key={m.id}
               type="button"
+              role="tab"
+              aria-selected={selectedMetric === m.id}
               onClick={() => setSelectedMetric(m.id as any)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap min-h-[32px] ${
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap min-h-[36px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none cursor-pointer ${
                 selectedMetric === m.id
                   ? "bg-card text-brand shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -108,13 +111,15 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
         </div>
 
         {/* Date Range Selector Pills */}
-        <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border shrink-0">
+        <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border shrink-0" role="tablist" aria-label="Time range filter">
           {(["1M", "3M", "6M", "ALL"] as const).map((range) => (
             <button
               key={range}
               type="button"
+              role="tab"
+              aria-selected={dateRange === range}
               onClick={() => setDateRange(range)}
-              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all min-h-[32px] ${
+              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none cursor-pointer ${
                 dateRange === range
                   ? "bg-card text-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
@@ -185,7 +190,7 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                     <stop offset="95%" stopColor="#6477B8" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" opacity={0.6} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" opacity={0.6} />
                 <XAxis dataKey="date" stroke="#64748B" fontSize={11} tickLine={false} />
                 <YAxis stroke="#64748B" fontSize={11} tickLine={false} domain={["dataMin - 10", "dataMax + 10"]} />
                 <Tooltip
@@ -193,11 +198,11 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="bg-popover border border-border p-3 rounded-lg shadow-lg text-xs space-y-1">
-                          <p className="font-bold text-foreground">{data.date}</p>
-                          <p className="text-brand font-semibold">Load: {data.weight} kg × {data.reps} reps</p>
-                          <p className="text-foreground">Est. 1RM: {data.est1rm} kg</p>
-                          <p className="text-muted-foreground">Volume: {data.volume} kg</p>
+                        <div className="bg-card border border-border p-3 rounded-lg shadow-lg text-xs space-y-1">
+                          <p className="font-bold text-foreground font-mono">{data.date}</p>
+                          <p className="text-brand font-semibold tabular-nums">Load: {data.weight}&nbsp;kg × {data.reps}&nbsp;reps</p>
+                          <p className="text-foreground tabular-nums">Est. 1RM: {data.est1rm}&nbsp;kg</p>
+                          <p className="text-muted-foreground tabular-nums">Volume: {data.volume}&nbsp;kg</p>
                         </div>
                       );
                     }
@@ -207,7 +212,7 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                 <Area
                   type="monotone"
                   dataKey={selectedMetric === "volume" ? "volume" : selectedMetric === "reps" ? "reps" : selectedMetric === "maxWeight" ? "weight" : "est1rm"}
-                  stroke="#6477B8"
+                  stroke="#7C8FD8"
                   strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#metricGrad)"
@@ -230,14 +235,14 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
           <div className="h-44 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analyticsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" opacity={0.6} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" opacity={0.6} />
                 <XAxis dataKey="date" stroke="#64748B" fontSize={11} tickLine={false} />
                 <YAxis stroke="#64748B" fontSize={11} tickLine={false} />
                 <Tooltip
                   formatter={(value: any) => [`${value} kg`, "Session Tonnage"]}
-                  contentStyle={{ backgroundColor: "#FFFFFF", borderColor: "#E2E8F0", borderRadius: "8px", fontSize: "12px" }}
+                  contentStyle={{ backgroundColor: "#0F172A", borderColor: "#1E293B", borderRadius: "8px", fontSize: "12px", color: "#F8FAFC" }}
                 />
-                <Bar dataKey="volume" fill="#34446F" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="volume" fill="#7C8FD8" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

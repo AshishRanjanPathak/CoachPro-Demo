@@ -161,41 +161,52 @@ export function ProgramBuilder() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2 space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <label htmlFor="program-title-input" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block cursor-pointer">
                   Program Title
                 </label>
                 <Input
+                  id="program-title-input"
+                  name="programTitle"
                   type="text"
                   placeholder="e.g. Apex Hypertrophy Mesocycle B"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
+                  autoComplete="off"
+                  className="min-h-[44px]"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <label htmlFor="program-duration-input" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block cursor-pointer">
                   Duration (Weeks)
                 </label>
                 <Input
+                  id="program-duration-input"
+                  name="durationWeeks"
                   type="number"
                   min="1"
                   max="16"
                   value={weeks}
                   onChange={(e) => setWeeks(parseInt(e.target.value) || 4)}
+                  className="min-h-[44px] tabular-nums"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <label htmlFor="program-description-input" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block cursor-pointer">
                 Block Rationale / Description
               </label>
               <Input
+                id="program-description-input"
+                name="programDescription"
                 type="text"
-                placeholder="Target goals, volume ramps, and deload scheduling..."
+                placeholder="Target goals, volume ramps, and deload scheduling…"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                autoComplete="off"
+                className="min-h-[44px]"
               />
             </div>
 
@@ -241,6 +252,7 @@ export function ProgramBuilder() {
                         <div key={rx.id} className="p-3 rounded-md border border-border bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                           <div className="flex-1">
                             <select
+                              aria-label="Select exercise"
                               value={rx.exerciseId}
                               onChange={(e) => {
                                 const ex = state.exercises.find(x => x.id === e.target.value);
@@ -258,7 +270,7 @@ export function ProgramBuilder() {
                                   )
                                 );
                               }}
-                              className="font-semibold bg-transparent text-foreground border border-border rounded px-2 py-1 text-xs"
+                              className="font-semibold bg-transparent text-foreground border border-border rounded px-2 py-1 text-xs focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none min-h-[36px]"
                             >
                               {state.exercises.map(ex => (
                                 <option key={ex.id} value={ex.id}>{ex.name}</option>
@@ -270,6 +282,7 @@ export function ProgramBuilder() {
                             <span className="text-muted-foreground">Sets:</span>
                             <input
                               type="number"
+                              aria-label="Prescribed sets count"
                               min="1"
                               max="10"
                               value={rx.sets}
@@ -288,12 +301,13 @@ export function ProgramBuilder() {
                                   )
                                 );
                               }}
-                              className="w-12 h-8 text-center border border-border rounded bg-secondary font-bold"
+                              className="w-12 h-9 text-center border border-border rounded bg-secondary font-bold tabular-nums focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                             />
 
                             <span className="text-muted-foreground ml-1">Reps:</span>
                             <input
                               type="text"
+                              aria-label="Prescribed rep target"
                               value={rx.repTarget}
                               onChange={(e) => {
                                 const r = e.target.value;
@@ -310,12 +324,13 @@ export function ProgramBuilder() {
                                   )
                                 );
                               }}
-                              className="w-14 h-8 text-center border border-border rounded bg-secondary font-bold"
+                              className="w-14 h-9 text-center border border-border rounded bg-secondary font-bold tabular-nums focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                             />
 
                             <span className="text-muted-foreground ml-1">Load (kg):</span>
                             <input
                               type="number"
+                              aria-label="Prescribed target load in kilograms"
                               value={rx.targetLoadKg || 0}
                               onChange={(e) => {
                                 const l = parseFloat(e.target.value) || 0;
@@ -332,16 +347,17 @@ export function ProgramBuilder() {
                                   )
                                 );
                               }}
-                              className="w-16 h-8 text-center border border-border rounded bg-secondary font-bold"
+                              className="w-16 h-9 text-center border border-border rounded bg-secondary font-bold tabular-nums focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
                             />
 
                             {day.prescriptions.length > 1 && (
                               <button
                                 type="button"
+                                aria-label="Remove exercise from training day"
                                 onClick={() => handleRemoveRx(day.id, rx.id)}
-                                className="text-destructive hover:opacity-80 p-1"
+                                className="text-destructive hover:opacity-80 p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded focus-visible:ring-2 focus-visible:ring-destructive focus-visible:outline-none cursor-pointer"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" aria-hidden="true" />
                               </button>
                             )}
                           </div>
@@ -355,11 +371,11 @@ export function ProgramBuilder() {
           </CardContent>
 
           <CardFooter className="bg-card border-t border-border flex justify-end p-4">
-            <Button type="submit" variant="brand" disabled={savedNotice} className="min-h-[44px]">
+            <Button type="submit" variant="brand" disabled={savedNotice} className="min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand">
               {savedNotice ? (
-                <>
-                  <CheckCircle2 className="w-4 h-4 mr-1.5" /> Program Saved & Published!
-                </>
+                <span className="flex items-center gap-1.5" role="status" aria-live="polite">
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> Program Saved &amp; Published!
+                </span>
               ) : (
                 "Publish Training Program"
               )}

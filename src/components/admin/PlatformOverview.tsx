@@ -21,7 +21,7 @@ export function PlatformOverview() {
           <div className="text-2xl font-bold text-foreground tabular-nums mt-1">
             $48,350
           </div>
-          <div className="text-xs text-success mt-0.5 font-medium">
+          <div className="text-xs text-success mt-0.5 font-medium tabular-nums">
             +14.2% MoM Expansion
           </div>
         </Card>
@@ -33,7 +33,7 @@ export function PlatformOverview() {
           <div className="text-2xl font-bold text-foreground tabular-nums mt-1">
             42 Orgs
           </div>
-          <div className="text-xs text-muted-foreground mt-0.5 font-medium">
+          <div className="text-xs text-muted-foreground mt-0.5 font-medium tabular-nums">
             100% SLA uptime
           </div>
         </Card>
@@ -45,7 +45,7 @@ export function PlatformOverview() {
           <div className="text-2xl font-bold text-foreground tabular-nums mt-1">
             1,248
           </div>
-          <div className="text-xs text-brand mt-0.5 font-medium">
+          <div className="text-xs text-brand mt-0.5 font-medium tabular-nums">
             94% 30d Retention
           </div>
         </Card>
