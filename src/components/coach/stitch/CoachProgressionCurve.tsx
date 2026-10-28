@@ -1,12 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
-import { TrendingUp, ChevronDown, Award } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { useAuth } from "@/domains/auth/AuthContext";
+import { TrendingUp, ChevronDown, Award, User } from "lucide-react";
 
 export function CoachProgressionCurve() {
-  const [selectedAthlete, setSelectedAthlete] = useState<"alex" | "maya" | "jordan">("alex");
+  const { state } = useAuth();
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string>("usr-athlete-1"); // Alex Chen default
   const [selectedExercise, setSelectedExercise] = useState<"squat" | "bench" | "deadlift" | "ohp">("squat");
   const [selectedRange, setSelectedRange] = useState<"1M" | "3M" | "6M" | "ALL">("3M");
+
+  const currentAthlete = state.athletes.find(a => a.id === selectedAthleteId) || state.athletes[0];
+
+  // Group athletes by squad for organized multi-athlete scanning
+  const squads = useMemo(() => {
+    const map = new Map<string, typeof state.athletes>();
+    state.athletes.forEach(ath => {
+      const sq = ath.squad || "General Cohort";
+      if (!map.has(sq)) map.set(sq, []);
+      map.get(sq)!.push(ath);
+    });
+    return Array.from(map.entries());
+  }, [state.athletes]);
 
   return (
     <section className="bg-card rounded-xl p-4 sm:p-5 flex flex-col space-y-4 border border-border shadow-xs">
@@ -19,51 +34,57 @@ export function CoachProgressionCurve() {
             </h2>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5 text-pretty">
-            High-precision velocity-adjusted 1RM estimation &amp; total tonnage curves
+            High-precision velocity-adjusted 1RM estimation &amp; total tonnage curves across your roster
           </p>
         </div>
 
-        {/* Athlete Switcher Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-secondary rounded-xl border border-border self-start md:self-auto" role="tablist" aria-label="Athlete selector">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedAthlete === "alex"}
-            onClick={() => setSelectedAthlete("alex")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold shrink-0 cursor-pointer min-h-[38px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none transition-colors ${
-              selectedAthlete === "alex"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-card/50"
-            }`}
-          >
-            Alex Chen (PR Ready)
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedAthlete === "maya"}
-            onClick={() => setSelectedAthlete("maya")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold shrink-0 cursor-pointer min-h-[38px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none transition-colors ${
-              selectedAthlete === "maya"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-card/50"
-            }`}
-          >
-            Maya Patel (Deload)
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedAthlete === "jordan"}
-            onClick={() => setSelectedAthlete("jordan")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold shrink-0 cursor-pointer min-h-[38px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none transition-colors ${
-              selectedAthlete === "jordan"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-card/50"
-            }`}
-          >
-            Jordan Taylor
-          </button>
+        {/* Scalable Athlete Selector with Squad Grouping & Quick Pinned Switchers */}
+        <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
+          {/* Searchable Dropdown for 100+ Athletes */}
+          <div className="relative">
+            <select
+              value={selectedAthleteId}
+              onChange={(e) => setSelectedAthleteId(e.target.value)}
+              aria-label="Select athlete for telemetry progression"
+              className="text-xs bg-secondary border border-border rounded-xl pl-3 pr-8 py-2 text-foreground font-semibold h-10 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none cursor-pointer min-w-[210px] appearance-none"
+            >
+              {squads.map(([squadName, squadAthletes]) => (
+                <optgroup key={squadName} label={`── ${squadName} ──`}>
+                  {squadAthletes.map(ath => (
+                    <option key={ath.id} value={ath.id}>
+                      {ath.name} {ath.status === "needs_attention" ? "⚠️ [Review]" : "✓ [Optimal]"}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
+          </div>
+
+          {/* Quick Pinned Shortcuts (3 athletes) */}
+          <div className="hidden lg:flex items-center gap-1 bg-secondary/60 p-1 rounded-xl border border-border" role="tablist" aria-label="Pinned athlete quick switcher">
+            {[
+              { id: "usr-athlete-1", label: "Alex" },
+              { id: "ath-2", label: "Maya" },
+              { id: "ath-3", label: "Jordan" },
+              { id: "ath-5", label: "Sophia" }
+            ].map(item => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={selectedAthleteId === item.id}
+                onClick={() => setSelectedAthleteId(item.id)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition-colors cursor-pointer min-h-[32px] ${
+                  selectedAthleteId === item.id
+                    ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-card/40"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -248,7 +269,7 @@ export function CoachProgressionCurve() {
       <div className="flex flex-col space-y-2.5 pt-1">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">
-            Alex Chen — Verified Benchmark Milestones
+            {currentAthlete.name} — Verified Benchmark Milestones ({currentAthlete.squad || "General Cohort"})
           </span>
           <span className="text-xs font-mono text-brand">All sets video-verified by coach</span>
         </div>
