@@ -14,26 +14,31 @@ interface NavbarProps {
 
 export function Navbar({ activeTab, onTabChange }: NavbarProps) {
   const { currentRole, setRole, currentUser, logout } = useAuth();
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("coachpro_theme");
-    if (savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      setIsDark(true);
-      document.documentElement.classList.add("dark");
-    } else {
+    if (savedTheme === "light") {
       setIsDark(false);
       document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+    } else {
+      setIsDark(true);
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+      localStorage.setItem("coachpro_theme", "dark");
     }
   }, []);
 
   const toggleTheme = () => {
     if (isDark) {
       document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
       localStorage.setItem("coachpro_theme", "light");
       setIsDark(false);
     } else {
       document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
       localStorage.setItem("coachpro_theme", "dark");
       setIsDark(true);
     }
