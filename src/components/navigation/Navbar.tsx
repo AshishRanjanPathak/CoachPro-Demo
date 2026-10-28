@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
-import { UserRole } from "@/types";
-import { Dumbbell, Shield, Users, Building, Activity, LogOut, Sun, Moon } from "lucide-react";
+import { LogOut, Sun, Moon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -13,7 +12,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ activeTab, onTabChange }: NavbarProps) {
-  const { currentRole, setRole, currentUser, logout } = useAuth();
+  const { currentRole, currentUser, logout } = useAuth();
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
@@ -44,13 +43,6 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
     }
   };
 
-  const roles: { role: UserRole; label: string; icon: React.ReactNode }[] = [
-    { role: "athlete", label: "Athlete", icon: <Dumbbell className="w-3.5 h-3.5" /> },
-    { role: "coach", label: "Coach", icon: <Activity className="w-3.5 h-3.5" /> },
-    { role: "org_admin", label: "Org Admin", icon: <Building className="w-3.5 h-3.5" /> },
-    { role: "platform_admin", label: "Platform Admin", icon: <Shield className="w-3.5 h-3.5" /> },
-  ];
-
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card/95 backdrop-blur-xs transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -72,39 +64,11 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
           </div>
         </div>
 
-        {/* Role Switcher Pill Bar (Immediate Interactive Testing for All 4 PDF Personas) */}
-        <div className="flex items-center bg-secondary p-1 rounded-lg border border-border">
-          <div className="text-[11px] font-semibold text-muted-foreground uppercase px-2 hidden md:block">
-            Role:
-          </div>
-          <div className="flex items-center gap-1">
-            {roles.map((r) => {
-              const isActive = currentRole === r.role;
-              return (
-                <button
-                  key={r.role}
-                  type="button"
-                  onClick={() => {
-                    setRole(r.role);
-                    // Reset active view tab on role switch to primary view
-                    if (r.role === "athlete") onTabChange("today");
-                    else if (r.role === "coach") onTabChange("dashboard");
-                    else if (r.role === "org_admin") onTabChange("overview");
-                    else if (r.role === "platform_admin") onTabChange("overview");
-                  }}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all min-h-[36px] ${
-                    isActive
-                      ? "bg-card text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground hover:bg-card/50"
-                  }`}
-                  aria-pressed={isActive}
-                >
-                  {r.icon}
-                  <span className="hidden sm:inline">{r.label}</span>
-                </button>
-              );
-            })}
-          </div>
+        {/* Authenticated Workspace Security Indicator */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/60 border border-border text-xs">
+          <span className="w-2 h-2 rounded-full bg-success"></span>
+          <span className="font-mono text-[11px] text-muted-foreground uppercase">Authenticated Space:</span>
+          <span className="font-semibold text-foreground capitalize">{currentUser.role.replace("_", " ")}</span>
         </div>
 
         {/* Theme Toggle, User Info & Sign Out */}
