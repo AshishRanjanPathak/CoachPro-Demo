@@ -1,0 +1,228 @@
+// CoachPRO Production Relational Database Schema
+// Designed for PostgreSQL with PgBouncer connection pooling and Prisma ORM
+// Includes strict indexes, foreign key cascading, ACID transactions, and idempotency protection
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  COACH
+  ATHLETE
+  ADMIN
+}
+
+enum AthleteStatus {
+  ACTIVE
+  NEEDS_ATTENTION
+  INACTIVE
+}
+
+enum WorkoutSessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+// ---------------------------------------------------------------------------
+// 1. User & Identity Management
+// ---------------------------------------------------------------------------
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  name           String
+  avatar         String?
+  role           Role            @default(ATHLETE)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  // Relationships
+  athleteProfile AthleteProfile?
+  coachedAthletes AthleteProfile[] @relation("CoachToAthletes")
+  createdPrograms Program[]       @relation("CoachCreatedPrograms")
+  auditEvents    AuditEvent[]     @relation("UserAuditEvents")
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model AthleteProfile {
+  id              String         @id @default(uuid())
+  userId          String         @unique @map("user_id")
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coachId         String?        @map("coach_id")
+  coach           User?          @relation("CoachToAthletes", fields: [coachId], references: [id], onDelete: SetNull)
+  currentProgramId String?       @map("current_program_id")
+  program         Program?       @relation("AthleteAssignedProgram", fields: [currentProgramId], references: [id], onDelete: SetNull)
+
+  status          AthleteStatus  @default(ACTIVE)
+  joinedDate      DateTime       @default(now()) @map("joined_date")
+  lastActive      DateTime?      @map("last_active")
+
+  // Relationships
+  sessions        WorkoutSession[]
+  checkIns        CheckIn[]
+  workoutSets     WorkoutSet[]
+
+  @@index([coachId, status])
+  @@index([status])
+  @@index([lastActive])
+  @@map("athlete_profiles")
+}
+
+// ---------------------------------------------------------------------------
+// 2. Training Programs & Prescriptions
+// ---------------------------------------------------------------------------
+model Program {
+  id          String         @id @default(uuid())
+  title       String
+  coachId     String         @map("coach_id")
+  coach       User           @relation("CoachCreatedPrograms", fields: [coachId], references: [id], onDelete: Cascade)
+  weeksCount  Int            @default(4) @map("weeks_count")
+  isTemplate  Boolean        @default(false) @map("is_template")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  // Relationships
+  assignedAthletes AthleteProfile[] @relation("AthleteAssignedProgram")
+  days        ProgramDay[]
+
+  @@index([coachId, isTemplate])
+  @@index([createdAt(sort: Desc)])
+  @@map("programs")
+}
+
+model ProgramDay {
+  id          String         @id @default(uuid())
+  programId   String         @map("program_id")
+  program     Program        @relation(fields: [programId], references: [id], onDelete: Cascade)
+  weekNumber  Int            @map("week_number")
+  dayOfWeek   Int            @map("day_of_week") // 1 = Monday ... 7 = Sunday
+  title       String
+
+  prescriptions ExercisePrescription[]
+
+  @@unique([programId, weekNumber, dayOfWeek])
+  @@index([programId])
+  @@map("program_days")
+}
+
+model ExercisePrescription {
+  id           String      @id @default(uuid())
+  programDayId String      @map("program_day_id")
+  programDay   ProgramDay  @relation(fields: [programDayId], references: [id], onDelete: Cascade)
+  exerciseId   String      @map("exercise_id")
+  exerciseName String      @map("exercise_name")
+  order        Int         @default(0)
+  targetSets   Int         @map("target_sets")
+  targetReps   String      @map("target_reps") // e.g. "8-10" or "5"
+  targetRpe    Float?      @map("target_rpe")
+  targetWeight Float?      @map("target_weight")
+  notes        String?
+
+  @@index([programDayId, order])
+  @@index([exerciseId])
+  @@map("exercise_prescriptions")
+}
+
+// ---------------------------------------------------------------------------
+// 3. Execution & Workout Logging (ACID Transactions & High-Frequency Queries)
+// ---------------------------------------------------------------------------
+model WorkoutSession {
+  id          String               @id @default(uuid())
+  athleteId   String               @map("athlete_id")
+  athlete     AthleteProfile       @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  date        DateTime             @default(now())
+  status      WorkoutSessionStatus @default(IN_PROGRESS)
+  startedAt   DateTime             @default(now()) @map("started_at")
+  completedAt DateTime?            @map("completed_at")
+  notes       String?
+
+  sets        WorkoutSet[]
+
+  @@index([athleteId, date(sort: Desc)])
+  @@index([status])
+  @@map("workout_sessions")
+}
+
+model WorkoutSet {
+  id             String          @id @default(uuid())
+  sessionId      String?         @map("session_id")
+  session        WorkoutSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  athleteId      String          @map("athlete_id")
+  athlete        AthleteProfile  @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  exerciseId     String          @map("exercise_id")
+  exerciseName   String          @map("exercise_name")
+  setNumber      Int             @map("set_number")
+  weight         Float
+  reps           Int
+  rpe            Float?
+  notes          String?
+  completedAt    DateTime        @default(now()) @map("completed_at")
+
+  @@index([athleteId, exerciseId, completedAt(sort: Desc)])
+  @@index([sessionId])
+  @@map("workout_sets")
+}
+
+// ---------------------------------------------------------------------------
+// 4. Daily Check-Ins & Recovery Monitoring
+// ---------------------------------------------------------------------------
+model CheckIn {
+  id          String         @id @default(uuid())
+  athleteId   String         @map("athlete_id")
+  athlete     AthleteProfile @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  date        DateTime       @default(now())
+  sleepHours  Float          @map("sleep_hours")
+  sleepQuality Int           @map("sleep_quality") // 1-5
+  soreness    Int            // 1-5
+  stress      Int            // 1-5
+  fatigue     Int            // 1-5
+  notes       String?
+
+  @@unique([athleteId, date])
+  @@index([athleteId, date(sort: Desc)])
+  @@map("check_ins")
+}
+
+// ---------------------------------------------------------------------------
+// 5. Compliance & Audit Logging
+// ---------------------------------------------------------------------------
+model AuditEvent {
+  id         String   @id @default(uuid())
+  actorId    String   @map("actor_id")
+  actor      User     @relation("UserAuditEvents", fields: [actorId], references: [id], onDelete: Cascade)
+  action     String   // e.g. "UPDATE_PROGRAM", "DELETE_ATHLETE"
+  targetType String   @map("target_type")
+  targetId   String   @map("target_id")
+  details    Json?
+  ipAddress  String?  @map("ip_address")
+  timestamp  DateTime @default(now())
+
+  @@index([actorId, timestamp(sort: Desc)])
+  @@index([targetType, targetId])
+  @@map("audit_events")
+}
+
+// ---------------------------------------------------------------------------
+// 6. Idempotency Keys (Distributed Double-Submit Protection)
+// ---------------------------------------------------------------------------
+model IdempotencyKey {
+  key          String   @id
+  userId       String?  @map("user_id")
+  endpoint     String
+  statusCode   Int      @map("status_code")
+  responseBody String   @map("response_body")
+  createdAt    DateTime @default(now()) @map("created_at")
+  expiresAt    DateTime @map("expires_at")
+
+  @@index([expiresAt])
+  @@index([userId, endpoint])
+  @@map("idempotency_keys")
+}
