@@ -12,6 +12,7 @@ import {
   CompanionTheme,
 } from "@/lib/companion";
 import { BonoboAvatar } from "./BonoboAvatar";
+import { UnlockTrackModal } from "./UnlockTrackModal";
 import { soundController } from "@/lib/audio";
 import {
   Sparkles,
@@ -57,6 +58,7 @@ export function BonoboCompanionCard() {
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [closetOpen, setClosetOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
+  const [trackOpen, setTrackOpen] = useState(false);
   const [muted, setMuted] = useState(() => soundController.getMuted());
 
   // Listen for companion updates and external feed events
@@ -97,9 +99,17 @@ export function BonoboCompanionCard() {
     setCurrentQuoteIndex((prev) => (prev + 1) % quotes.length);
   };
 
-  const handleFeedManualSnack = () => {
+  const handleFeedManualSnack = (e: React.MouseEvent<HTMLButtonElement>) => {
     setIsEating(true);
     soundController.playChime();
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("coachpro_fly_snack", {
+          detail: { startX: rect.x + rect.width / 2, startY: rect.y, emoji: "🍌" }
+        })
+      );
+    }
     addCompanionXp(15, "Snack Reward");
     setTimeout(() => setIsEating(false), 1400);
   };
@@ -260,9 +270,18 @@ export function BonoboCompanionCard() {
                 <Zap className="h-3 w-3 text-amber-400" />
                 Growth Progress
               </span>
-              <span className="font-mono text-neutral-300">
-                {companion.xp} / {companion.xpToNextLevel} XP ({xpPercent}%)
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-neutral-300">
+                  {companion.xp} / {companion.xpToNextLevel} XP ({xpPercent}%)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setTrackOpen(true)}
+                  className="text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+                >
+                  Rewards →
+                </button>
+              </div>
             </div>
             <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden border border-white/5">
               <div
@@ -428,6 +447,15 @@ export function BonoboCompanionCard() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* --- REWARDS ROAD MODAL --- */}
+      <UnlockTrackModal
+        open={trackOpen}
+        onOpenChange={setTrackOpen}
+        currentLevel={companion.level}
+        currentXp={companion.xp}
+        xpToNext={companion.xpToNextLevel}
+      />
     </div>
   );
 }

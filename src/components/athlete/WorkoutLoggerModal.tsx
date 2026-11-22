@@ -416,6 +416,9 @@ export function WorkoutLoggerModal({
       const createdIds = addWorkoutSets(setsToRecord);
       setLastLoggedSetIds(createdIds);
       addCompanionXp(25 * countToLog, `Logged ${countToLog} set(s)`);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("coachpro_fly_snack", { detail: { emoji: "🍌" } }));
+      }
       setLastLoggedSummary({
         exerciseName,
         weight: isWeightSkipped ? 0 : weight,

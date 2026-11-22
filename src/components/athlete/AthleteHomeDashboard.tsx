@@ -23,6 +23,8 @@ import { WorkoutLoggerModal } from "@/components/athlete/WorkoutLoggerModal";
 import { animateNumber } from "@/lib/animations";
 import { BonoboCompanionCard } from "@/components/companion/BonoboCompanionCard";
 import { DailyMicroWin } from "@/components/companion/DailyMicroWin";
+import { DailyNudgeCard } from "@/components/companion/DailyNudgeCard";
+import { FlyingSnackOverlay } from "@/components/companion/FlyingSnackOverlay";
 
 interface AthleteHomeDashboardProps {
   onGoToTraining: () => void;
@@ -79,7 +81,13 @@ export function AthleteHomeDashboard({ onGoToTraining, onOpenMessages }: Athlete
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
+      {/* Global Interactive Flying Snack Physics Layer */}
+      <FlyingSnackOverlay />
+
+      {/* Gentle Morning Greeting & 1-Tap High Five */}
+      <DailyNudgeCard />
+
       {/* SECTION A: Compact Profile Header */}
       <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">

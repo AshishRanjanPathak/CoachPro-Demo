@@ -69,6 +69,10 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
               <Badge variant="outline" className="border-brand/40 text-brand bg-brand/5 text-xs uppercase tracking-wider font-semibold">
                 Today’s Training
               </Badge>
+              <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <span>🍌</span>
+                <span>+{currentDay.prescriptions.length * 25} XP</span>
+              </span>
               <span className="text-xs text-muted-foreground flex items-center gap-1 font-mono">
                 <Calendar className="w-3.5 h-3.5 inline text-brand" aria-hidden="true" /> {currentDateStr}
               </span>

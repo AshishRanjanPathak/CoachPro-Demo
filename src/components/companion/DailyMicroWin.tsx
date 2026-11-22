@@ -20,10 +20,18 @@ export function DailyMicroWin() {
   const prescriptionCount = currentDay?.prescriptions?.length || 0;
 
   // 1. Hydration micro win
-  const handleHydrate = () => {
+  const handleHydrate = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (companion.hasHydratedToday) return;
 
     soundController.playChime();
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("coachpro_fly_snack", {
+          detail: { startX: rect.x + rect.width / 2, startY: rect.y, emoji: "💧" }
+        })
+      );
+    }
     confetti({ particleCount: 30, spread: 45, origin: { y: 0.8 } });
 
     const updated = {
@@ -57,10 +65,18 @@ export function DailyMicroWin() {
   };
 
   // 3. 1-Tap "Crushed Prescribed Workout"
-  const handleOneTapWorkout = () => {
+  const handleOneTapWorkout = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!currentDay || prescriptionCount === 0) return;
 
     soundController.playLevelUp();
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("coachpro_fly_snack", {
+          detail: { startX: rect.x + rect.width / 2, startY: rect.y, emoji: "🍌" }
+        })
+      );
+    }
     confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
 
     // Prepare sets from coach prescriptions
