@@ -33,6 +33,7 @@ import confetti from "canvas-confetti";
 import { Exercise, ExercisePrescription, WorkoutSet } from "@/types";
 import { getExerciseIndex, resolveExerciseThumbnail } from "@/lib/exercises";
 import { ExerciseDetailModal } from "@/components/exercise/ExerciseDetailModal";
+import { addCompanionXp } from "@/lib/companion";
 
 export interface WorkoutLoggerModalProps {
   open: boolean;
@@ -414,6 +415,7 @@ export function WorkoutLoggerModal({
       // Save to store via AuthContext
       const createdIds = addWorkoutSets(setsToRecord);
       setLastLoggedSetIds(createdIds);
+      addCompanionXp(25 * countToLog, `Logged ${countToLog} set(s)`);
       setLastLoggedSummary({
         exerciseName,
         weight: isWeightSkipped ? 0 : weight,
@@ -615,6 +617,14 @@ export function WorkoutLoggerModal({
                 <span className="text-brand font-bold">
                   {lastLoggedSummary?.sets} set{lastLoggedSummary && lastLoggedSummary.sets > 1 ? "s" : ""}
                 </span>
+              </div>
+
+              {/* Bonobo Snack Reward Badge */}
+              <div className="pt-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold">
+                  <span>🍌</span>
+                  <span>Bonobo enjoyed a snack & gained +{(lastLoggedSummary?.sets || 1) * 25} XP!</span>
+                </div>
               </div>
             </div>
 

@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { WorkoutLoggerModal } from "@/components/athlete/WorkoutLoggerModal";
 import { animateNumber } from "@/lib/animations";
+import { BonoboCompanionCard } from "@/components/companion/BonoboCompanionCard";
+import { DailyMicroWin } from "@/components/companion/DailyMicroWin";
 
 interface AthleteHomeDashboardProps {
   onGoToTraining: () => void;
@@ -143,7 +145,13 @@ export function AthleteHomeDashboard({ onGoToTraining, onOpenMessages }: Athlete
         </div>
       </div>
 
-      {/* SECTION B: Athlete Overview (Real Statistics) */}
+      {/* SECTION B: Bonobo Gym Companion (Tamagotchi Care Engine) */}
+      <BonoboCompanionCard />
+
+      {/* SECTION C: 3-Second Daily Micro Wins */}
+      <DailyMicroWin />
+
+      {/* SECTION D: Athlete Overview (Real Statistics) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {/* Stat 1: Body Weight */}
         <div className="p-3.5 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between">
