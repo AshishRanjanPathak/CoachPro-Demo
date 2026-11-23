@@ -99,6 +99,28 @@ export function BonoboAvatar({
             <path d="M78 68 Q86 73 94 68" />
             <path d="M106 68 Q114 73 122 68" />
           </g>
+        ) : mood === "caring" ? (
+          // Caring, gentle empathetic eyes
+          <g>
+            <circle cx="86" cy="68" r="7.5" fill="#212121" />
+            <circle cx="84" cy="66" r="3" fill="#FFFFFF" />
+            <circle cx="114" cy="68" r="7.5" fill="#212121" />
+            <circle cx="112" cy="66" r="3" fill="#FFFFFF" />
+            {/* Gentle reassuring eyebrow curves */}
+            <path d="M78 59 Q86 63 94 60" stroke="#3E2723" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M106 60 Q114 63 122 59" stroke="#3E2723" strokeWidth="2.5" strokeLinecap="round" />
+          </g>
+        ) : mood === "focused" ? (
+          // Focused workout gaze with athletic focus
+          <g>
+            <circle cx="86" cy="68" r="8" fill="#212121" />
+            <circle cx="85" cy="66" r="2.5" fill="#FFFFFF" />
+            <circle cx="114" cy="68" r="8" fill="#212121" />
+            <circle cx="113" cy="66" r="2.5" fill="#FFFFFF" />
+            {/* Determined brows */}
+            <path d="M78 62 L94 65" stroke="#3E2723" strokeWidth="3" strokeLinecap="round" />
+            <path d="M122 62 L106 65" stroke="#3E2723" strokeWidth="3" strokeLinecap="round" />
+          </g>
         ) : blinking ? (
           // Blinking closed lines
           <g stroke="#3E2723" strokeWidth="3" strokeLinecap="round">
@@ -106,7 +128,7 @@ export function BonoboAvatar({
             <line x1="106" y1="68" x2="122" y2="68" />
           </g>
         ) : (
-          // Expressive eyes
+          // Expressive eyes (Happy / Celebrating / Content)
           <g>
             {/* Left Eye */}
             <circle cx="86" cy="68" r="8" fill="#212121" />
@@ -125,7 +147,7 @@ export function BonoboAvatar({
             <circle cx="78" cy="94" r="5" fill="#FF8A80" opacity="0.6" />
             <circle cx="122" cy="94" r="5" fill="#FF8A80" opacity="0.6" />
           </g>
-        ) : mood === "pumped" ? (
+        ) : mood === "pumped" || mood === "celebrating" ? (
           // Big excited grin
           <g>
             <path d="M88 95 Q100 108 112 95 Z" fill="#D32F2F" stroke="#3E2723" strokeWidth="2" />

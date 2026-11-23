@@ -17,7 +17,12 @@ import {
   Calendar,
   ArrowRight,
   MessageSquare,
-  Plus
+  Plus,
+  Sparkles,
+  Mic,
+  Flame,
+  CheckCircle2,
+  ChevronRight
 } from "lucide-react";
 import { WorkoutLoggerModal } from "@/components/athlete/WorkoutLoggerModal";
 import { animateNumber } from "@/lib/animations";
@@ -25,6 +30,8 @@ import { BonoboCompanionCard } from "@/components/companion/BonoboCompanionCard"
 import { DailyMicroWin } from "@/components/companion/DailyMicroWin";
 import { DailyNudgeCard } from "@/components/companion/DailyNudgeCard";
 import { FlyingSnackOverlay } from "@/components/companion/FlyingSnackOverlay";
+import { BonoboAssistantSheet } from "@/components/companion/BonoboAssistantSheet";
+import { loadCompanionState, CompanionState } from "@/lib/companion";
 
 interface AthleteHomeDashboardProps {
   onGoToTraining: () => void;
@@ -42,9 +49,20 @@ export function AthleteHomeDashboard({ onGoToTraining, onOpenMessages }: Athlete
   // Measurement edit modal state
   const [editOpen, setEditOpen] = useState(false);
   const [loggerOpen, setLoggerOpen] = useState(false);
+  const [bonoboSheetOpen, setBonoboSheetOpen] = useState(false);
+  const [companion, setCompanion] = useState<CompanionState>(loadCompanionState);
   const [tempWeight, setTempWeight] = useState<number>(athlete.weightKg || 83.5);
   const [tempHeight, setTempHeight] = useState<number>(athlete.heightCm || 178);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  useEffect(() => {
+    const handleUpdated = (e: Event) => {
+      const custom = e as CustomEvent<CompanionState>;
+      if (custom.detail) setCompanion(custom.detail);
+    };
+    window.addEventListener("coachpro_bonobo_updated", handleUpdated);
+    return () => window.removeEventListener("coachpro_bonobo_updated", handleUpdated);
+  }, []);
 
   const weightKg = athlete.weightKg || 83.5;
   const weightLbs = Math.round(weightKg * 2.20462);
@@ -85,10 +103,128 @@ export function AthleteHomeDashboard({ onGoToTraining, onOpenMessages }: Athlete
       {/* Global Interactive Flying Snack Physics Layer */}
       <FlyingSnackOverlay />
 
-      {/* Gentle Morning Greeting & 1-Tap High Five */}
-      <DailyNudgeCard />
+      {/* SECTION 1: Friendly Greeting & Date Header */}
+      <div className="flex items-center justify-between pb-0.5">
+        <div>
+          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted-foreground block">
+            {new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+          </span>
+          <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight mt-0.5">
+            Hey, {athlete.name.split(" ")[0]}! 👋
+          </h1>
+        </div>
 
-      {/* SECTION A: Compact Profile Header */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setBonoboSheetOpen(true)}
+            className="px-3.5 py-1.5 rounded-full bg-brand/10 border border-brand/30 text-brand text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-brand/20 transition-all shadow-xs min-h-[38px]"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Ask Bonobo</span>
+          </button>
+        </div>
+      </div>
+
+      {/* SECTION 2: Today's Mission Card (Primary Focus) */}
+      <Card className="border-border bg-gradient-to-br from-card via-card to-brand/5 shadow-xs rounded-2xl overflow-hidden">
+        <CardContent className="p-4 sm:p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <Badge variant="brand" className="text-xs uppercase font-bold tracking-wider">
+              Today's Mission
+            </Badge>
+            <Badge variant="outline" className="text-[11px] text-emerald-400 border-emerald-500/30 font-semibold">
+              Ready to Train
+            </Badge>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-extrabold text-foreground tracking-tight">
+              {session.dayName || "Strength & Power Session"}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {program.title} • {session.sets.length > 0 ? `${session.sets.length} sets completed` : "6 exercises prescribed"} • ~55 mins
+            </p>
+          </div>
+
+          <Button
+            type="button"
+            variant="brand"
+            onClick={onGoToTraining}
+            className="w-full h-11 rounded-xl text-xs sm:text-sm font-bold gap-2 cursor-pointer shadow-xs min-h-[44px]"
+          >
+            <span>Start Workout</span>
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* SECTION 3: Quick Metric Row (Minimalist shadcn style) */}
+      <div className="grid grid-cols-3 gap-2.5">
+        {/* Streak */}
+        <div className="p-3 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Current Streak
+          </span>
+          <div className="flex items-center gap-1 my-0.5">
+            <Flame className="w-4 h-4 text-amber-400 shrink-0" />
+            <span ref={streakRef} className="text-lg font-black text-foreground tabular-nums">
+              {streak}
+            </span>
+            <span className="text-[10px] text-muted-foreground">days</span>
+          </div>
+          <span className="text-[10px] text-muted-foreground truncate">Consistent</span>
+        </div>
+
+        {/* Companion Level / Readiness */}
+        <div className="p-3 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {companion.mode === "gamified" ? "Bonobo Level" : "Readiness"}
+          </span>
+          <div className="flex items-center gap-1 my-0.5">
+            {companion.mode === "gamified" ? (
+              <span className="text-lg font-black text-foreground tabular-nums">
+                Lv. {companion.level} 🍌
+              </span>
+            ) : (
+              <span ref={readinessRef} className="text-lg font-black text-emerald-400 tabular-nums">
+                {readiness}/10
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] text-muted-foreground truncate">
+            {companion.mode === "gamified" ? `${companion.xp}/${companion.xpToNextLevel} XP` : "Prime CNS"}
+          </span>
+        </div>
+
+        {/* Recovery Summary */}
+        <div className="p-3 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Recovery
+          </span>
+          <div className="flex items-center gap-1 my-0.5">
+            <HeartPulse className="w-4 h-4 text-rose-400 shrink-0" />
+            <span className="text-sm font-bold text-foreground">
+              {athlete.sleepHours || 7.5}h
+            </span>
+            <span className="text-[10px] text-muted-foreground">sleep</span>
+          </div>
+          <span className="text-[10px] text-emerald-400 font-semibold truncate">
+            Low soreness
+          </span>
+        </div>
+      </div>
+
+      {/* SECTION 4: Unified Bonobo Hero Companion Engine */}
+      {companion.mode === "gamified" && (
+        <div className="space-y-3.5">
+          <DailyNudgeCard />
+          <BonoboCompanionCard onOpenAssistant={() => setBonoboSheetOpen(true)} />
+          <DailyMicroWin />
+        </div>
+      )}
+
+      {/* SECTION 5: Compact Profile Header */}
       <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
           <div className="flex items-center gap-3.5">
@@ -153,13 +289,7 @@ export function AthleteHomeDashboard({ onGoToTraining, onOpenMessages }: Athlete
         </div>
       </div>
 
-      {/* SECTION B: Bonobo Gym Companion (Tamagotchi Care Engine) */}
-      <BonoboCompanionCard />
-
-      {/* SECTION C: 3-Second Daily Micro Wins */}
-      <DailyMicroWin />
-
-      {/* SECTION D: Athlete Overview (Real Statistics) */}
+      {/* SECTION 6: Athlete Overview (Real Statistics) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {/* Stat 1: Body Weight */}
         <div className="p-3.5 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between">
@@ -360,6 +490,13 @@ export function AthleteHomeDashboard({ onGoToTraining, onOpenMessages }: Athlete
 
       {/* Accessible Quick Workout Logger Modal */}
       <WorkoutLoggerModal open={loggerOpen} onOpenChange={setLoggerOpen} />
+
+      {/* Interactive Bonobo AI Assistant Bottom Sheet */}
+      <Dialog open={bonoboSheetOpen} onOpenChange={setBonoboSheetOpen}>
+        <DialogContent className="p-0 border-0 bg-transparent max-w-xl">
+          <BonoboAssistantSheet onClose={() => setBonoboSheetOpen(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

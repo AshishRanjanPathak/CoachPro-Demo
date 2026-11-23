@@ -204,9 +204,40 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Touch optimization for mobile buttons */
+/* Touch optimization for mobile buttons and jitter elimination */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 button, a, input, select, textarea {
   touch-action: manipulation;
+}
+
+/* GPU acceleration for smooth 60fps mobile transitions */
+.gpu-accel {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Safe area padding utilities for iOS iPhone home indicators and notches */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 16px), 16px);
+}
+
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+
+/* Mobile viewport height locks without 100vh address bar jumping */
+.h-dvh-screen {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.min-h-dvh-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Prevent iOS Safari automatic auto-zoom when tapping inputs on iPhone */

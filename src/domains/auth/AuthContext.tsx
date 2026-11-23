@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { UserRole, User, WorkoutSet, CoachNote, CheckIn, Program, Message, AthleteProfile, AuditEvent } from "@/types";
 import { loadSavedState, saveState, CoachProState } from "@/lib/store";
+import { addCompanionXp, awardEarnedBananas } from "@/lib/companion";
+import { offlineSyncManager } from "@/lib/offlineSync";
 
 interface AuthContextType {
   state: CoachProState;
@@ -100,6 +102,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     });
 
+    // Enqueue for resilient offline synchronization with idempotency
+    offlineSyncManager.enqueue("batch_sets", createdSets);
+
     return createdIds;
   };
 
@@ -132,6 +137,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const completeWorkoutSession = () => {
+    // Award legitimate game rewards: +50 XP and +2 earned bananas
+    addCompanionXp(50, "Completed Prescribed Workout");
+    awardEarnedBananas(2, "Completed Prescribed Workout");
+    offlineSyncManager.enqueue("complete_session", { timestamp: Date.now() });
+
     setState(prev => {
       const completedSession = {
         ...prev.activeSession,
@@ -205,6 +215,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addCheckIn = (data: Omit<CheckIn, "id" | "date" | "athleteId" | "athleteName">) => {
+    // Award legitimate game rewards strictly for healthy check-ins (zero for injuries)
+    if (!data.hasInjury) {
+      addCompanionXp(25, "Daily Recovery Check-In");
+      awardEarnedBananas(1, "Daily Recovery Check-In");
+    }
+
     const newCheckIn: CheckIn = {
       ...data,
       id: `chk-${Date.now()}`,

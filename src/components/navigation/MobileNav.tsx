@@ -14,7 +14,8 @@ import {
   ShieldCheck, 
   CreditCard,
   AlertTriangle,
-  Activity
+  Activity,
+  Sparkles
 } from "lucide-react";
 
 interface MobileNavProps {
@@ -56,10 +57,10 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
 
   if (currentRole === "athlete") {
     navItems = [
-      { id: "home", label: "Home", icon: <Home className="w-5 h-5" /> },
-      { id: "training", label: "Training", icon: <Dumbbell className="w-5 h-5" /> },
+      { id: "home", label: "Today", icon: <Home className="w-5 h-5" /> },
+      { id: "training", label: "Workout", icon: <Dumbbell className="w-5 h-5" /> },
       { id: "recovery", label: "Recovery", icon: <HeartPulse className="w-5 h-5" /> },
-      { id: "progress", label: "Progress", icon: <TrendingUp className="w-5 h-5" /> },
+      { id: "bonobo", label: "Bonobo AI", icon: <Sparkles className="w-5 h-5 text-brand" /> },
       { id: "messages", label: "Chat", icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
     ];
   } else if (currentRole === "coach") {

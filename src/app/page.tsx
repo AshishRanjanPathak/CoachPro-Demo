@@ -19,6 +19,7 @@ import { MessagingView } from "@/components/shared/MessagingView";
 import { OrgOverview } from "@/components/admin/OrgOverview";
 import { PlatformOverview } from "@/components/admin/PlatformOverview";
 import { PricingView } from "@/components/public/PricingView";
+import { BonoboAssistantSheet } from "@/components/companion/BonoboAssistantSheet";
 import { AthleteProfile } from "@/types";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import {
@@ -33,7 +34,8 @@ import {
   CreditCard,
   MessageSquare,
   AlertTriangle,
-  Activity
+  Activity,
+  Sparkles
 } from "lucide-react";
 
 function AppContent() {
@@ -51,12 +53,13 @@ function AppContent() {
     switch (currentRole) {
       case "athlete":
         return [
-          { id: "home", label: "Home", icon: <HomeIcon className="w-4 h-4" /> },
-          { id: "training", label: "Training", icon: <Dumbbell className="w-4 h-4" /> },
-          { id: "recovery", label: "Recovery & Injury Report", icon: <HeartPulse className="w-4 h-4" /> },
-          { id: "progress", label: "Progress & PRs", icon: <TrendingUp className="w-4 h-4" /> },
-          { id: "messages", label: "Coach Messages", icon: <MessageSquare className="w-4 h-4" /> },
-          { id: "pricing", label: "Plans & Pricing", icon: <CreditCard className="w-4 h-4" /> }
+          { id: "home", label: "Today", icon: <HomeIcon className="w-4 h-4" /> },
+          { id: "training", label: "Workout", icon: <Dumbbell className="w-4 h-4" /> },
+          { id: "recovery", label: "Recovery", icon: <HeartPulse className="w-4 h-4" /> },
+          { id: "bonobo", label: "Bonobo AI", icon: <Sparkles className="w-4 h-4 text-brand" /> },
+          { id: "progress", label: "Progress", icon: <TrendingUp className="w-4 h-4" /> },
+          { id: "messages", label: "Coach Chat", icon: <MessageSquare className="w-4 h-4" /> },
+          { id: "pricing", label: "Subscription", icon: <CreditCard className="w-4 h-4" /> }
         ];
       case "coach":
         return [
@@ -150,6 +153,11 @@ function AppContent() {
               )}
               {activeTab === "training" && <TrainingWorkspaceView />}
               {activeTab === "recovery" && <RecoveryInjuryCard />}
+              {activeTab === "bonobo" && (
+                <div className="max-w-2xl mx-auto py-2">
+                  <BonoboAssistantSheet />
+                </div>
+              )}
               {activeTab === "progress" && <AthleteProgressView />}
               {activeTab === "messages" && <MessagingView initialRecipientId="usr-coach-1" />}
               {activeTab === "pricing" && <PricingView />}

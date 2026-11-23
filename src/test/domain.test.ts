@@ -12,6 +12,9 @@ import {
 import { localBackendAdapter } from "../services/localBackendAdapter";
 import { checkRateLimit } from "../lib/rateLimit";
 import { dbManager } from "../lib/db";
+import { parseBonoboNaturalLanguage } from "../lib/bonoboNlp";
+import { addCompanionXp, saveCompanionState, loadCompanionState, awardEarnedBananas, feedBananaToCompanion } from "../lib/companion";
+import { offlineSyncManager } from "../lib/offlineSync";
 
 export async function runTests(): Promise<{ passed: number; failed: number; results: string[] }> {
   const results: string[] = [];
@@ -435,6 +438,99 @@ export async function runTests(): Promise<{ passed: number; failed: number; resu
   assert(
     unassignedOther?.assignedProgramId !== sampleProgram.id,
     "Non-targeted athletes retain their original program assignments"
+  );
+
+  // 36. Bonobo AI Natural Language & Safety Engine
+  // Test A: Hypothetical planning does not generate workout data
+  const hypotheticalResult = parseBonoboNaturalLanguage("I am thinking of squatting 140kg for 5 reps tomorrow");
+  assert(
+    hypotheticalResult.intent === "hypothetical" &&
+    hypotheticalResult.requiresConfirmation === false &&
+    !hypotheticalResult.workoutData,
+    "Hypothetical input flagged without generating premature workout logs"
+  );
+
+  // Test B: Completed workout parsing resolves RepDB exercises with sets, reps, load
+  const workoutNlpResult = parseBonoboNaturalLanguage(
+    "Did 4 sets of barbell back squats at 140kg for 5 reps and 3 sets bench press 90kg for 8 reps"
+  );
+  assert(
+    workoutNlpResult.intent === "workout_log" &&
+    workoutNlpResult.requiresConfirmation === true &&
+    workoutNlpResult.workoutData?.exercises.length === 2 &&
+    workoutNlpResult.workoutData?.totalSets === 7,
+    "Workout natural language parses multiple exercises, sets, reps, and loads"
+  );
+  const squatEx = workoutNlpResult.workoutData?.exercises.find(e => e.exerciseName.includes("Squat"));
+  assert(
+    squatEx?.sets === 4 && squatEx?.weightKg === 140 && squatEx?.reps === "5",
+    "Parsed squat exercise preserves 4 sets @ 140kg x 5 reps accurately"
+  );
+
+  // Test C: Clinical Injury and Triage parsing
+  const injuryNlpResult = parseBonoboNaturalLanguage(
+    "I have severe pain on my right knee after squatting and feeling exhausted, slept 5 hours"
+  );
+  assert(
+    injuryNlpResult.intent === "injury_report" &&
+    injuryNlpResult.requiresConfirmation === true &&
+    Boolean(injuryNlpResult.injuryData?.location.includes("Right Knee")) &&
+    injuryNlpResult.injuryData?.severity === "severe" &&
+    injuryNlpResult.injuryData?.fatigueLevel === "high" &&
+    injuryNlpResult.injuryData?.sleepHours === 5,
+    "Injury natural language accurately parses location, severe condition, high fatigue, and sleep hours"
+  );
+
+  // Test D: Ethical Gamification Rule — Zero XP for reporting injury or pain
+  const injuryXpResult = addCompanionXp(50, "Reported knee pain and injury");
+  assert(
+    injuryXpResult.xpAdded === 0,
+    "Ethical game engine strictly awards 0 XP for reporting pain or injuries"
+  );
+
+  // Test E: Earned Banana Inventory & Anti-Clicker Safeguards
+  // Set explicit companion state with 1 banana
+  saveCompanionState({
+    ...loadCompanionState(),
+    bananaInventory: 1,
+    totalBananasEarned: 1,
+    xp: 0
+  });
+
+  // Feeding 1 banana succeeds and decrements inventory to 0
+  const feedResult1 = feedBananaToCompanion();
+  assert(
+    feedResult1.success === true &&
+    feedResult1.state.bananaInventory === 0 &&
+    feedResult1.state.xp === 5,
+    "Feeding stored banana consumes 1 banana from inventory and awards bond XP"
+  );
+
+  // Attempting to feed with 0 bananas fails and blocks free XP exploit
+  const feedResult2 = feedBananaToCompanion();
+  assert(
+    feedResult2.success === false &&
+    feedResult2.state.bananaInventory === 0 &&
+    feedResult2.error !== undefined,
+    "Feeding with empty banana stash is blocked and prevents unlimited free XP exploit"
+  );
+
+  // Earning bananas increments inventory
+  const earnedState = awardEarnedBananas(2, "Completed Prescribed Workout");
+  assert(
+    earnedState.bananaInventory === 2 &&
+    earnedState.totalBananasEarned >= 2,
+    "Completing workouts successfully awards earned bananas to athlete inventory"
+  );
+
+  // Test F: Resilient Offline Sync Queue & Idempotency
+  offlineSyncManager.clearQueue();
+  const queuedOp1 = offlineSyncManager.enqueue("batch_sets", [{ id: "set-1" }], "custom-idem-1");
+  assert(
+    queuedOp1.idempotencyKey === "custom-idem-1" &&
+    (queuedOp1.status === "pending" || queuedOp1.status === "syncing" || queuedOp1.status === "synced") &&
+    offlineSyncManager.getQueue().length >= 1,
+    "Offline sync queue successfully enqueues operations with unique idempotency keys"
   );
 
   return { passed, failed, results };

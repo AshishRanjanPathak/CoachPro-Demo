@@ -7,6 +7,7 @@ import {
   loadCompanionState,
   saveCompanionState,
   addCompanionXp,
+  feedBananaToCompanion,
   CompanionHeadwear,
   CompanionProp,
   CompanionTheme,
@@ -22,10 +23,35 @@ import {
   Palette,
   Check,
   Zap,
+  ChevronRight,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-const COMPANION_QUOTES = {
+const COMPANION_QUOTES: Record<string, string[]> = {
+  happy: [
+    "Ready whenever you are! 🍌",
+    "Did you remember to drink some water today?",
+    "Every single set counts. Even small wins!",
+    "Looking forward to today's session."
+  ],
+  focused: [
+    "Form first, load second. Lock in! 🎯",
+    "Eyes on the target, breathe into the brace.",
+    "Let's make these reps look effortless.",
+    "Coach prescribed it, we execute."
+  ],
+  caring: [
+    "Listen to your body. Recovery is where you grow! 💚",
+    "I flagged that for your coach to review.",
+    "Rest hard today so you can lift heavy tomorrow.",
+    "Ice, hydrate, and get some good sleep!"
+  ],
+  celebrating: [
+    "NEW PERSONAL RECORD! Let's go! 🎉🍌",
+    "Hard work pays off! That was incredible!",
+    "You're getting stronger every single week!",
+    "High fives all around! ✋"
+  ],
   pumped: [
     "Let's get this pump! 🍌💪",
     "Coach wrote the prescription, we crush it!",
@@ -52,7 +78,11 @@ const COMPANION_QUOTES = {
   ]
 };
 
-export function BonoboCompanionCard() {
+interface BonoboCompanionCardProps {
+  onOpenAssistant?: () => void;
+}
+
+export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProps = {}) {
   const [companion, setCompanion] = useState<CompanionState>(loadCompanionState);
   const [isEating, setIsEating] = useState(false);
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
@@ -100,6 +130,8 @@ export function BonoboCompanionCard() {
   };
 
   const handleFeedManualSnack = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if ((companion.bananaInventory || 0) <= 0) return;
+
     setIsEating(true);
     soundController.playChime();
     const rect = e.currentTarget.getBoundingClientRect();
@@ -110,7 +142,10 @@ export function BonoboCompanionCard() {
         })
       );
     }
-    addCompanionXp(15, "Snack Reward");
+    const res = feedBananaToCompanion();
+    if (res.success) {
+      setCompanion(res.state);
+    }
     setTimeout(() => setIsEating(false), 1400);
   };
 
@@ -291,21 +326,66 @@ export function BonoboCompanionCard() {
             </div>
           </div>
 
-          {/* Quick Snack Feed Action */}
-          <div className="mt-3 flex items-center justify-between gap-3 pt-2 border-t border-white/5">
-            <span className="text-xs text-neutral-400 hidden sm:inline">
-              Need a micro-boost?
-            </span>
+          {/* Banana Inventory Feed Action & Stash Counter */}
+          <div className="mt-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2.5 border-t border-white/5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-neutral-400 font-medium">
+                Banana Stash:
+              </span>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold font-mono border ${
+                (companion.bananaInventory || 0) > 0
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
+                  : "bg-white/5 border-white/10 text-neutral-500"
+              }`}>
+                🍌 {companion.bananaInventory || 0} available
+              </span>
+            </div>
+
             <button
               type="button"
               onClick={handleFeedManualSnack}
-              disabled={isEating}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500/20 border border-amber-500/30 px-3.5 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/30 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-amber-400"
+              disabled={isEating || (companion.bananaInventory || 0) <= 0}
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all min-h-[40px] focus:outline-none focus:ring-2 focus:ring-amber-400 ${
+                (companion.bananaInventory || 0) > 0
+                  ? "bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 active:scale-95 cursor-pointer shadow-xs"
+                  : "bg-white/5 border border-white/5 text-neutral-500 cursor-not-allowed opacity-60"
+              }`}
+              title={(companion.bananaInventory || 0) > 0 ? "Feed 1 earned banana to Bonobo" : "Earn bananas by completing workouts or daily check-ins"}
             >
               <span>🍌</span>
-              <span>Feed Quick Snack (+15 XP)</span>
+              <span>
+                {(companion.bananaInventory || 0) > 0
+                  ? `Feed Stored Banana (${companion.bananaInventory} left)`
+                  : "No bananas left • Complete workout to earn 🍌"}
+              </span>
             </button>
           </div>
+
+          {/* Integrated AI Copilot Launcher */}
+          {onOpenAssistant && (
+            <div
+              onClick={onOpenAssistant}
+              role="button"
+              tabIndex={0}
+              className="mt-3 p-3 rounded-2xl bg-brand/10 border border-brand/30 hover:border-brand/60 hover:bg-brand/15 transition-all cursor-pointer flex items-center justify-between gap-2.5 text-xs text-brand min-h-[44px]"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-brand text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <div className="truncate">
+                  <span className="font-bold text-foreground block">Ask Bonobo AI Copilot</span>
+                  <span className="text-[11px] text-muted-foreground truncate block">
+                    &ldquo;I did 3 sets bench 80kg x 8&rdquo; or report knee soreness…
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 font-bold text-xs shrink-0 text-brand">
+                <span>Talk</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
