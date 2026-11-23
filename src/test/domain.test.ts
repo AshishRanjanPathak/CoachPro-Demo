@@ -533,6 +533,63 @@ export async function runTests(): Promise<{ passed: number; failed: number; resu
     "Offline sync queue successfully enqueues operations with unique idempotency keys"
   );
 
+  // Test G: Gemini AI Gym Guardrails & Context Enforcers
+  const { validateGymContext } = await import("@/lib/aiGuardrails");
+  const offTopicPolitics = validateGymContext("Who will win the presidential election in 2028?");
+  assert(
+    offTopicPolitics.isAllowed === false && offTopicPolitics.intent === "out_of_context",
+    "Guardrail strictly rejects political queries outside the gym context"
+  );
+
+  const offTopicCoding = validateGymContext("Write me a python script to scrape twitter data");
+  assert(
+    offTopicCoding.isAllowed === false && offTopicCoding.intent === "out_of_context",
+    "Guardrail strictly rejects programming and coding nonsense outside gym scope"
+  );
+
+  const offTopicCrypto = validateGymContext("Should I buy bitcoin and ethereum crypto tokens today?");
+  assert(
+    offTopicCrypto.isAllowed === false && offTopicCrypto.intent === "out_of_context",
+    "Guardrail strictly rejects cryptocurrency and trading queries"
+  );
+
+  const legitimateWorkout = validateGymContext("Did 4 sets of barbell back squats 140kg for 5 reps");
+  assert(
+    legitimateWorkout.isAllowed === true && legitimateWorkout.intent === "workout_log",
+    "Guardrail allows gym workout and exercise queries"
+  );
+
+  const legitimateRecovery = validateGymContext("Sharp soreness in my right shoulder after bench press");
+  assert(
+    legitimateRecovery.isAllowed === true && legitimateRecovery.intent === "recovery_report",
+    "Guardrail allows soreness, pain, and recovery queries"
+  );
+
+  // Test H: Strict Daily Quota Enforcement (15 requests/day to prevent API cost sky-rocketing)
+  const { DAILY_AI_REQUEST_LIMIT, getDailyAiUsage, incrementDailyAiUsage } = await import("@/lib/aiQuota");
+  assert(
+    DAILY_AI_REQUEST_LIMIT === 15,
+    "Strict 1-day limit is capped at 15 requests to safeguard API cost"
+  );
+
+  const initialUsage = getDailyAiUsage("test-athlete-guardrail");
+  assert(
+    initialUsage.limit === 15 && initialUsage.remaining <= 15,
+    "Daily AI usage structure accurately tracks 15 request limit and remaining balance"
+  );
+
+  // Test I: Companion Assets in public/companion/
+  const fs = await import("fs");
+  const path = await import("path");
+  const companionDir = path.join(process.cwd(), "public", "companion");
+  assert(
+    fs.existsSync(path.join(companionDir, "bonobo-welcoming.png")) &&
+    fs.existsSync(path.join(companionDir, "bonobo-pumped.png")) &&
+    fs.existsSync(path.join(companionDir, "bonobo-recovery.png")) &&
+    fs.existsSync(path.join(companionDir, "bonobo-celebration.png")),
+    "High-definition welcoming Bonobo companion assets exist for all moods in public/companion/"
+  );
+
   return { passed, failed, results };
 }
 

@@ -5,26 +5,35 @@ import { useAuth } from "@/domains/auth/AuthContext";
 import { parseBonoboNaturalLanguage, BonoboNlpResult, ParsedWorkoutExercise, ParsedInjuryTriage } from "@/lib/bonoboNlp";
 import { loadCompanionState, saveCompanionState, addCompanionXp, CompanionState, CompanionMode } from "@/lib/companion";
 import { soundController } from "@/lib/audio";
+import { speechController } from "@/lib/speech";
+import {
+  getDailyAiUsage,
+  incrementDailyAiUsage,
+  getCustomGeminiApiKey,
+  saveCustomGeminiApiKey,
+  hasCustomGeminiApiKey,
+  clearCustomGeminiApiKey,
+  DailyAiUsage
+} from "@/lib/aiQuota";
 import { BonoboAvatar } from "./BonoboAvatar";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Mic,
   Send,
-  Sparkles,
   CheckCircle2,
   AlertTriangle,
-  X,
   Dumbbell,
-  HeartPulse,
   Sliders,
-  RotateCcw,
   Volume2,
   VolumeX,
   ChevronDown,
-  Info
+  Info,
+  KeyRound,
+  Sparkles,
+  Loader2
 } from "lucide-react";
 
 interface MessageItem {
@@ -35,6 +44,7 @@ interface MessageItem {
   confirmed?: boolean;
   rejected?: boolean;
   timestamp: string;
+  source?: "gemini_api" | "local_nlp" | "guardrail_intercept";
 }
 
 export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
@@ -42,11 +52,19 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
   const [companion, setCompanion] = useState<CompanionState>(loadCompanionState);
   const [inputText, setInputText] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isVoiceMuted, setIsVoiceMuted] = useState<boolean>(() => speechController.isMuted());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState(() => getCustomGeminiApiKey());
+  const [hasSavedKey, setHasSavedKey] = useState(() => hasCustomGeminiApiKey());
+  const [aiUsage, setAiUsage] = useState<DailyAiUsage>(() => getDailyAiUsage(currentUser?.id));
+
   const [messages, setMessages] = useState<MessageItem[]>([
     {
       id: "welcome",
       sender: "bonobo",
-      text: "Hey! 👋 I'm your Bonobo training companion. Tell me what you trained today (e.g. '4 sets squats 140kg x 5 reps') or report any pain or soreness, and I'll prepare it for your review before saving!",
+      text: "Hey champ! 👋 I'm your Bonobo gym & recovery companion. Tap the mic or type to log workouts (e.g. '4 sets squats 140kg x 5 reps'), report soreness, or check your training recovery!",
       timestamp: "Just now"
     }
   ]);
@@ -56,7 +74,23 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Toggle between Pro Minimalist and Gamified Mode
+  // Keep usage refreshed
+  useEffect(() => {
+    setAiUsage(getDailyAiUsage(currentUser?.id));
+  }, [currentUser?.id]);
+
+  // Track speech synthesis speaking states
+  useEffect(() => {
+    speechController.setSpeakingListener(speaking => {
+      setIsSpeaking(speaking);
+    });
+    return () => {
+      speechController.stopSpeaking();
+      speechController.stopListening();
+    };
+  }, []);
+
+  // Toggle Pro Minimalist vs Gamified Mode
   const toggleMode = () => {
     soundController.playPop();
     const nextMode: CompanionMode = companion.mode === "gamified" ? "pro_minimalist" : "gamified";
@@ -65,9 +99,33 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
     saveCompanionState(updated);
   };
 
-  const handleSendMessage = (textToSend?: string) => {
+  // Toggle Voice TTS Mute
+  const toggleVoiceMute = () => {
+    soundController.playPop();
+    const muted = speechController.toggleMute();
+    setIsVoiceMuted(muted);
+  };
+
+  // Save or Clear Custom Gemini API Key
+  const handleSaveApiKey = () => {
+    soundController.playPop();
+    saveCustomGeminiApiKey(apiKeyInput);
+    setHasSavedKey(hasCustomGeminiApiKey());
+    setShowKeyModal(false);
+  };
+
+  const handleClearApiKey = () => {
+    soundController.playPop();
+    clearCustomGeminiApiKey();
+    setApiKeyInput("");
+    setHasSavedKey(false);
+    setShowKeyModal(false);
+  };
+
+  // Send message to Gemini AI (or fallback to local NLP)
+  const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputText).trim();
-    if (!text) return;
+    if (!text || isSubmitting) return;
 
     soundController.playPop();
     const userMsg: MessageItem = {
@@ -77,26 +135,125 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     };
 
-    // Run NLP Engine
-    const nlp = parseBonoboNaturalLanguage(text, state.exercises);
-
-    const bonoboMsg: MessageItem = {
-      id: `bnb-${Date.now()}`,
-      sender: "bonobo",
-      text: nlp.chatResponse || nlp.summary,
-      nlpResult: nlp,
-      confirmed: false,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    };
-
-    setMessages(prev => [...prev, userMsg, bonoboMsg]);
+    setMessages(prev => [...prev, userMsg]);
     setInputText("");
+    setIsSubmitting(true);
 
-    // Set Bonobo Mood based on Intent
-    if (nlp.intent === "workout_log") {
-      setCompanion(prev => ({ ...prev, mood: "focused" }));
-    } else if (nlp.intent === "injury_report") {
-      setCompanion(prev => ({ ...prev, mood: "caring" }));
+    try {
+      // Local fallback parser ready for immediate resilience
+      const localNlp = parseBonoboNaturalLanguage(text, state.exercises);
+
+      // Check daily rate limit before dispatching
+      const currentQuota = getDailyAiUsage(currentUser?.id);
+
+      if (!currentQuota.canMakeRequest) {
+        const rateLimitReply = `You've used all ${currentQuota.limit} daily AI queries! Great training session today. Rest up and we'll chat again tomorrow at reset. 🍌`;
+        const limitMsg: MessageItem = {
+          id: `bnb-${Date.now()}`,
+          sender: "bonobo",
+          text: rateLimitReply,
+          nlpResult: localNlp,
+          confirmed: false,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          source: "local_nlp"
+        };
+        setMessages(prev => [...prev, limitMsg]);
+        if (!isVoiceMuted) {
+          speechController.speak(rateLimitReply);
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Prepare request payload
+      const chatHistory = messages.slice(-5).map(m => ({
+        role: (m.sender === "user" ? "user" : "model") as "user" | "model",
+        text: m.text
+      }));
+
+      const customKey = getCustomGeminiApiKey();
+      const response = await fetch("/api/companion/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(customKey ? { "x-gemini-api-key": customKey } : {})
+        },
+        body: JSON.stringify({
+          message: text,
+          athleteId: currentUser?.id || "athlete-1",
+          athleteName: currentUser?.name || "Athlete",
+          history: chatHistory,
+          apiKey: customKey
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const payload = data.data || data;
+
+        // Increment daily quota on successful chat query
+        const updatedUsage = incrementDailyAiUsage(currentUser?.id);
+        setAiUsage(updatedUsage);
+
+        const bonoboMsg: MessageItem = {
+          id: `bnb-${Date.now()}`,
+          sender: "bonobo",
+          text: payload.reply || localNlp.chatResponse || localNlp.summary,
+          nlpResult: payload.structuredAction || localNlp,
+          confirmed: false,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          source: payload.source
+        };
+
+        setMessages(prev => [...prev, bonoboMsg]);
+
+        // Speak aloud if voice is unmuted
+        if (!isVoiceMuted && payload.reply) {
+          speechController.speak(payload.reply);
+        }
+
+        // Adjust Bonobo Mood
+        if (payload.intent === "workout_log") {
+          setCompanion(prev => ({ ...prev, mood: "focused" }));
+        } else if (payload.intent === "recovery_report") {
+          setCompanion(prev => ({ ...prev, mood: "caring" }));
+        } else if (payload.intent === "out_of_context") {
+          setCompanion(prev => ({ ...prev, mood: "content" }));
+        }
+      } else {
+        // Fallback to local NLP if network or API route returned an error
+        const bonoboMsg: MessageItem = {
+          id: `bnb-${Date.now()}`,
+          sender: "bonobo",
+          text: localNlp.chatResponse || localNlp.summary,
+          nlpResult: localNlp,
+          confirmed: false,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          source: "local_nlp"
+        };
+        setMessages(prev => [...prev, bonoboMsg]);
+        if (!isVoiceMuted) {
+          speechController.speak(bonoboMsg.text);
+        }
+      }
+    } catch {
+      // Offline / Network error fallback
+      const fallbackNlp = parseBonoboNaturalLanguage(text, state.exercises);
+      const fallbackMsg: MessageItem = {
+        id: `bnb-${Date.now()}`,
+        sender: "bonobo",
+        text: fallbackNlp.chatResponse || fallbackNlp.summary,
+        nlpResult: fallbackNlp,
+        confirmed: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        source: "local_nlp"
+      };
+      setMessages(prev => [...prev, fallbackMsg]);
+      if (!isVoiceMuted) {
+        speechController.speak(fallbackMsg.text);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -104,7 +261,6 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
   const handleConfirmWorkout = (msgId: string, exercises: ParsedWorkoutExercise[]) => {
     soundController.playLevelUp();
 
-    // Map parsed exercises to domain workout sets
     const setsToCreate = exercises.flatMap(ex => {
       const items = [];
       const numSets = ex.sets || 3;
@@ -123,7 +279,6 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
 
     addWorkoutSets(setsToCreate);
 
-    // Gamification reward (only if in gamified mode)
     if (companion.mode === "gamified") {
       addCompanionXp(setsToCreate.length * 10, "Completed workout sets");
     }
@@ -137,7 +292,6 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
   const handleConfirmInjury = (msgId: string, triage: ParsedInjuryTriage) => {
     soundController.playPop();
 
-    // Add CheckIn to domain store (alerts coach attention queue)
     addCheckIn({
       readinessScore: triage.readinessScore,
       sorenessScore: triage.sorenessScore,
@@ -150,7 +304,6 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
       notes: `Reported via Bonobo AI: ${triage.details}`
     });
 
-    // Zero XP awarded for injury reporting per ethical design
     setMessages(prev =>
       prev.map(m => (m.id === msgId ? { ...m, confirmed: true } : m))
     );
@@ -164,16 +317,35 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
     );
   };
 
-  // Emulate Voice Input
+  // Seamless Hands-Free Voice Input Toggle
   const handleVoiceToggle = () => {
-    if (!isListening) {
-      setIsListening(true);
-      soundController.playPop();
-      setTimeout(() => {
+    if (isListening) {
+      speechController.stopListening();
+      setIsListening(false);
+      return;
+    }
+
+    soundController.playPop();
+    setIsListening(true);
+
+    const started = speechController.startListening(
+      (transcript, isFinal) => {
+        setInputText(transcript);
+        if (isFinal) {
+          setIsListening(false);
+          handleSendMessage(transcript);
+        }
+      },
+      (error) => {
+        console.warn("[Voice] Error:", error);
         setIsListening(false);
-        setInputText("Crushed 4 sets of barbell back squats at 140kg for 5 reps and 3 sets bench press 90kg for 8 reps");
-      }, 1500);
-    } else {
+      },
+      () => {
+        setIsListening(false);
+      }
+    );
+
+    if (!started) {
       setIsListening(false);
     }
   };
@@ -181,35 +353,74 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
   return (
     <div className="flex flex-col h-[75vh] max-h-[800px] w-full bg-card rounded-t-3xl border-t border-border shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-200">
       {/* Drawer Header */}
-      <div className="p-4 border-b border-border bg-secondary/40 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="p-3.5 border-b border-border bg-secondary/40 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2.5">
           {companion.mode === "gamified" && (
-            <div className="w-10 h-10 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center shrink-0">
-              <BonoboAvatar mood={companion.mood} size={42} />
+            <div className={`w-9 h-9 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center shrink-0 transition-transform ${
+              isSpeaking ? "scale-110 ring-2 ring-brand ring-offset-1" : ""
+            }`}>
+              <BonoboAvatar mood={companion.mood} size={38} />
             </div>
           )}
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-sm text-foreground">
-                {companion.mode === "gamified" ? "Bonobo Gym Companion" : "Bonobo AI Copilot"}
+              <h3 className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
+                <span>{companion.mode === "gamified" ? "Bonobo Gym Companion" : "Bonobo AI Copilot"}</span>
+                {isSpeaking && (
+                  <span className="flex items-center gap-0.5 text-brand text-[10px] animate-pulse">
+                    <Sparkles className="w-3 h-3" />
+                    <span>Speaking</span>
+                  </span>
+                )}
               </h3>
               <Badge variant="brand" className="text-[10px] px-1.5 py-0 font-mono">
                 {companion.mode === "gamified" ? `Lv. ${companion.level}` : "Pro"}
               </Badge>
             </div>
-            <p className="text-[11px] text-muted-foreground">
-              Natural language workout logging &amp; clinical triage
-            </p>
+            
+            {/* Daily Limit Tracker */}
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-[10px] text-muted-foreground">
+                AI Voice: <strong className={aiUsage.remaining <= 3 ? "text-amber-500" : "text-brand"}>{aiUsage.remaining}</strong>/{aiUsage.limit} left today
+              </span>
+              <span className="text-[9px] text-muted-foreground/70">• resets at midnight</span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        {/* Action Controls */}
+        <div className="flex items-center gap-1">
+          {/* Voice Mute / Unmute Toggle */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={toggleVoiceMute}
+            className={`h-8 w-8 p-0 rounded-lg ${isVoiceMuted ? "text-muted-foreground" : "text-brand"}`}
+            title={isVoiceMuted ? "Unmute Bonobo speech" : "Mute Bonobo speech"}
+          >
+            {isVoiceMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </Button>
+
+          {/* API Key Modal Toggle */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowKeyModal(true)}
+            className={`h-8 w-8 p-0 rounded-lg ${hasSavedKey ? "text-success" : "text-muted-foreground"}`}
+            title="Configure Gemini API Key"
+          >
+            <KeyRound className="w-3.5 h-3.5" />
+          </Button>
+
+          {/* Mode Switch */}
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={toggleMode}
-            className="text-[11px] h-8 px-2 font-semibold text-muted-foreground hover:text-foreground"
+            className="text-[10px] h-8 px-2 font-semibold text-muted-foreground hover:text-foreground hidden sm:flex"
             title="Toggle between Pro Minimalist and Gamified Mode"
           >
             <Sliders className="w-3.5 h-3.5 mr-1" />
@@ -222,13 +433,51 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground"
+              className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground ml-1"
             >
               <ChevronDown className="w-4 h-4" />
             </Button>
           )}
         </div>
       </div>
+
+      {/* Inline API Key Modal */}
+      {showKeyModal && (
+        <div className="p-3 bg-secondary/80 border-b border-border text-xs space-y-2 animate-in fade-in duration-150">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-foreground flex items-center gap-1.5">
+              <KeyRound className="w-3.5 h-3.5 text-brand" />
+              <span>Gemini API Key (Account Auth)</span>
+            </span>
+            <button
+              onClick={() => setShowKeyModal(false)}
+              className="text-[10px] text-muted-foreground hover:text-foreground"
+            >
+              Close
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Connect your own Gemini account key to unlock conversational voice talk and high-resolution Nano Banana companion generation. Kept securely on your device.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              type="password"
+              placeholder="AIzaSy..."
+              value={apiKeyInput}
+              onChange={e => setApiKeyInput(e.target.value)}
+              className="h-8 text-xs bg-card"
+            />
+            <Button size="sm" variant="brand" onClick={handleSaveApiKey} className="h-8 px-3 text-xs">
+              Save
+            </Button>
+            {hasSavedKey && (
+              <Button size="sm" variant="ghost" onClick={handleClearApiKey} className="h-8 px-2 text-xs text-destructive">
+                Remove
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Chat Messages Stream */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3.5 no-scrollbar">
@@ -245,6 +494,11 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
               }`}
             >
               <p>{msg.text}</p>
+              {msg.source === "gemini_api" && (
+                <span className="block text-[9px] text-brand/80 mt-1 font-mono">
+                  ✦ Powered by Gemini AI
+                </span>
+              )}
             </div>
 
             {/* INTERACTIVE WORKOUT CONFIRMATION CARD */}
@@ -284,7 +538,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
 
                     <p className="text-[11px] text-muted-foreground flex items-center gap-1 pt-1">
                       <Info className="w-3 h-3 text-brand" />
-                      Review values above. Tapping confirm will append to your active session.
+                      Two-step safeguard: Confirming will append to your workout log.
                     </p>
                   </CardContent>
 
@@ -372,7 +626,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
                     {msg.confirmed ? (
                       <div className="flex items-center gap-1.5 text-xs text-destructive font-bold">
                         <CheckCircle2 className="w-4 h-4" />
-                        <span>Escalated to Coach Sarah's Queue</span>
+                        <span>Escalated to Coach Review</span>
                       </div>
                     ) : (
                       <>
@@ -429,14 +683,14 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
         </button>
         <button
           type="button"
-          onClick={() => handleSendMessage("Severe pain on my right knee after squats")}
+          onClick={() => handleSendMessage("Sharp pain on my right knee after squats")}
           className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10 whitespace-nowrap cursor-pointer transition-colors"
         >
           🩹 Knee pain report
         </button>
         <button
           type="button"
-          onClick={() => handleSendMessage("Slept 5 hours feeling super exhausted")}
+          onClick={() => handleSendMessage("Slept 5 hours feeling super fatigued")}
           className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-secondary whitespace-nowrap cursor-pointer transition-colors"
         >
           💤 5 hrs sleep / fatigue
@@ -450,22 +704,23 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
           variant={isListening ? "destructive" : "outline"}
           size="sm"
           onClick={handleVoiceToggle}
-          className={`h-11 w-11 p-0 rounded-xl shrink-0 cursor-pointer min-h-[44px] ${
-            isListening ? "animate-pulse" : ""
+          className={`h-11 w-11 p-0 rounded-xl shrink-0 cursor-pointer min-h-[44px] transition-all ${
+            isListening ? "animate-pulse ring-4 ring-destructive/30" : "hover:border-brand"
           }`}
-          title="Speak to Bonobo"
+          title={isListening ? "Listening... tap to stop" : "Speak to Bonobo (Hands-free voice)"}
         >
-          <Mic className="w-5 h-5" />
+          <Mic className={`w-5 h-5 ${isListening ? "text-white" : "text-brand"}`} />
         </Button>
 
         <Input
           type="text"
-          placeholder={isListening ? "Listening... speak now" : "Tell Bonobo what you trained or how you feel…"}
+          placeholder={isListening ? "🎙️ Listening... speak now" : "Tell Bonobo what you trained or how you feel…"}
           value={inputText}
           onChange={e => setInputText(e.target.value)}
           onKeyDown={e => {
-            if (e.key === "Enter") handleSendMessage();
+            if (e.key === "Enter" && !isSubmitting) handleSendMessage();
           }}
+          disabled={isSubmitting}
           className="h-11 rounded-xl text-xs sm:text-sm bg-secondary/50 border-border flex-1"
         />
 
@@ -474,10 +729,10 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
           variant="brand"
           size="sm"
           onClick={() => handleSendMessage()}
-          disabled={!inputText.trim()}
+          disabled={!inputText.trim() || isSubmitting}
           className="h-11 px-4 rounded-xl font-bold cursor-pointer shrink-0 min-h-[44px] shadow-xs"
         >
-          <Send className="w-4 h-4" />
+          {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </Button>
       </div>
     </div>

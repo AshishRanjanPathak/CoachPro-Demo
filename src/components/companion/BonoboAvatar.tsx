@@ -25,13 +25,15 @@ export function BonoboAvatar({
 }: BonoboAvatarProps) {
   const [blinking, setBlinking] = useState(false);
   const [bouncing, setBouncing] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
-  // Periodic eye blink
+  // Periodic eye blink (only runs when page is visible)
   useEffect(() => {
+    if (typeof document !== "undefined" && document.hidden) return;
     const interval = setInterval(() => {
       setBlinking(true);
       setTimeout(() => setBlinking(false), 180);
-    }, 3800);
+    }, 4200);
     return () => clearInterval(interval);
   }, []);
 
@@ -41,6 +43,23 @@ export function BonoboAvatar({
     setTimeout(() => setBouncing(false), 500);
     if (onClick) onClick();
   };
+
+  const getMoodIllustration = () => {
+    switch (mood) {
+      case "pumped":
+      case "focused":
+        return "/companion/bonobo-pumped.png";
+      case "caring":
+      case "sleepy":
+        return "/companion/bonobo-recovery.png";
+      case "celebrating":
+        return "/companion/bonobo-celebration.png";
+      default:
+        return "/companion/bonobo-welcoming.png";
+    }
+  };
+
+  const illustrationSrc = getMoodIllustration();
 
   return (
     <div
@@ -53,12 +72,22 @@ export function BonoboAvatar({
       } ${className}`}
       style={{ width: size, height: size }}
     >
-      <svg
-        viewBox="0 0 200 200"
-        className="w-full h-full drop-shadow-xl"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      {!imgError && illustrationSrc ? (
+        <img
+          src={illustrationSrc}
+          alt={`Bonobo ${mood}`}
+          loading="lazy"
+          decoding="async"
+          onError={() => setImgError(true)}
+          className="w-full h-full object-contain drop-shadow-md rounded-2xl select-none"
+        />
+      ) : (
+        <svg
+          viewBox="0 0 200 200"
+          className="w-full h-full drop-shadow-xl"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
         {/* Soft Ambient Shadow */}
         <ellipse cx="100" cy="180" rx="60" ry="12" fill="currentColor" className="text-black/20" />
 
@@ -246,6 +275,7 @@ export function BonoboAvatar({
           </g>
         )}
       </svg>
+      )}
     </div>
   );
 }
