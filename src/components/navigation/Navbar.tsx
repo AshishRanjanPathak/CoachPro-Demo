@@ -39,16 +39,20 @@ export function Navbar({ activeTab: _activeTab, onTabChange: _onTabChange }: Nav
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card/95 backdrop-blur-md transition-colors safe-area-pt">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        {/* Brand identity matching DESIGN.md */}
+        {/* Brand identity matching Bonobo Logo */}
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-base tracking-tight shadow-xs">
-            CP
+          <div className="h-10 w-10 rounded-xl overflow-hidden bg-black border border-white/10 flex items-center justify-center shadow-xs shrink-0">
+            <img
+              src="/icon.png"
+              alt="BONOBO Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-foreground text-lg tracking-tight" translate="no">CoachPRO</span>
+              <span className="font-black text-foreground text-lg tracking-wider uppercase font-mono" translate="no">BONOBO</span>
               <Badge variant="brand" className="text-[10px] px-1.5 py-0 uppercase tracking-widest font-mono">
-                SaaS
+                CoachPRO
               </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground hidden sm:block">

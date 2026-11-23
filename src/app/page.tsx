@@ -56,7 +56,17 @@ function AppContent() {
           { id: "home", label: "Today", icon: <HomeIcon className="w-4 h-4" /> },
           { id: "training", label: "Workout", icon: <Dumbbell className="w-4 h-4" /> },
           { id: "recovery", label: "Recovery", icon: <HeartPulse className="w-4 h-4" /> },
-          { id: "bonobo", label: "Bonobo AI", icon: <Sparkles className="w-4 h-4 text-brand" /> },
+          {
+            id: "bonobo",
+            label: "Bonobo AI",
+            icon: (
+              <img
+                src="/icon.png"
+                alt="Bonobo"
+                className="w-4 h-4 rounded-sm object-cover"
+              />
+            )
+          },
           { id: "progress", label: "Progress", icon: <TrendingUp className="w-4 h-4" /> },
           { id: "messages", label: "Coach Chat", icon: <MessageSquare className="w-4 h-4" /> },
           { id: "pricing", label: "Subscription", icon: <CreditCard className="w-4 h-4" /> }

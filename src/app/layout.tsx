@@ -2,13 +2,23 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CoachPRO — High Performance Fitness Coaching SaaS",
+  title: "BONOBO — High-Performance Athletic Coaching Platform",
   description: "Production-grade, mobile-web-first athletic coaching platform for strength coaches and athletes.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" }
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+    ]
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "CoachPRO",
+    title: "BONOBO",
   },
   formatDetection: {
     telephone: false,

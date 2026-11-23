@@ -90,15 +90,18 @@ export function LoginPage() {
   return (
     <div className="min-h-screen w-full bg-background text-foreground flex flex-col justify-between p-4 sm:p-6 antialiased selection:bg-brand/20">
       <div className="w-full max-w-md mx-auto flex flex-col gap-5 py-2">
-        {/* Top Brand Header matching Stitch */}
+        {/* Top Brand Header matching Bonobo Logo */}
         <header className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center text-brand shadow-xs">
-              <Layers className="w-4 h-4" aria-hidden="true" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-black border border-white/10 flex items-center justify-center shadow-xs shrink-0">
+              <img
+                src="/icon.png"
+                alt="BONOBO Logo"
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="flex items-baseline tracking-tight" translate="no">
-              <span className="text-lg font-semibold tracking-tight text-foreground">Coach</span>
-              <span className="text-lg font-bold text-brand ml-0.5">PRO</span>
+            <div className="flex items-baseline tracking-wider" translate="no">
+              <span className="text-xl font-black tracking-wider text-foreground uppercase font-mono">BONOBO</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary border border-border text-muted-foreground text-xs font-medium">

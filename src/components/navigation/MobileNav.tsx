@@ -60,7 +60,17 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
       { id: "home", label: "Today", icon: <Home className="w-5 h-5" /> },
       { id: "training", label: "Workout", icon: <Dumbbell className="w-5 h-5" /> },
       { id: "recovery", label: "Recovery", icon: <HeartPulse className="w-5 h-5" /> },
-      { id: "bonobo", label: "Bonobo AI", icon: <Sparkles className="w-5 h-5 text-brand" /> },
+      {
+        id: "bonobo",
+        label: "Bonobo AI",
+        icon: (
+          <img
+            src="/icon.png"
+            alt="Bonobo"
+            className="w-5 h-5 rounded-md object-cover border border-white/10 shadow-xs"
+          />
+        )
+      },
       { id: "messages", label: "Chat", icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
     ];
   } else if (currentRole === "coach") {
