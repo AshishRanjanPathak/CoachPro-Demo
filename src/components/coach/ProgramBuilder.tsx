@@ -32,7 +32,8 @@ import {
   Calendar,
   Filter,
   ArrowRight,
-  Clock
+  Clock,
+  Copy
 } from "lucide-react";
 
 export function ProgramBuilder() {
@@ -72,6 +73,7 @@ export function ProgramBuilder() {
   const [description, setDescription] = useState("");
   const [weeks, setWeeks] = useState(4);
   const [level, setLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
+  const [targetAthleteId, setTargetAthleteId] = useState<string>("");
 
   // Days State for builder
   const [days, setDays] = useState<ProgramDay[]>([
@@ -390,6 +392,36 @@ export function ProgramBuilder() {
     setTimeout(() => setDeleteNotice(null), 3500);
   };
 
+  // Helper: Clone an existing program into the builder to customize for an athlete
+  const handleCloneAndCustomize = (prog: Program, athleteId?: string) => {
+    soundController.playPop();
+    const targetAth = athleteId ? state.athletes.find(a => a.id === athleteId) : null;
+    setTitle(targetAth ? `${targetAth.name} - ${prog.title}` : `${prog.title} (Customized)`);
+    setDescription(
+      `Customized adaptation for ${targetAth ? targetAth.name : "athlete targets"}. ${prog.description}`
+    );
+    setWeeks(prog.targetWeeks);
+    setLevel(prog.level);
+
+    // Deep clone training days
+    const clonedDays: ProgramDay[] = prog.days.map((d, dIdx) => ({
+      ...d,
+      id: `day-${Date.now()}-${dIdx}`,
+      prescriptions: d.prescriptions.map((rx, rIdx) => ({
+        ...rx,
+        id: `rx-${Date.now()}-${dIdx}-${rIdx}`
+      }))
+    }));
+    setDays(clonedDays);
+    if (clonedDays.length > 0) {
+      setActiveDayId(clonedDays[0].id);
+    }
+    if (athleteId) {
+      setTargetAthleteId(athleteId);
+    }
+    setActiveView("create");
+  };
+
   // Publish / Save New Program
   const handlePublishProgram = (e: React.FormEvent) => {
     e.preventDefault();
@@ -410,12 +442,28 @@ export function ProgramBuilder() {
     soundController.playLevelUp();
     setSavedNotice(true);
 
-    // Switch back to library view and prompt to assign
-    setTimeout(() => {
-      setSavedNotice(false);
-      setActiveView("library");
-      handleOpenAssignModal(newProg);
-    }, 1200);
+    if (targetAthleteId) {
+      const targetAth = state.athletes.find(a => a.id === targetAthleteId);
+      updateAthleteProfile(targetAthleteId, {
+        assignedProgramId: newProg.id,
+        assignedProgramTitle: newProg.title
+      });
+      setTimeout(() => {
+        setSavedNotice(false);
+        setActiveView("library");
+        setTargetAthleteId("");
+        setAssignSuccessNotice(
+          `Custom program "${newProg.title}" created and directly assigned to ${targetAth?.name || "the athlete"}!`
+        );
+        setTimeout(() => setAssignSuccessNotice(null), 4000);
+      }, 1200);
+    } else {
+      setTimeout(() => {
+        setSavedNotice(false);
+        setActiveView("library");
+        handleOpenAssignModal(newProg);
+      }, 1200);
+    }
   };
 
   // Current active day object
@@ -627,6 +675,18 @@ export function ProgramBuilder() {
 
                           <Button
                             type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCloneAndCustomize(prog)}
+                            className="text-xs gap-1 h-9 px-2.5 cursor-pointer border-border hover:bg-secondary text-muted-foreground hover:text-foreground"
+                            title="Clone this template into the builder to customize for an athlete"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                            <span className="hidden lg:inline">Clone &amp; Tweak</span>
+                          </Button>
+
+                          <Button
+                            type="button"
                             variant="brand"
                             size="sm"
                             onClick={() => handleOpenAssignModal(prog)}
@@ -785,6 +845,55 @@ export function ProgramBuilder() {
                     ))}
                   </div>
                 </div>
+              </div>
+
+              {/* Personalize for Specific Athlete (Optional) */}
+              <div className="p-3.5 rounded-xl bg-brand/5 border border-brand/20 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-brand" />
+                    <label htmlFor="target-athlete-select" className="text-xs font-bold text-foreground">
+                      Personalize for Specific Athlete (Optional)
+                    </label>
+                  </div>
+                  {targetAthleteId && (
+                    <Badge variant="brand" className="text-[10px]">
+                      1-on-1 Custom Block
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Building a tailored program for one athlete? Select them below to automatically assign this custom block upon saving.
+                </p>
+                <select
+                  id="target-athlete-select"
+                  value={targetAthleteId}
+                  onChange={e => {
+                    const athId = e.target.value;
+                    setTargetAthleteId(athId);
+                    const ath = state.athletes.find(a => a.id === athId);
+                    if (ath && (!title || title.startsWith("Apex") || title === "")) {
+                      setTitle(`${ath.name} - Personalized Block`);
+                    }
+                  }}
+                  className="w-full text-xs bg-card text-foreground border border-border rounded-xl px-3 py-2 font-medium focus-visible:ring-2 focus-visible:ring-brand"
+                >
+                  <option value="">None (Save to General Library)</option>
+                  {state.athletes.map(ath => (
+                    <option key={ath.id} value={ath.id}>
+                      {ath.name} {ath.squad ? `(${ath.squad})` : ""} — Current: {ath.assignedProgramTitle || "Unassigned"}
+                    </option>
+                  ))}
+                </select>
+                {targetAthleteId && (
+                  <div className="text-[11px] text-brand font-semibold flex items-center gap-1.5 pt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>
+                      Will automatically assign directly to{" "}
+                      {state.athletes.find(a => a.id === targetAthleteId)?.name} when saved.
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Rationale / Description */}
