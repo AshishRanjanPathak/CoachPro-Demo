@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import confetti from "canvas-confetti";
+import { triggerOptimizedConfetti } from "@/lib/performance";
 import { Droplets, Moon, CheckCircle2, Zap, Sparkles } from "lucide-react";
 import { soundController } from "@/lib/audio";
 import { addCompanionXp, loadCompanionState, saveCompanionState } from "@/lib/companion";
@@ -32,7 +32,7 @@ export function DailyMicroWin() {
         })
       );
     }
-    confetti({ particleCount: 30, spread: 45, origin: { y: 0.8 } });
+    triggerOptimizedConfetti({ particleCount: 20, spread: 40, origin: { y: 0.8 } });
 
     const updated = {
       ...companion,
@@ -77,7 +77,7 @@ export function DailyMicroWin() {
         })
       );
     }
-    confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+    triggerOptimizedConfetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
 
     // Prepare sets from coach prescriptions
     const setsToLog = currentDay.prescriptions.map((rx, idx) => ({
@@ -98,7 +98,7 @@ export function DailyMicroWin() {
   };
 
   return (
-    <div className="rounded-3xl border border-white/5 bg-neutral-900/40 p-5 backdrop-blur-xl">
+    <div className="rounded-3xl border border-white/10 bg-neutral-900/90 p-5 shadow-sm">
       <div className="flex items-center justify-between mb-3.5">
         <h4 className="text-sm font-bold text-white flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-amber-400" />

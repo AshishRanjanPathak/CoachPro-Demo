@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import confetti from "canvas-confetti";
+import { triggerOptimizedConfetti } from "@/lib/performance";
 import { soundController } from "@/lib/audio";
 import { addCompanionXp } from "@/lib/companion";
 import { X, Check } from "lucide-react";
@@ -39,7 +39,7 @@ export function DailyNudgeCard() {
       );
     }
 
-    confetti({ particleCount: 25, spread: 45, origin: { y: 0.7 } });
+    triggerOptimizedConfetti({ particleCount: 20, spread: 40, origin: { y: 0.7 } });
     addCompanionXp(10, "Daily High Five");
     setHighFived(true);
     localStorage.setItem(todayKey, "high_fived");

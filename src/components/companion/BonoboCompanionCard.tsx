@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import confetti from "canvas-confetti";
+import { triggerOptimizedConfetti } from "@/lib/performance";
 import {
   CompanionState,
   loadCompanionState,
@@ -105,9 +105,9 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
 
       if (custom.detail?.leveledUp) {
         soundController.playLevelUp();
-        confetti({
-          particleCount: 50,
-          spread: 60,
+        triggerOptimizedConfetti({
+          particleCount: 35,
+          spread: 55,
           origin: { y: 0.7 }
         });
       }
@@ -179,30 +179,30 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
   const currentQuote = quotes[currentQuoteIndex % quotes.length];
   const xpPercent = Math.min(100, Math.round((companion.xp / companion.xpToNextLevel) * 100));
 
-  // Visual styling based on selected theme
+  // Visual styling based on selected theme (opaque fallbacks for budget Android GPU performance)
   const getThemeStyles = () => {
     switch (companion.theme) {
       case "jungle":
         return {
-          cardBg: "from-emerald-950/40 via-neutral-900/60 to-emerald-900/20 border-emerald-500/20",
+          cardBg: "from-emerald-950/80 via-neutral-900 to-emerald-950/70 border-emerald-500/30",
           accentColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
           barColor: "bg-emerald-500",
         };
       case "cyber":
         return {
-          cardBg: "from-purple-950/40 via-neutral-900/60 to-cyan-900/20 border-purple-500/20",
+          cardBg: "from-purple-950/80 via-neutral-900 to-cyan-950/70 border-purple-500/30",
           accentColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30",
           barColor: "bg-gradient-to-r from-purple-500 to-cyan-400",
         };
       case "cafe":
         return {
-          cardBg: "from-amber-950/30 via-neutral-900/60 to-amber-900/20 border-amber-500/20",
+          cardBg: "from-amber-950/80 via-neutral-900 to-amber-950/60 border-amber-500/30",
           accentColor: "text-amber-400 bg-amber-500/10 border-amber-500/30",
           barColor: "bg-amber-500",
         };
       default:
         return {
-          cardBg: "from-neutral-900/60 via-neutral-900/40 to-neutral-800/20 border-white/10",
+          cardBg: "from-neutral-900 via-neutral-900/95 to-neutral-950 border-white/10",
           accentColor: "text-blue-400 bg-blue-500/10 border-blue-500/30",
           barColor: "bg-blue-500",
         };
@@ -213,7 +213,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
 
   return (
     <div
-      className={`rounded-3xl border bg-gradient-to-br ${themeStyle.cardBg} p-5 md:p-6 backdrop-blur-2xl shadow-xl transition-colors duration-500`}
+      className={`rounded-3xl border bg-gradient-to-br ${themeStyle.cardBg} p-5 md:p-6 shadow-lg`}
     >
       <div className="flex flex-col sm:flex-row items-center gap-5">
         {/* Avatar with dynamic mood & accessory layers */}

@@ -1,13 +1,14 @@
 "use client";
 
 import gsap from "gsap";
+import { isLowEndDevice } from "./performance";
 
 /**
  * Checks whether the user has requested reduced motion.
  */
 export function isReducedMotion(): boolean {
   if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches || isLowEndDevice();
 }
 
 export interface AnimateNumberOptions {

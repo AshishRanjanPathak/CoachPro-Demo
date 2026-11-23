@@ -85,7 +85,7 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
 
   return (
     <nav 
-      className={`fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border/80 sm:hidden shadow-2xl safe-area-pb transition-transform duration-200 will-change-transform ${
+      className={`fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border sm:hidden shadow-lg safe-area-pb transition-transform duration-200 ${
         isKeyboardVisible ? "translate-y-full pointer-events-none" : "translate-y-0"
       }`}
       role="navigation"

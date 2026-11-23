@@ -29,7 +29,7 @@ import {
   X,
   Eye
 } from "lucide-react";
-import confetti from "canvas-confetti";
+import { triggerOptimizedConfetti } from "@/lib/performance";
 import { Exercise, ExercisePrescription, WorkoutSet } from "@/types";
 import { getExerciseIndex, resolveExerciseThumbnail } from "@/lib/exercises";
 import { ExerciseDetailModal } from "@/components/exercise/ExerciseDetailModal";
@@ -430,7 +430,7 @@ export function WorkoutLoggerModal({
       });
 
       if (isPr) {
-        confetti({ particleCount: 70, spread: 65, origin: { y: 0.65 } });
+        triggerOptimizedConfetti({ particleCount: 35, spread: 55, origin: { y: 0.65 } });
       }
 
       // Move to Step 6: Success Confirmation
@@ -1933,7 +1933,7 @@ export function WorkoutLoggerModal({
             size="sm"
             onClick={() => {
               completeWorkoutSession();
-              confetti({ particleCount: 100, spread: 70 });
+              triggerOptimizedConfetti({ particleCount: 40, spread: 60 });
               onOpenChange(false);
             }}
             className="text-xs font-semibold min-h-[44px] px-4 rounded-xl"

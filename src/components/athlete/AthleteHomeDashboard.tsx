@@ -225,13 +225,15 @@ export function AthleteHomeDashboard({ onGoToTraining, onOpenMessages }: Athlete
       )}
 
       {/* SECTION 5: Compact Profile Header */}
-      <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-xs">
+      <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-xs content-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
           <div className="flex items-center gap-3.5">
             <div className="relative shrink-0">
               <img
                 src={athlete.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"}
                 alt={athlete.name}
+                loading="lazy"
+                decoding="async"
                 className="w-13 h-13 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-brand/50 shadow-xs"
               />
               <span
@@ -290,7 +292,7 @@ export function AthleteHomeDashboard({ onGoToTraining, onOpenMessages }: Athlete
       </div>
 
       {/* SECTION 6: Athlete Overview (Real Statistics) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 content-auto">
         {/* Stat 1: Body Weight */}
         <div className="p-3.5 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-muted-foreground mb-1">
