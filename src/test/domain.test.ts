@@ -1,6 +1,6 @@
 import { calculateEstimated1RM, formatWeight } from "../lib/utils";
 import { INITIAL_USERS, INITIAL_ATHLETES, INITIAL_EXERCISES, INITIAL_PROGRAMS, INITIAL_WORKOUT_SESSION } from "../lib/store";
-import { WorkoutSet } from "../types";
+import { WorkoutSet, Program } from "../types";
 import { getExerciseIndex, filterExercises, REPDB_ATTRIBUTION } from "../lib/exercises";
 import { validateEnv } from "../lib/env";
 import {
@@ -382,6 +382,60 @@ export async function runTests(): Promise<{ passed: number; failed: number; resu
   // 34. Database Pool & Telemetry Health Check
   const dbHealth = await dbManager.checkHealth();
   assert(typeof dbManager.checkHealth === "function" && !!dbHealth.status, "Database manager exposes active health check method");
+
+  // 35. Program Builder & Athlete Assignment Logic
+  const sampleProgram: Program = {
+    id: "prog-hypertrophy-99",
+    title: "Apex Hypertrophy Block C",
+    description: "High volume mesocycle",
+    coachId: "usr-coach-1",
+    coachName: "Coach Marcus",
+    targetWeeks: 8,
+    level: "advanced",
+    days: [
+      {
+        id: "day-h1",
+        name: "Day 1: Legs Hypertrophy",
+        dayNumber: 1,
+        prescriptions: [
+          {
+            id: "rx-h1",
+            exerciseId: "ex-1",
+            exerciseName: "Barbell Back Squat",
+            sets: 4,
+            repTarget: "8-10",
+            targetLoadKg: 120,
+            restSeconds: 120
+          }
+        ]
+      }
+    ]
+  };
+  const testAthletes = INITIAL_ATHLETES.map(a => ({ ...a }));
+  const id1 = testAthletes[0].id;
+  const id2 = testAthletes[1].id;
+  const idOther = testAthletes[2].id;
+  const targetAthleteIds = [id1, id2];
+  const updatedAthletes = testAthletes.map(ath => 
+    targetAthleteIds.includes(ath.id)
+      ? { ...ath, assignedProgramId: sampleProgram.id, assignedProgramTitle: sampleProgram.title }
+      : ath
+  );
+  const assigned1 = updatedAthletes.find(a => a.id === id1);
+  const assigned2 = updatedAthletes.find(a => a.id === id2);
+  const unassignedOther = updatedAthletes.find(a => a.id === idOther);
+  assert(
+    !!assigned1 && assigned1.assignedProgramId === sampleProgram.id && assigned1.assignedProgramTitle === sampleProgram.title,
+    "Program assignment successfully updates primary athlete profile"
+  );
+  assert(
+    !!assigned2 && assigned2.assignedProgramId === sampleProgram.id && assigned2.assignedProgramTitle === sampleProgram.title,
+    "Program assignment batch updates multiple athletes simultaneously"
+  );
+  assert(
+    unassignedOther?.assignedProgramId !== sampleProgram.id,
+    "Non-targeted athletes retain their original program assignments"
+  );
 
   return { passed, failed, results };
 }

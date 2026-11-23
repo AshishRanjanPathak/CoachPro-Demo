@@ -368,10 +368,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateAthleteProfile = (athleteId: string, updates: Partial<AthleteProfile>) => {
-    setState(prev => ({
-      ...prev,
-      athletes: prev.athletes.map(ath => ath.id === athleteId ? { ...ath, ...updates } : ath)
-    }));
+    setState(prev => {
+      const updatedAthletes = prev.athletes.map(ath => ath.id === athleteId ? { ...ath, ...updates } : ath);
+      const isSessionAthlete = prev.activeSession.athleteId === athleteId;
+      const updatedSession = isSessionAthlete && updates.assignedProgramId
+        ? {
+            ...prev.activeSession,
+            programId: updates.assignedProgramId,
+            programTitle: updates.assignedProgramTitle || prev.activeSession.programTitle
+          }
+        : prev.activeSession;
+
+      const auditEvent: AuditEvent = {
+        id: `aud-${Date.now()}-${athleteId}`,
+        timestamp: new Date().toISOString(),
+        actorName: `${currentUser.name} (${currentUser.role})`,
+        action: updates.assignedProgramTitle
+          ? `Assigned Program: ${updates.assignedProgramTitle}`
+          : `Updated Athlete Profile`,
+        target: `Athlete ${athleteId}`,
+        status: "success"
+      };
+
+      return {
+        ...prev,
+        athletes: updatedAthletes,
+        activeSession: updatedSession,
+        auditLogs: [auditEvent, ...prev.auditLogs]
+      };
+    });
   };
 
   return (
