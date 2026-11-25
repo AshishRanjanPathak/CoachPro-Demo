@@ -67,22 +67,21 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
 
       <div className="grid grid-cols-1 gap-4">
         {/* Priority 1: Maya Patel (Urgent) */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 relative overflow-hidden border border-destructive/30 bg-gradient-to-r from-destructive/10 via-card to-card shadow-xs">
+        <div className="bg-card rounded-xl p-4 sm:p-5 relative overflow-hidden border border-border border-l-2 border-l-destructive">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-start gap-3 sm:gap-4">
               <div className="relative shrink-0">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-destructive/20 text-destructive flex items-center justify-center font-bold text-base sm:text-lg border border-destructive/30">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-destructive/15 text-destructive flex items-center justify-center font-bold text-base sm:text-lg border border-destructive/30">
                   MP
                 </div>
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-destructive"></span>
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="inline-flex rounded-full h-3 w-3 bg-destructive border-2 border-card"></span>
                 </span>
               </div>
               <div className="flex flex-col">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-base font-bold text-foreground">Maya Patel</span>
-                  <span className="px-2 py-0.5 rounded bg-destructive/20 text-destructive text-[11px] font-mono font-bold uppercase border border-destructive/30">
+                  <span className="px-2 py-0.5 rounded bg-destructive/15 text-destructive text-[11px] font-mono font-bold uppercase border border-destructive/25">
                     P1: Urgent Override
                   </span>
                   <span className="px-2 py-0.5 rounded bg-secondary text-muted-foreground text-[11px] font-mono">
@@ -93,7 +92,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   Acute Right Patellar Tendon Strain • Pain 6/10 Post-Squat
                 </p>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-muted-foreground mt-2">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-muted-foreground mt-2 tabular-nums">
                   <span>Sleep: <strong className="text-destructive">5.5 hrs</strong> (-2.1h)</span>
                   <span>CNS Readiness: <strong className="text-destructive">4.0 / 10</strong></span>
                   <span>Fatigue: <strong className="text-destructive">4 / 5</strong></span>
@@ -107,7 +106,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
               <button
                 type="button"
                 onClick={() => setFastDeloadOpen(!fastDeloadOpen)}
-                className="h-10 px-3 sm:px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer min-h-[40px]"
+                className="h-10 px-3 sm:px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-150 ease-[var(--ease-out)] cursor-pointer min-h-[40px]"
               >
                 <Zap className="w-4 h-4" />
                 <span>1-Click Deload Program</span>
@@ -115,7 +114,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
               <button
                 type="button"
                 onClick={() => onOpenMessages(maya.id)}
-                className="h-10 px-3 sm:px-4 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer min-h-[40px]"
+                className="h-10 px-3 sm:px-4 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold flex items-center gap-1.5 transition-[background-color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] cursor-pointer min-h-[40px]"
               >
                 <MessageSquare className="w-4 h-4 text-muted-foreground" />
                 <span>Message Maya</span>
@@ -182,7 +181,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
                     type="button"
                     disabled={deloadApplied}
                     onClick={handleApplyDeload}
-                    className="px-4 py-1.5 rounded-lg bg-success text-success-foreground text-xs font-bold flex items-center gap-1.5 shadow-xs hover:opacity-90 transition-all cursor-pointer"
+                    className="px-4 py-1.5 rounded-lg bg-success text-success-foreground text-xs font-bold flex items-center gap-1.5 hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-150 ease-[var(--ease-out)] cursor-pointer"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>{deloadApplied ? "Deload Applied & Pushed!" : "Apply Deload to Block"}</span>

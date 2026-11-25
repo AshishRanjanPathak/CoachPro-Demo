@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
-import { TrendingUp, ChevronDown, Trophy, Sparkles } from "lucide-react";
-import gsap from "gsap";
-import { animateNumber, animateSvgPath, isReducedMotion } from "@/lib/animations";
+import { TrendingUp, ChevronDown, Sparkles } from "lucide-react";
 
 export interface TelemetryPoint {
   date: string;
@@ -194,58 +192,13 @@ export function CoachProgressionCurve() {
     };
   }, [selectedAthleteId]);
 
-  // DOM Refs for GSAP Animations
+  // Instant SVG telemetry rendering (zero mount bounce / fade-in delay)
   const pathRef = useRef<SVGPathElement | null>(null);
   const polygonRef = useRef<SVGPolygonElement | null>(null);
   const peakNumberRef = useRef<HTMLSpanElement | null>(null);
   const dotsGroupRef = useRef<SVGGElement | null>(null);
   const barsGroupRef = useRef<HTMLDivElement | null>(null);
   const milestonesRef = useRef<HTMLDivElement | null>(null);
-
-  // Trigger GSAP Animations whenever the athlete, exercise, or range changes
-  useEffect(() => {
-    if (isReducedMotion()) return;
-
-    // 1. Path stroke drawing animation
-    if (pathRef.current) {
-      animateSvgPath(pathRef.current, { duration: 0.85, ease: "power2.out" });
-    }
-
-    // 2. Area gradient fill fade
-    if (polygonRef.current) {
-      gsap.fromTo(polygonRef.current, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.in" });
-    }
-
-    // 3. Peak 1RM Counter Tween
-    if (peakNumberRef.current) {
-      animateNumber(peakNumberRef.current, peakEst1rm, {
-        duration: 0.75,
-        decimals: 1,
-        suffix: " kg",
-        ease: "power2.out"
-      });
-    }
-
-    // 4. Staggered scale for coordinate dots
-    if (dotsGroupRef.current) {
-      const circles = dotsGroupRef.current.querySelectorAll("circle");
-      gsap.fromTo(
-        circles,
-        { scale: 0, transformOrigin: "center center" },
-        { scale: 1, stagger: 0.04, duration: 0.45, ease: "back.out(2)" }
-      );
-    }
-
-    // 5. Volume tonnage bars scale from bottom
-    if (barsGroupRef.current) {
-      const barElements = barsGroupRef.current.querySelectorAll(".tonnage-bar-fill");
-      gsap.fromTo(
-        barElements,
-        { scaleY: 0, transformOrigin: "bottom" },
-        { scaleY: 1, stagger: 0.04, duration: 0.5, ease: "power2.out" }
-      );
-    }
-  }, [selectedAthleteId, selectedExercise, selectedRange, peakEst1rm, pathD]);
 
   const exerciseLabelMap = {
     squat: "Barbell Back Squat",
@@ -447,7 +400,7 @@ export function CoachProgressionCurve() {
                       r={isSelected ? 7 : 5}
                       stroke={isSelected ? "#ffffff" : "#7C8FD8"}
                       strokeWidth={isSelected ? 2.5 : 2}
-                      className="transition-all duration-200"
+                      className="transition-[r,fill,stroke] duration-150 ease-[var(--ease-out)]"
                     />
                     {/* Invisible larger hit target */}
                     <circle cx={coord.x} cy={coord.y} r={16} fill="transparent" />
@@ -458,14 +411,14 @@ export function CoachProgressionCurve() {
           </svg>
 
           {/* Floating Tooltip Pill */}
-          <div className="absolute right-2 sm:right-6 top-1 bg-card/95 border border-border p-2.5 rounded-xl shadow-xl pointer-events-none flex flex-col backdrop-blur-md">
+          <div className="absolute right-2 sm:right-6 top-1 bg-card border border-border p-2.5 rounded-xl shadow-md pointer-events-none flex flex-col">
             <span className="text-[10px] font-mono text-brand font-bold uppercase">
               {activePoint.date} • {exerciseLabelMap[selectedExercise]}
             </span>
-            <span className="text-xs font-bold font-mono text-foreground">
+            <span className="text-xs font-bold font-mono text-foreground tabular-nums">
               {activePoint.est1rm} kg Est 1RM
             </span>
-            <span className="text-[11px] font-mono text-muted-foreground">
+            <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
               {activePoint.weight} kg × {activePoint.reps} reps (RPE {activePoint.rpe})
             </span>
           </div>
@@ -504,7 +457,7 @@ export function CoachProgressionCurve() {
             {tonnageBars.map((bar, i) => (
               <div key={i} className="flex flex-col items-center gap-1 h-full justify-end">
                 <div
-                  className={`tonnage-bar-fill w-full rounded-t transition-colors duration-200 ${
+                  className={`tonnage-bar-fill w-full rounded-t transition-colors duration-150 ${
                     bar.active ? "bg-success" : "bg-brand/50 hover:bg-brand"
                   }`}
                   style={{ height: bar.heightPct }}
@@ -533,12 +486,12 @@ export function CoachProgressionCurve() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div
             onClick={() => setSelectedExercise("squat")}
-            className={`bg-background border p-3 rounded-xl flex items-center justify-between shadow-xs cursor-pointer transition-all ${
+            className={`bg-background border p-3 rounded-xl flex items-center justify-between cursor-pointer transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
               selectedExercise === "squat" ? "border-brand ring-1 ring-brand/30" : "border-border hover:border-brand/40"
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-success/20 text-success flex items-center justify-center font-bold text-xs font-mono tabular-nums">
+              <div className="w-8 h-8 rounded-lg bg-success/20 text-success flex items-center justify-center font-bold text-xs font-mono tabular-nums shrink-0">
                 SQ
               </div>
               <div>
@@ -555,12 +508,12 @@ export function CoachProgressionCurve() {
 
           <div
             onClick={() => setSelectedExercise("bench")}
-            className={`bg-background border p-3 rounded-xl flex items-center justify-between shadow-xs cursor-pointer transition-all ${
+            className={`bg-background border p-3 rounded-xl flex items-center justify-between cursor-pointer transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
               selectedExercise === "bench" ? "border-brand ring-1 ring-brand/30" : "border-border hover:border-brand/40"
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-brand/20 text-brand flex items-center justify-center font-bold text-xs font-mono tabular-nums">
+              <div className="w-8 h-8 rounded-lg bg-brand/20 text-brand flex items-center justify-center font-bold text-xs font-mono tabular-nums shrink-0">
                 BP
               </div>
               <div>
@@ -577,7 +530,7 @@ export function CoachProgressionCurve() {
 
           <div
             onClick={() => setSelectedExercise("deadlift")}
-            className={`bg-background border p-3 rounded-xl flex items-center justify-between shadow-xs cursor-pointer transition-all ${
+            className={`bg-background border p-3 rounded-xl flex items-center justify-between cursor-pointer transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
               selectedExercise === "deadlift" ? "border-brand ring-1 ring-brand/30" : "border-border hover:border-brand/40"
             }`}
           >

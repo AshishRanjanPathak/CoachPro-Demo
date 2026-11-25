@@ -60,13 +60,16 @@ export function RecoveryInjuryCard() {
         </div>
       )}
 
-      <Card className="border-border shadow-xs bg-card">
+      <Card className="border-border bg-card">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Badge variant="brand">Daily Recovery & Health</Badge>
-            <span className="text-xs text-muted-foreground">{new Date().toISOString().substring(0, 10)}</span>
+            <span className="text-[11px] font-mono uppercase tracking-wider text-brand font-semibold">
+              Daily Recovery &amp; Health
+            </span>
+            <span className="text-border">•</span>
+            <span className="text-xs text-muted-foreground font-mono tabular-nums">{new Date().toISOString().substring(0, 10)}</span>
           </div>
-          <CardTitle className="mt-1">Fatigue, Soreness & Injury Reporting</CardTitle>
+          <CardTitle className="mt-1 heading-tight">Fatigue, Soreness &amp; Injury Reporting</CardTitle>
           <CardDescription>
             Report recovery telemetry and acute physical discomfort to alert your coach before training.
           </CardDescription>

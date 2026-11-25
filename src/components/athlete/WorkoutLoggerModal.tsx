@@ -552,11 +552,11 @@ export function WorkoutLoggerModal({
               return (
                 <div key={s} className="flex-1 space-y-1">
                   <div
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                    className={`h-1.5 rounded-full transition-[background-color,box-shadow] duration-150 ease-[var(--ease-out)] ${
                       isCurrent
-                        ? "bg-brand ring-2 ring-brand/40 shadow-xs"
+                        ? "bg-brand ring-2 ring-brand/30"
                         : isPassed
-                        ? "bg-emerald-500"
+                        ? "bg-success"
                         : "bg-secondary"
                     }`}
                   />
@@ -584,7 +584,7 @@ export function WorkoutLoggerModal({
         {/* ========================================================================= */}
         {step === 6 ? (
           <div className="py-6 space-y-6 text-center" aria-live="polite">
-            <div className="w-16 h-16 bg-success/15 text-success rounded-full flex items-center justify-center mx-auto motion-safe:animate-bounce">
+            <div className="w-16 h-16 bg-success/15 text-success rounded-full flex items-center justify-center mx-auto animate-in fade-in zoom-in-95 duration-200 ease-[var(--ease-out)]">
               <CheckCircle2 className="w-9 h-9" aria-hidden="true" />
             </div>
 
@@ -648,7 +648,7 @@ export function WorkoutLoggerModal({
                 className="w-full h-3 bg-secondary rounded-full overflow-hidden"
               >
                 <div
-                  className="h-full bg-brand rounded-full transition-all duration-300"
+                  className="h-full bg-brand rounded-full transition-[width] duration-200 ease-[var(--ease-out)]"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -982,10 +982,10 @@ export function WorkoutLoggerModal({
                             key={rx.id}
                             type="button"
                             onClick={() => handleSelectExercise(rx.exerciseId)}
-                            className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between min-h-[56px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none ${
+                            className={`w-full text-left p-4 rounded-xl border transition-[border-color,background-color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer flex items-center justify-between min-h-[56px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none ${
                               isSelected
-                                ? "border-brand bg-brand/15 shadow-xs"
-                                : "border-border bg-card hover:bg-secondary/70"
+                                ? "border-brand bg-brand/10"
+                                : "border-border bg-card hover:bg-secondary/60"
                             }`}
                           >
                             <div>

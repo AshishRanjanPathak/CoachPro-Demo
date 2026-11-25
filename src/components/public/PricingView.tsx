@@ -77,8 +77,8 @@ export function PricingView() {
           <button
             type="button"
             onClick={() => setBillingCycle("monthly")}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all min-h-[36px] ${
-              billingCycle === "monthly" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground"
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-[background-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] min-h-[36px] ${
+              billingCycle === "monthly" ? "bg-card text-foreground" : "text-muted-foreground"
             }`}
           >
             Monthly Billing
@@ -86,8 +86,8 @@ export function PricingView() {
           <button
             type="button"
             onClick={() => setBillingCycle("annual")}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all min-h-[36px] flex items-center gap-1.5 ${
-              billingCycle === "annual" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground"
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-[background-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] min-h-[36px] flex items-center gap-1.5 ${
+              billingCycle === "annual" ? "bg-card text-foreground" : "text-muted-foreground"
             }`}
           >
             <span>Annual Billing</span>
@@ -104,10 +104,10 @@ export function PricingView() {
           return (
             <Card
               key={plan.name}
-              className={`flex flex-col justify-between border-2 transition-all ${
+              className={`flex flex-col justify-between transition-colors duration-150 ${
                 plan.popular 
-                  ? "border-brand shadow-md relative bg-card" 
-                  : "border-border shadow-xs bg-card"
+                  ? "border-brand relative bg-card" 
+                  : "border-border bg-card"
               }`}
             >
               {plan.popular && (

@@ -105,7 +105,7 @@ export function LoginPage() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary border border-border text-muted-foreground text-xs font-medium">
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" aria-hidden="true"></span>
+            <span className="w-2 h-2 rounded-full bg-brand" aria-hidden="true"></span>
             <span className="text-[11px] font-mono tracking-wider uppercase">Platform v3.4</span>
           </div>
         </header>
@@ -154,9 +154,9 @@ export function LoginPage() {
                   role="radio"
                   aria-checked={isChecked}
                   onClick={() => handleRoleSelect(rKey)}
-                  className={`transition-all duration-150 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold cursor-pointer min-h-[38px] ${
+                  className={`transition-[background-color,color] duration-150 ease-[var(--ease-out)] flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold cursor-pointer min-h-[38px] active:scale-[0.98] ${
                     isChecked
-                      ? "bg-card text-foreground shadow-xs border border-border/80"
+                      ? "bg-card text-foreground border border-border"
                       : "text-muted-foreground hover:text-foreground hover:bg-card/40"
                   }`}
                 >

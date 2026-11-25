@@ -19,7 +19,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-6 text-white">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-neutral-900/80 p-8 backdrop-blur-2xl shadow-2xl text-center">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-lg text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-6">
           <AlertTriangle className="h-8 w-8" />
         </div>

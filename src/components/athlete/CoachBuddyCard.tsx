@@ -136,7 +136,7 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
               className="w-full h-2 bg-secondary rounded-full overflow-hidden"
             >
               <div
-                className="h-full bg-brand rounded-full transition-all duration-300"
+                className="h-full bg-brand rounded-full transition-[width] duration-200 ease-[var(--ease-out)]"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -148,44 +148,44 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
 
   return (
     <section
-      aria-label="Coach Buddy Training Companion"
-      className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-xs transition-all"
+      aria-label="Training Progress Companion"
+      className="bg-card border border-border rounded-2xl p-4 sm:p-5"
     >
       {/* COMPACT MODE */}
       {isCollapsed ? (
-        <div className="flex items-center justify-between gap-3 min-h-[48px]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-secondary/60 border border-border flex items-center justify-center shrink-0 p-1">
+        <div className="flex items-center justify-between gap-3 min-h-[44px]">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-lg bg-secondary border border-border flex items-center justify-center shrink-0 p-1">
               <img
-                src="/coach-buddy.png"
-                alt="Coach Buddy mascot"
-                className="w-full h-full object-contain"
+                src="/icon.png"
+                alt="Bonobo"
+                className="w-full h-full object-contain rounded-sm"
                 loading="eager"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-foreground">Coach Buddy</span>
-                <span className="text-xs font-semibold text-brand tabular-nums">
+                <span className="text-sm font-semibold text-foreground">Session Companion</span>
+                <span className="text-xs font-mono font-semibold text-brand tabular-nums">
                   {completedSets} / {plannedSets} sets
                 </span>
               </div>
               <p className="text-xs text-muted-foreground line-clamp-1">
                 {isCompleted
-                  ? "All sets completed for today!"
-                  : `${remainingSets} sets remaining — keep going!`}
+                  ? "All sets completed for today"
+                  : `${remainingSets} sets remaining`}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {!isCompleted && onOpenLogger && (
               <Button
                 type="button"
                 variant="brand"
                 size="sm"
                 onClick={onOpenLogger}
-                className="font-bold text-xs h-10 px-3.5 rounded-xl cursor-pointer shadow-xs min-h-[44px]"
+                className="font-semibold text-xs h-10 px-3.5 rounded-xl min-h-[40px]"
               >
                 Log Set
               </Button>
@@ -194,8 +194,8 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
             <button
               type="button"
               onClick={toggleCollapsed}
-              aria-label="Expand Coach Buddy"
-              className="w-10 h-10 rounded-xl border border-border hover:bg-secondary text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-hidden"
+              aria-label="Expand session summary"
+              className="w-10 h-10 rounded-xl border border-border hover:bg-secondary text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors duration-150 cursor-pointer min-h-[40px] min-w-[40px] active:scale-[0.97]"
             >
               <ChevronDown className="w-4 h-4" aria-hidden="true" />
             </button>
@@ -203,52 +203,43 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
         </div>
       ) : (
         /* EXPANDED MODE */
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {/* Header Row */}
-          <div className="flex items-center justify-between gap-2 border-b border-border/80 pb-3">
-            <div>
-              <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
-                Coach Buddy
-              </h3>
-              <p className="text-xs text-muted-foreground">Your training companion</p>
+          <div className="flex items-center justify-between gap-2 border-b border-border pb-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-lg bg-secondary border border-border flex items-center justify-center shrink-0 p-1">
+                <img
+                  src="/icon.png"
+                  alt="Bonobo"
+                  className="w-full h-full object-contain rounded-sm"
+                  loading="eager"
+                />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-foreground heading-tight">
+                  Session Companion
+                </h3>
+                <p className="text-xs text-muted-foreground truncate">
+                  {isCompleted ? "Session Done" : isInProgress ? "In Progress" : "Ready to Lift"} • {dialogueMessage}
+                </p>
+              </div>
             </div>
 
             <button
               type="button"
               onClick={toggleCollapsed}
-              aria-label="Collapse Coach Buddy"
-              className="w-10 h-10 rounded-xl border border-border hover:bg-secondary text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-hidden"
+              aria-label="Collapse session summary"
+              className="w-9 h-9 rounded-lg border border-border hover:bg-secondary text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors duration-150 cursor-pointer shrink-0 active:scale-[0.97]"
             >
               <ChevronUp className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
 
-          {/* Mascot + Contextual Message */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4 bg-secondary/30 border border-border/60 rounded-xl p-3.5 sm:p-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-card border border-border flex items-center justify-center shrink-0 p-1.5 shadow-xs">
-              <img
-                src="/coach-buddy.png"
-                alt="Coach Buddy muscular chimpanzee mascot"
-                className="w-full h-full object-contain transition-transform duration-200 motion-safe:hover:scale-105"
-                loading="eager"
-              />
-            </div>
-
-            <div className="flex-1 space-y-1">
-              <div className="text-xs font-semibold uppercase tracking-wider text-brand">
-                {isCompleted ? "Session Done" : isInProgress ? "In Progress" : "Ready to Lift"}
-              </div>
-              <p className="text-sm sm:text-[15px] text-foreground leading-relaxed text-pretty">
-                {dialogueMessage}
-              </p>
-            </div>
-          </div>
-
           {/* Progress Section */}
           {plannedSets > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex justify-between items-baseline text-xs">
-                <span className="font-semibold text-foreground text-sm tabular-nums">
+                <span className="font-semibold text-foreground tabular-nums">
                   {completedSets} / {plannedSets} sets completed
                 </span>
                 <span className="text-muted-foreground tabular-nums">
@@ -263,10 +254,10 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
                 aria-valuemin={0}
                 aria-valuemax={plannedSets}
                 aria-label={`Workout progress: ${completedSets} of ${plannedSets} sets completed`}
-                className="w-full h-2.5 bg-secondary rounded-full overflow-hidden"
+                className="w-full h-1.5 bg-secondary rounded-full overflow-hidden"
               >
                 <div
-                  className="h-full bg-brand rounded-full transition-all duration-300"
+                  className="h-full bg-brand rounded-full transition-[width] duration-200 ease-[var(--ease-out)]"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -279,11 +270,7 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
               type="button"
               variant={isCompleted ? "outline" : "brand"}
               onClick={onOpenLogger}
-              className={`w-full font-bold text-sm min-h-[48px] rounded-xl cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-brand ${
-                isCompleted
-                  ? "border-border text-foreground hover:bg-secondary"
-                  : ""
-              }`}
+              className="w-full font-semibold text-xs min-h-[44px] rounded-xl"
             >
               {ctaIcon}
               <span>{ctaLabel}</span>

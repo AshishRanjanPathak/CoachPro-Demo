@@ -229,13 +229,13 @@ export function ExerciseLibraryView() {
         {result.items.map((ex) => (
           <Card
             key={ex.id}
-            className="p-4 border-border bg-card shadow-xs hover:border-brand/50 transition-all rounded-2xl flex flex-col justify-between group"
+            className="p-4 border-border bg-card hover:border-brand/40 transition-colors duration-150 rounded-2xl flex flex-col justify-between group"
           >
             <div className="space-y-3">
-              {/* Static Start Thumbnail by default (Layer 3: Image Assets) */}
+              {/* Static Start Thumbnail by default */}
               <div
                 onClick={() => handleOpenDetail(ex.id)}
-                className="relative aspect-video w-full rounded-xl bg-secondary/40 border border-border overflow-hidden flex items-center justify-center p-2 cursor-pointer group-hover:border-brand/40 transition-colors"
+                className="relative aspect-video w-full rounded-xl bg-secondary/40 border border-border overflow-hidden flex items-center justify-center p-2 cursor-pointer group-hover:border-brand/40 transition-colors duration-150"
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
@@ -251,14 +251,14 @@ export function ExerciseLibraryView() {
                     alt={`${ex.name} starting illustration`}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-105"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
                   <Dumbbell className="w-8 h-8 text-muted-foreground/40" aria-hidden="true" />
                 )}
 
                 <div className="absolute top-2 right-2">
-                  <Badge variant="outline" className="text-[10px] uppercase font-mono bg-card/90 backdrop-blur-xs">
+                  <Badge variant="outline" className="text-[10px] uppercase font-mono bg-card/95">
                     {ex.difficulty}
                   </Badge>
                 </div>

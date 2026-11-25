@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { AthleteProfile } from "@/types";
 import { CoachTriageQueue } from "@/components/coach/stitch/CoachTriageQueue";
@@ -10,7 +10,6 @@ import { CoachProgressionCurve } from "@/components/coach/stitch/CoachProgressio
 import { AthleteRoster } from "@/components/coach/AthleteRoster";
 import {
   TrendingUp,
-  AlertTriangle,
   ArrowDown,
   PlusCircle,
   Megaphone,
@@ -22,7 +21,6 @@ import {
   LineChart,
   MessageSquare
 } from "lucide-react";
-import { animateNumber } from "@/lib/animations";
 
 interface CoachDashboardProps {
   onSelectAthlete: (athlete: AthleteProfile) => void;
@@ -42,17 +40,6 @@ export function CoachDashboard({
   const athletes = state.athletes;
   const injuredCount = athletes.filter((a) => a.injuryStatus?.hasInjury).length;
   const highFatigueCount = athletes.filter((a) => a.fatigueLevel === "high" || a.fatigueLevel === "severe").length;
-
-  // Animation refs for KPI cards
-  const cohortRef = useRef<HTMLSpanElement | null>(null);
-  const sleepRef = useRef<HTMLSpanElement | null>(null);
-  const autonomicRef = useRef<HTMLSpanElement | null>(null);
-
-  useEffect(() => {
-    animateNumber(cohortRef.current, athletes.length, { duration: 0.8 });
-    animateNumber(sleepRef.current, 7.0, { duration: 0.8, decimals: 1 });
-    animateNumber(autonomicRef.current, 6.3, { duration: 0.7, decimals: 1 });
-  }, [athletes.length]);
 
   const handleBroadcast = () => {
     setBroadcastNotice(`Team Broadcast dispatched to all ${athletes.length} athletes: 'Hydration & mobility check before tomorrow\'s squat session.'`);
@@ -140,9 +127,9 @@ export function CoachDashboard({
           <button
             type="button"
             onClick={() => setActiveSegment("hub")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
               activeSegment === "hub"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
@@ -152,22 +139,22 @@ export function CoachDashboard({
           <button
             type="button"
             onClick={() => setActiveSegment("triage")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
               activeSegment === "triage"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
             <HeartPulse className="w-3.5 h-3.5 text-destructive" />
             <span>Clinical Triage</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-ping"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-destructive"></span>
           </button>
           <button
             type="button"
             onClick={() => setActiveSegment("roster")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
               activeSegment === "roster"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
@@ -177,9 +164,9 @@ export function CoachDashboard({
           <button
             type="button"
             onClick={() => setActiveSegment("builder")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
               activeSegment === "builder"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
@@ -189,9 +176,9 @@ export function CoachDashboard({
           <button
             type="button"
             onClick={() => setActiveSegment("analytics")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
               activeSegment === "analytics"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
@@ -201,9 +188,9 @@ export function CoachDashboard({
           <button
             type="button"
             onClick={() => setActiveSegment("messages")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
               activeSegment === "messages"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
@@ -216,7 +203,7 @@ export function CoachDashboard({
       {/* Section: Top Telemetry KPI Cards (4 Cards) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Active Roster Load */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border shadow-xs">
+        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
               Active Cohort
@@ -228,7 +215,7 @@ export function CoachDashboard({
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums flex items-baseline gap-1.5">
-              <span ref={cohortRef}>{athletes.length}</span>
+              <span>{athletes.length}</span>
               <span className="text-sm font-normal text-muted-foreground">Athletes</span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">100% on scheduled microcycles</p>
@@ -236,12 +223,12 @@ export function CoachDashboard({
           <div className="flex items-center justify-between pt-1">
             <div className="flex -space-x-2">
               {athletes.slice(0, 3).map(ath => (
-                <div key={ath.id} className="w-7 h-7 rounded-full bg-brand/20 text-brand text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card" title={ath.name}>
+                <div key={ath.id} className="w-7 h-7 rounded-full bg-brand/20 text-brand text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card shrink-0" title={ath.name}>
                   {ath.name.split(" ").map(n => n[0]).join("")}
                 </div>
               ))}
               {athletes.length > 3 && (
-                <div className="w-7 h-7 rounded-full bg-secondary text-muted-foreground text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card">
+                <div className="w-7 h-7 rounded-full bg-secondary text-muted-foreground text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card shrink-0">
                   +{athletes.length - 3}
                 </div>
               )}
@@ -251,13 +238,13 @@ export function CoachDashboard({
         </div>
 
         {/* KPI 2: Clinical Triage Alerts */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-destructive/30 shadow-xs">
+        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border border-l-2 border-l-destructive">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
               Clinical Attention
             </span>
             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-destructive/15 text-destructive text-[10px] font-mono font-bold border border-destructive/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-destructive"></span>
               Action Reqd
             </span>
           </div>
@@ -279,7 +266,7 @@ export function CoachDashboard({
         </div>
 
         {/* KPI 3: Sleep Telemetry */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border shadow-xs">
+        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
               Roster Avg Sleep
@@ -288,7 +275,7 @@ export function CoachDashboard({
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums flex items-baseline gap-1">
-              <span ref={sleepRef}>7.0</span>
+              <span>7.0</span>
               <span className="text-sm font-normal text-muted-foreground">hrs</span>
             </div>
             <p className="text-xs text-destructive mt-0.5 flex items-center gap-1">
@@ -311,7 +298,7 @@ export function CoachDashboard({
         </div>
 
         {/* KPI 4: Autonomic Readiness Gauge */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border shadow-xs">
+        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
               Autonomic Index
@@ -322,7 +309,7 @@ export function CoachDashboard({
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight flex items-baseline gap-1 tabular-nums">
-              <span ref={autonomicRef}>6.3</span>
+              <span>6.3</span>
               <span className="text-sm text-muted-foreground">/ 10</span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">Aggregate readiness score</p>

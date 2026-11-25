@@ -111,19 +111,19 @@ export function AsyncStateView({
       <div
         role="alert"
         aria-live="assertive"
-        className={`rounded-2xl border border-red-500/20 bg-red-500/5 p-6 backdrop-blur-xl text-center text-white ${className}`}
+        className={`rounded-2xl border border-destructive/25 bg-destructive/5 p-6 text-center text-foreground ${className}`}
       >
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 mb-3">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive border border-destructive/20 mb-3">
           <AlertCircle className="h-6 w-6" aria-hidden="true" />
         </div>
-        <h4 className="text-base font-semibold text-white">Unable to load data</h4>
-        <p className="mt-1 text-sm text-neutral-400 max-w-sm mx-auto">{errorMsg}</p>
+        <h4 className="text-base font-semibold text-foreground">Unable to load data</h4>
+        <p className="mt-1 text-sm text-muted-foreground max-w-sm mx-auto">{errorMsg}</p>
         {onRetry && (
           <div className="mt-4">
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex items-center gap-2 rounded-xl bg-red-500/20 border border-red-500/30 px-4 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/30 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="inline-flex items-center gap-2 rounded-xl bg-destructive/15 border border-destructive/30 px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive/25 transition-colors focus:outline-none focus:ring-2 focus:ring-destructive"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               Retry
@@ -144,13 +144,13 @@ export function AsyncStateView({
     return (
       <div
         role="status"
-        className={`rounded-2xl border border-white/5 bg-neutral-900/30 p-8 text-center text-white backdrop-blur-sm ${className}`}
+        className={`rounded-2xl border border-border bg-card p-8 text-center text-foreground ${className}`}
       >
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-neutral-400 border border-white/10 mb-4">
-          {config.icon || <FolderOpen className="h-7 w-7 text-neutral-400" aria-hidden="true" />}
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-muted-foreground border border-border mb-4">
+          {config.icon || <FolderOpen className="h-7 w-7 text-muted-foreground" aria-hidden="true" />}
         </div>
-        <h4 className="text-base font-semibold text-white tracking-tight">{config.title}</h4>
-        <p className="mt-1 text-sm text-neutral-400 max-w-sm mx-auto leading-relaxed">
+        <h4 className="text-base font-semibold text-foreground tracking-tight">{config.title}</h4>
+        <p className="mt-1 text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
           {config.description}
         </p>
         {config.action && (

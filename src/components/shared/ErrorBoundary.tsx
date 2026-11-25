@@ -60,7 +60,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <div
           role="alert"
           aria-live="assertive"
-          className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6 md:p-8 backdrop-blur-xl text-white shadow-xl"
+          className="rounded-2xl border border-destructive/25 bg-card p-6 md:p-8 text-foreground shadow-lg"
         >
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">

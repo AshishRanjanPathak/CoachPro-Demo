@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Trophy, TrendingUp, Flame, CheckCircle, Dumbbell } from "lucide-react";
-import gsap from "gsap";
-import { animateNumber, animateSvgPath, animateStagger, isReducedMotion } from "@/lib/animations";
 
 interface HistoryPoint {
   date: string;
@@ -149,7 +147,7 @@ export function AthleteProgressView() {
   const [timeRange, setTimeRange] = useState<"1M" | "3M">("1M");
   const [activePointIndex, setActivePointIndex] = useState<number | null>(null);
 
-  // Animation Refs
+  // Minimalist progression updates — chart plots instantly on mount/filter change (remove-animations)
   const pathRef = useRef<SVGPathElement | null>(null);
   const areaRef = useRef<SVGPolygonElement | null>(null);
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
@@ -157,13 +155,6 @@ export function AthleteProgressView() {
   const prCountRef = useRef<HTMLDivElement | null>(null);
   const adherenceRef = useRef<HTMLDivElement | null>(null);
   const streakRef = useRef<HTMLDivElement | null>(null);
-
-  // Top metric counters GSAP entrance
-  useEffect(() => {
-    animateNumber(prCountRef.current, athlete.recentPrCount, { duration: 0.8 });
-    animateNumber(adherenceRef.current, athlete.adherencePercentage, { duration: 0.9 });
-    animateNumber(streakRef.current, athlete.currentStreakDays, { duration: 0.7 });
-  }, [athlete]);
 
   // Compute active dataset
   const historyData = useMemo(() => {
@@ -222,36 +213,6 @@ export function AthleteProgressView() {
       areaPoints: area
     };
   }, [historyData]);
-
-  // GSAP animation triggered on exercise or timeRange change
-  useEffect(() => {
-    if (isReducedMotion()) return;
-
-    // 1. Draw SVG Path
-    if (pathRef.current) {
-      animateSvgPath(pathRef.current, { duration: 0.85, ease: "power2.out" });
-    }
-
-    // 2. Fade in area polygon
-    if (areaRef.current) {
-      gsap.fromTo(areaRef.current, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power1.out" });
-    }
-
-    // 3. Staggered scale on data dots
-    if (chartContainerRef.current) {
-      const dots = chartContainerRef.current.querySelectorAll(".athlete-chart-dot");
-      animateStagger(dots, { scale: 0, opacity: 0, stagger: 0.05, duration: 0.45, ease: "back.out(1.8)" });
-    }
-
-    // 4. Tween the overload badge number
-    if (overloadNumRef.current) {
-      animateNumber(overloadNumRef.current, overloadDelta, {
-        duration: 0.65,
-        decimals: 1,
-        prefix: overloadDelta >= 0 ? "+" : ""
-      });
-    }
-  }, [selectedExercise, timeRange, pathD, overloadDelta]);
 
   const activePoint = activePointIndex !== null ? coordinates[activePointIndex] : null;
 
@@ -349,9 +310,9 @@ export function AthleteProgressView() {
                     role="tab"
                     aria-selected={timeRange === r}
                     onClick={() => setTimeRange(r)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all min-h-[28px] cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition-[background-color,color] duration-150 ease-[var(--ease-out)] min-h-[28px] cursor-pointer ${
                       timeRange === r
-                        ? "bg-brand text-brand-foreground shadow-xs"
+                        ? "bg-brand text-brand-foreground"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >

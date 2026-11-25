@@ -351,39 +351,41 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div className="flex flex-col h-[75vh] max-h-[800px] w-full bg-card rounded-t-3xl border-t border-border shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-200">
+    <div className="flex flex-col h-[75dvh] max-h-[800px] w-full bg-card rounded-t-2xl border-t border-border shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-3 duration-200 ease-[var(--ease-drawer)]">
+      {/* Mobile Sheet Handle */}
+      <div className="sm:hidden sheet-handle drag-handle shrink-0" aria-hidden="true" />
       {/* Drawer Header */}
-      <div className="p-3.5 border-b border-border bg-secondary/40 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2.5">
+      <div className="px-3.5 py-3 border-b border-border bg-card flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
           {companion.mode === "gamified" && (
-            <div className={`w-9 h-9 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center shrink-0 transition-transform ${
-              isSpeaking ? "scale-110 ring-2 ring-brand ring-offset-1" : ""
+            <div className={`w-9 h-9 rounded-full bg-brand/10 border border-brand/25 flex items-center justify-center shrink-0 transition-transform duration-150 ease-[var(--ease-out)] ${
+              isSpeaking ? "ring-2 ring-brand ring-offset-1" : ""
             }`}>
-              <BonoboAvatar mood={companion.mood} size={38} />
+              <BonoboAvatar mood={companion.mood} size={36} />
             </div>
           )}
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
-                <span>{companion.mode === "gamified" ? "Bonobo Gym Companion" : "Bonobo AI Copilot"}</span>
+              <h3 className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5 truncate">
+                <span>{companion.mode === "gamified" ? "Bonobo Companion" : "Bonobo Copilot"}</span>
                 {isSpeaking && (
-                  <span className="flex items-center gap-0.5 text-brand text-[10px] animate-pulse">
+                  <span className="flex items-center gap-1 text-brand text-[10px] font-medium shrink-0">
                     <Sparkles className="w-3 h-3" />
                     <span>Speaking</span>
                   </span>
                 )}
               </h3>
-              <Badge variant="brand" className="text-[10px] px-1.5 py-0 font-mono">
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono shrink-0">
                 {companion.mode === "gamified" ? `Lv. ${companion.level}` : "Pro"}
               </Badge>
             </div>
             
             {/* Daily Limit Tracker */}
-            <div className="flex items-center gap-2 mt-0.5">
+            <div className="flex items-center gap-1.5 mt-0.5 tabular-nums">
               <span className="text-[10px] text-muted-foreground">
-                AI Voice: <strong className={aiUsage.remaining <= 3 ? "text-amber-500" : "text-brand"}>{aiUsage.remaining}</strong>/{aiUsage.limit} left today
+                Voice: <strong className={aiUsage.remaining <= 3 ? "text-warning" : "text-brand"}>{aiUsage.remaining}</strong>/{aiUsage.limit} left
               </span>
-              <span className="text-[9px] text-muted-foreground/70">• resets at midnight</span>
+              <span className="text-[10px] text-muted-foreground/60">• resets daily</span>
             </div>
           </div>
         </div>
@@ -480,7 +482,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
       )}
 
       {/* Chat Messages Stream */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3.5 no-scrollbar">
+      <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3 no-scrollbar">
         {messages.map(msg => (
           <div
             key={msg.id}
@@ -704,8 +706,8 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
           variant={isListening ? "destructive" : "outline"}
           size="sm"
           onClick={handleVoiceToggle}
-          className={`h-11 w-11 p-0 rounded-xl shrink-0 cursor-pointer min-h-[44px] transition-all ${
-            isListening ? "animate-pulse ring-4 ring-destructive/30" : "hover:border-brand"
+          className={`h-11 w-11 p-0 rounded-xl shrink-0 cursor-pointer min-h-[44px] transition-[border-color,background-color,box-shadow,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] ${
+            isListening ? "ring-4 ring-destructive/25" : "hover:border-brand"
           }`}
           title={isListening ? "Listening... tap to stop" : "Speak to Bonobo (Hands-free voice)"}
         >
@@ -714,14 +716,14 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
 
         <Input
           type="text"
-          placeholder={isListening ? "🎙️ Listening... speak now" : "Tell Bonobo what you trained or how you feel…"}
+          placeholder={isListening ? "Listening... speak now" : "Ask about training, workouts, or recovery…"}
           value={inputText}
           onChange={e => setInputText(e.target.value)}
           onKeyDown={e => {
             if (e.key === "Enter" && !isSubmitting) handleSendMessage();
           }}
           disabled={isSubmitting}
-          className="h-11 rounded-xl text-xs sm:text-sm bg-secondary/50 border-border flex-1"
+          className="h-11 rounded-xl text-base sm:text-sm bg-secondary/50 border-border flex-1"
         />
 
         <Button

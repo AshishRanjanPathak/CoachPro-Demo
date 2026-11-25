@@ -521,9 +521,9 @@ export function ProgramBuilder() {
               soundController.playPop();
               setActiveView("library");
             }}
-            className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-[background-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer ${
               activeView === "library"
-                ? "bg-brand text-white shadow-xs"
+                ? "bg-brand text-white"
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
             }`}
           >
@@ -544,9 +544,9 @@ export function ProgramBuilder() {
               soundController.playPop();
               setActiveView("create");
             }}
-            className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-[background-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer ${
               activeView === "create"
-                ? "bg-brand text-white shadow-xs"
+                ? "bg-brand text-white"
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
             }`}
           >
@@ -610,7 +610,7 @@ export function ProgramBuilder() {
                 return (
                   <Card
                     key={prog.id}
-                    className="border-border bg-card hover:border-border/80 transition-all shadow-xs rounded-2xl overflow-hidden"
+                    className="border-border bg-card hover:border-brand/40 transition-colors duration-150 rounded-2xl overflow-hidden"
                   >
                     <div className="p-4 sm:p-5 space-y-3">
                       {/* Top Row: Title, Level, Duration Badges */}
@@ -808,9 +808,9 @@ export function ProgramBuilder() {
                           soundController.playPop();
                           setWeeks(numWeeks);
                         }}
-                        className={`h-11 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                        className={`h-11 rounded-xl text-xs font-bold transition-[background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] border cursor-pointer ${
                           weeks === numWeeks
-                            ? "bg-brand text-white border-brand shadow-xs"
+                            ? "bg-brand text-white border-brand"
                             : "bg-card text-muted-foreground border-border hover:bg-secondary/60"
                         }`}
                       >
@@ -834,9 +834,9 @@ export function ProgramBuilder() {
                           soundController.playPop();
                           setLevel(lvl);
                         }}
-                        className={`h-11 rounded-xl text-xs font-bold capitalize transition-all border cursor-pointer ${
+                        className={`h-11 rounded-xl text-xs font-bold capitalize transition-[background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] border cursor-pointer ${
                           level === lvl
-                            ? "bg-brand text-white border-brand shadow-xs"
+                            ? "bg-brand text-white border-brand"
                             : "bg-card text-muted-foreground border-border hover:bg-secondary/60"
                         }`}
                       >
@@ -919,7 +919,7 @@ export function ProgramBuilder() {
           </Card>
 
           {/* Card 2: Training Days & Prescriptions (Tabbed to avoid vertical clutter) */}
-          <Card className="border-border shadow-xs rounded-2xl">
+          <Card className="border-border rounded-2xl">
             <CardHeader className="pb-3 border-b border-border/80">
               <div className="flex items-center justify-between">
                 <div>
@@ -941,9 +941,9 @@ export function ProgramBuilder() {
                       soundController.playPop();
                       setActiveDayId(day.id);
                     }}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-[background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer flex items-center gap-1.5 ${
                       activeDayId === day.id
-                        ? "bg-brand text-white border-brand shadow-xs"
+                        ? "bg-brand text-white border-brand"
                         : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary"
                     }`}
                   >
@@ -957,7 +957,7 @@ export function ProgramBuilder() {
                 <button
                   type="button"
                   onClick={handleAddDay}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border border-dashed border-border hover:border-brand/60 text-brand bg-brand/5 hover:bg-brand/10 transition-all cursor-pointer flex items-center gap-1"
+                  className="px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border border-dashed border-border hover:border-brand/60 text-brand bg-brand/5 hover:bg-brand/10 transition-[background-color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Day</span>

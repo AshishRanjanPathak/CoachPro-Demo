@@ -90,11 +90,11 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
           return (
             <Card
               key={ath.id}
-              className={`p-4 sm:p-5 border-2 transition-all shadow-xs ${
+              className={`p-4 sm:p-5 border transition-colors duration-150 ${
                 isInjured
-                  ? "border-destructive/60 bg-destructive/5 hover:border-destructive"
+                  ? "border-border border-l-2 border-l-destructive bg-card hover:border-destructive/40"
                   : isHighFatigue
-                  ? "border-warning/60 bg-warning/5 hover:border-warning"
+                  ? "border-border border-l-2 border-l-warning bg-card hover:border-warning/40"
                   : "border-border bg-card hover:border-brand/40"
               }`}
             >

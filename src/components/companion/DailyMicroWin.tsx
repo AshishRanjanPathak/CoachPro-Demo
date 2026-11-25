@@ -98,48 +98,48 @@ export function DailyMicroWin() {
   };
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-neutral-900/90 p-5 shadow-sm">
-      <div className="flex items-center justify-between mb-3.5">
-        <h4 className="text-sm font-bold text-white flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-amber-400" />
-          <span>Daily 3-Second Micro Wins</span>
+    <div className="rounded-2xl border border-border bg-card p-3.5 sm:p-4">
+      <div className="flex items-center justify-between mb-2.5">
+        <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
+          <span>Daily Check-Ins</span>
         </h4>
-        <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-          Tap once for instant reward
+        <span className="text-[11px] font-medium text-muted-foreground">
+          1-Tap Rewards
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {/* 1. Hydrate */}
         <button
           type="button"
           onClick={handleHydrate}
           disabled={companion.hasHydratedToday}
-          className={`group flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all ${
+          className={`flex items-center justify-between px-3 py-2.5 rounded-xl border text-left transition-[border-color,background-color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.98] min-h-[44px] ${
             companion.hasHydratedToday
-              ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-300 cursor-default"
-              : "border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer hover:border-cyan-500/30 hover:scale-[1.02]"
+              ? "border-success/30 bg-success/10 text-success cursor-default"
+              : "border-border bg-secondary/40 hover:bg-secondary text-foreground cursor-pointer"
           }`}
         >
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              companion.hasHydratedToday ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-cyan-400 group-hover:bg-cyan-500/20"
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+              companion.hasHydratedToday ? "bg-success/15 text-success" : "bg-card border border-border text-brand"
             }`}>
-              <Droplets className="h-5 w-5" />
+              <Droplets className="h-4 w-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold leading-tight">
-                {companion.hasHydratedToday ? "Hydrated!" : "Drink Water"}
+            <div className="min-w-0">
+              <p className="text-xs font-semibold leading-tight truncate">
+                {companion.hasHydratedToday ? "Hydrated" : "Drink Water"}
               </p>
-              <p className="text-[10px] text-neutral-400 mt-0.5">
-                {companion.hasHydratedToday ? `${companion.waterStreakDays}-Day Streak 🔥` : "Tap to hydrate Bonobo"}
+              <p className="text-[11px] text-muted-foreground mt-0.5 truncate tabular-nums">
+                {companion.hasHydratedToday ? `${companion.waterStreakDays}d streak` : "Daily target"}
               </p>
             </div>
           </div>
           {companion.hasHydratedToday ? (
-            <CheckCircle2 className="h-4 w-4 text-cyan-400 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-success shrink-0 ml-2" />
           ) : (
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/5 text-cyan-300 font-bold">
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-card border border-border text-muted-foreground font-semibold tabular-nums shrink-0 ml-2">
               +15 XP
             </span>
           )}
@@ -150,31 +150,31 @@ export function DailyMicroWin() {
           type="button"
           onClick={handleRestDay}
           disabled={restDayConfirmed}
-          className={`group flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all ${
+          className={`flex items-center justify-between px-3 py-2.5 rounded-xl border text-left transition-[border-color,background-color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.98] min-h-[44px] ${
             restDayConfirmed
-              ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-300 cursor-default"
-              : "border-white/10 bg-white/5 hover:bg-white/10 text-white cursor-pointer hover:border-indigo-500/30 hover:scale-[1.02]"
+              ? "border-brand/30 bg-brand/10 text-brand cursor-default"
+              : "border-border bg-secondary/40 hover:bg-secondary text-foreground cursor-pointer"
           }`}
         >
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              restDayConfirmed ? "bg-indigo-500/20 text-indigo-400" : "bg-white/5 text-indigo-400 group-hover:bg-indigo-500/20"
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+              restDayConfirmed ? "bg-brand/15 text-brand" : "bg-card border border-border text-muted-foreground"
             }`}>
-              <Moon className="h-5 w-5" />
+              <Moon className="h-4 w-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold leading-tight">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold leading-tight truncate">
                 {restDayConfirmed ? "Resting Well" : "Rest Day Pass"}
               </p>
-              <p className="text-[10px] text-neutral-400 mt-0.5">
-                {restDayConfirmed ? "Tucked Bonobo in 🛌" : "Tap if taking today off"}
+              <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                {restDayConfirmed ? "Active recovery" : "Log rest day"}
               </p>
             </div>
           </div>
           {restDayConfirmed ? (
-            <CheckCircle2 className="h-4 w-4 text-indigo-400 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-brand shrink-0 ml-2" />
           ) : (
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/5 text-indigo-300 font-bold">
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-card border border-border text-muted-foreground font-semibold tabular-nums shrink-0 ml-2">
               +20 XP
             </span>
           )}
@@ -185,31 +185,31 @@ export function DailyMicroWin() {
           type="button"
           onClick={handleOneTapWorkout}
           disabled={workoutLogged}
-          className={`group flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all ${
+          className={`flex items-center justify-between px-3 py-2.5 rounded-xl border text-left transition-[border-color,background-color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.98] min-h-[44px] ${
             workoutLogged
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300 cursor-default"
-              : "border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/15 text-white cursor-pointer hover:border-emerald-500/50 hover:scale-[1.02]"
+              ? "border-success/30 bg-success/10 text-success cursor-default"
+              : "border-border bg-secondary/40 hover:bg-secondary text-foreground cursor-pointer"
           }`}
         >
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              workoutLogged ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/30"
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+              workoutLogged ? "bg-success/15 text-success" : "bg-card border border-border text-success"
             }`}>
-              <Zap className="h-5 w-5" />
+              <Zap className="h-4 w-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold leading-tight">
-                {workoutLogged ? "Workout Logged!" : "1-Tap 'Crushed It!'"}
+            <div className="min-w-0">
+              <p className="text-xs font-semibold leading-tight truncate">
+                {workoutLogged ? "Workout Logged" : "1-Tap Complete"}
               </p>
-              <p className="text-[10px] text-neutral-400 mt-0.5">
-                {workoutLogged ? "Fed 3 snacks 🍌" : `Auto-log today's ${prescriptionCount} lifts`}
+              <p className="text-[11px] text-muted-foreground mt-0.5 truncate tabular-nums">
+                {workoutLogged ? "Earned bananas 🍌" : `Log ${prescriptionCount} prescribed lifts`}
               </p>
             </div>
           </div>
           {workoutLogged ? (
-            <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-success shrink-0 ml-2" />
           ) : (
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-bold">
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-card border border-border text-success font-semibold tabular-nums shrink-0 ml-2">
               +40 XP
             </span>
           )}

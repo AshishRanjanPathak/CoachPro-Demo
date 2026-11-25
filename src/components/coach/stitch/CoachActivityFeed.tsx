@@ -86,9 +86,8 @@ export function CoachActivityFeed() {
       <div className="lg:col-span-2 bg-card rounded-xl p-4 sm:p-5 flex flex-col space-y-4 border border-border shadow-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="relative flex h-3 w-3" aria-hidden="true">
-              <span className="animate-ping motion-reduce:animate-none absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-success"></span>
+            <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+              <span className="inline-flex rounded-full h-2.5 w-2.5 bg-success"></span>
             </span>
             <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight text-balance">
               Live Training Activity Feed

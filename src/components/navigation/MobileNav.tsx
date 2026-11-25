@@ -115,15 +115,15 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
                 triggerHaptic();
                 onTabChange(item.id);
               }}
-              className={`relative flex flex-col items-center justify-center flex-1 h-full min-h-[48px] py-1 cursor-pointer transition-all duration-150 active:scale-95 touch-manipulation ${
+              className={`relative flex flex-col items-center justify-center flex-1 h-full min-h-[48px] py-1 cursor-pointer transition-[color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.96] touch-manipulation ${
                 isActive 
                   ? "text-brand font-semibold" 
                   : "text-muted-foreground hover:text-foreground active:text-foreground"
               }`}
             >
-              {/* Active Tab Spring Highlight Bar */}
+              {/* Active Tab Crisp Hairline Indicator */}
               {isActive && (
-                <span className="absolute top-0 w-8 h-1 rounded-full bg-brand shadow-xs shadow-brand/50" />
+                <span className="absolute top-0 w-7 h-0.5 rounded-full bg-brand" />
               )}
 
               {/* Icon with relative badge positioning */}

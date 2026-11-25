@@ -55,13 +55,13 @@ export function DailyNudgeCard() {
   const message = NUDGE_MESSAGES[dayNumber % NUDGE_MESSAGES.length];
 
   return (
-    <div className="relative flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-card border border-border shadow-xs text-xs">
+    <div className="relative flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-card border border-border text-xs">
       <div className="flex items-center gap-2.5 min-w-0">
-        <span className="text-lg shrink-0 select-none">
+        <span className="text-base shrink-0 select-none">
           {highFived ? "🎉" : "🌅"}
         </span>
         <p className="text-muted-foreground truncate font-medium">
-          {highFived ? "High five received! Have an awesome day." : message}
+          {highFived ? "High five received! Have a focused session." : message}
         </p>
       </div>
 
@@ -70,13 +70,13 @@ export function DailyNudgeCard() {
           <button
             type="button"
             onClick={handleHighFive}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand text-brand-foreground font-semibold text-xs shadow-xs hover:bg-brand/90 active:scale-95 transition-all cursor-pointer min-h-[36px]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-brand-foreground font-semibold text-xs hover:bg-brand-hover active:scale-[0.97] transition-[transform,background-color] duration-150 ease-[var(--ease-out)] cursor-pointer min-h-[36px]"
           >
             <span>High Five ✋</span>
-            <span className="font-mono text-[10px] opacity-80">+10 XP</span>
+            <span className="font-mono text-[10px] opacity-85 tabular-nums">+10 XP</span>
           </button>
         ) : (
-          <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+          <span className="inline-flex items-center gap-1 text-success font-semibold text-[11px] px-2.5 py-1 rounded-md bg-success/10 border border-success/20">
             <Check className="w-3.5 h-3.5" /> Checked in
           </span>
         )}
@@ -84,7 +84,7 @@ export function DailyNudgeCard() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="p-1 rounded-lg text-muted-foreground/60 hover:text-foreground transition-colors"
+          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors duration-150 active:scale-[0.97]"
           aria-label="Dismiss note"
         >
           <X className="w-3.5 h-3.5" />

@@ -138,21 +138,21 @@ export function AthleteRoster() {
               Optimal: {optimalCount} ({optimalPct}%)
             </span>
             <span className="flex items-center gap-1.5 text-destructive font-semibold">
-              <span className="w-2 h-2 rounded-full bg-destructive animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-destructive"></span>
               Needs Attention: {urgentCount} ({urgentPct}%)
             </span>
           </div>
         </div>
 
         {/* Visual Ratio Bar */}
-        <div className="w-full bg-secondary h-2.5 rounded-full overflow-hidden flex">
+        <div className="w-full bg-secondary h-2 rounded-full overflow-hidden flex">
           <div
-            className="bg-success h-full transition-[width] duration-300"
+            className="bg-success h-full transition-[width] duration-200 ease-[var(--ease-out)]"
             style={{ width: `${optimalPct}%` }}
             title={`Optimal: ${optimalCount}`}
           ></div>
           <div
-            className="bg-destructive h-full transition-[width] duration-300"
+            className="bg-destructive h-full transition-[width] duration-200 ease-[var(--ease-out)]"
             style={{ width: `${urgentPct}%` }}
             title={`Needs Attention: ${urgentCount}`}
           ></div>
@@ -552,7 +552,7 @@ export function AthleteRoster() {
 
       {/* 7. Floating Bulk Action Toolbar (When 1+ Athletes Selected) */}
       {selectedIds.length > 0 && (
-        <div className="sticky bottom-4 z-40 bg-card/95 backdrop-blur-md border border-brand/40 shadow-xl rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2">
+        <div className="sticky bottom-4 z-40 bg-card border border-brand/40 shadow-lg rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2 duration-150 ease-[var(--ease-out)]">
           <div className="flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-brand text-brand-foreground font-mono text-xs font-bold flex items-center justify-center tabular-nums">
               {selectedIds.length}

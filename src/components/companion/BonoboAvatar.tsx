@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { CompanionMood, CompanionHeadwear, CompanionProp } from "@/lib/companion";
 import { soundController } from "@/lib/audio";
 
@@ -23,24 +23,13 @@ export function BonoboAvatar({
   className = "",
   onClick,
 }: BonoboAvatarProps) {
-  const [blinking, setBlinking] = useState(false);
   const [bouncing, setBouncing] = useState(false);
   const [imgError, setImgError] = useState(false);
-
-  // Periodic eye blink (only runs when page is visible)
-  useEffect(() => {
-    if (typeof document !== "undefined" && document.hidden) return;
-    const interval = setInterval(() => {
-      setBlinking(true);
-      setTimeout(() => setBlinking(false), 180);
-    }, 4200);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleClick = () => {
     setBouncing(true);
     soundController.playPop();
-    setTimeout(() => setBouncing(false), 500);
+    setTimeout(() => setBouncing(false), 220);
     if (onClick) onClick();
   };
 
@@ -67,8 +56,8 @@ export function BonoboAvatar({
       role="button"
       tabIndex={0}
       aria-label="Bonobo companion avatar"
-      className={`relative inline-flex items-center justify-center cursor-pointer select-none transition-transform duration-300 ${
-        bouncing ? "scale-110" : "hover:scale-105"
+      className={`relative inline-flex shrink-0 items-center justify-center cursor-pointer select-none transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] ${
+        bouncing ? "scale-[1.03]" : ""
       } ${className}`}
       style={{ width: size, height: size }}
     >
@@ -149,12 +138,6 @@ export function BonoboAvatar({
             {/* Determined brows */}
             <path d="M78 62 L94 65" stroke="#3E2723" strokeWidth="3" strokeLinecap="round" />
             <path d="M122 62 L106 65" stroke="#3E2723" strokeWidth="3" strokeLinecap="round" />
-          </g>
-        ) : blinking ? (
-          // Blinking closed lines
-          <g stroke="#3E2723" strokeWidth="3" strokeLinecap="round">
-            <line x1="78" y1="68" x2="94" y2="68" />
-            <line x1="106" y1="68" x2="122" y2="68" />
           </g>
         ) : (
           // Expressive eyes (Happy / Celebrating / Content)
@@ -266,9 +249,9 @@ export function BonoboAvatar({
           </g>
         )}
 
-        {/* Sleep Zzz Floating Animation if sleepy */}
+        {/* Sleep Zzz static label when sleepy (no infinite bounce loop) */}
         {mood === "sleepy" && (
-          <g className="animate-bounce text-indigo-400 font-black text-sm" opacity="0.8">
+          <g className="text-indigo-400 font-black text-sm" opacity="0.8">
             <text x="145" y="45" fill="currentColor">Z</text>
             <text x="156" y="32" fill="currentColor" fontSize="10">z</text>
             <text x="165" y="22" fill="currentColor" fontSize="8">z</text>

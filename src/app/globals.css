@@ -41,6 +41,11 @@
 
   --radius: 0.5rem;
 
+  /* Emil Kowalski Design Engineering easing tokens */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
   --keyboard-height: 0px;
   --keyboard-inset-bottom: 0px;
 }
@@ -155,11 +160,12 @@
   border-color: var(--border);
 }
 
-/* Native Mobile App Web Experience (2026 Mobile Guidelines) */
+/* Native Mobile App Web Experience (mobile-native & design engineering baseline) */
 html {
   -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
-  overscroll-behavior-y: contain;
+  overscroll-behavior: none;
 }
 
 body {
@@ -169,6 +175,32 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Typography precision helpers (ui-cheatsheet & apple-design) */
+.heading-tight {
+  letter-spacing: -0.02em;
+}
+
+.prose-cap {
+  max-width: 65ch;
+}
+
+/* Interactive controls only: prevent accidental text selection on long-press (mobile-native §8) */
+button,
+[role="button"],
+[role="tab"],
+.chip,
+.drag-handle {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+/* Prevent scroll chaining inside drawers, modals & inner scroll containers */
+.overscroll-contain {
+  overscroll-behavior: contain;
 }
 
 /* Safe area padding utilities */
@@ -204,20 +236,15 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Touch optimization for mobile buttons and jitter elimination */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
 button, a, input, select, textarea {
   touch-action: manipulation;
 }
 
-/* GPU acceleration for smooth 60fps mobile transitions */
-.gpu-accel {
-  transform: translateZ(0);
-  will-change: transform;
-  backface-visibility: hidden;
+/* Gate hover effects behind true fine-pointer hover capability (mobile-native §1) */
+@media (hover: hover) and (pointer: fine) {
+  .hover-surface {
+    transition: background-color 150ms var(--ease-out), border-color 150ms var(--ease-out);
+  }
 }
 
 /* Safe area padding utilities for iOS iPhone home indicators and notches */
@@ -240,12 +267,12 @@ button, a, input, select, textarea {
   min-height: 100dvh;
 }
 
-/* Prevent iOS Safari automatic auto-zoom when tapping inputs on iPhone */
-@media (max-width: 640px) {
+/* Prevent iOS Safari & touch-device auto-zoom when tapping inputs (mobile-native §4) */
+@media (max-width: 640px), (pointer: coarse) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
   textarea {
-    font-size: 16px !important;
+    font-size: 16px;
   }
 }
 
@@ -285,6 +312,18 @@ button, a, input, select, textarea {
   .backdrop-blur-2xl,
   .backdrop-blur-xl,
   .backdrop-blur-lg {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* Respect prefers-reduced-transparency (apple-design §14) */
+@media (prefers-reduced-transparency: reduce) {
+  .backdrop-blur-2xl,
+  .backdrop-blur-xl,
+  .backdrop-blur-lg,
+  .backdrop-blur-md,
+  .backdrop-blur-xs {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }

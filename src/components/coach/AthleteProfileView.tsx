@@ -695,9 +695,9 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
                         soundController.playPop();
                         setActiveCustomDayId(d.id);
                       }}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border cursor-pointer transition-all ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border cursor-pointer transition-[background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
                         activeCustomDayId === d.id
-                          ? "bg-brand text-white border-brand shadow-xs"
+                          ? "bg-brand text-white border-brand"
                           : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
                       }`}
                     >

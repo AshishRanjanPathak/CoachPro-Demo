@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { AthleteProfile } from "@/types";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -18,7 +18,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Trophy, TrendingUp, Calendar, Filter, Dumbbell, Award, ArrowUpRight, Search, X } from "lucide-react";
-import { animateNumber, isReducedMotion } from "@/lib/animations";
 
 interface IndividualProgressAnalyticsProps {
   athlete: AthleteProfile;
@@ -128,20 +127,6 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
   const lastPoint = analyticsData[analyticsData.length - 1]?.weight || 100;
   const progressDeltaKg = Math.round((lastPoint - firstPoint) * 10) / 10;
   const progressPct = firstPoint > 0 ? Math.round((progressDeltaKg / firstPoint) * 1000) / 10 : 0;
-
-  // Run GSAP number odometer whenever analyticsData changes
-  useEffect(() => {
-    if (isReducedMotion()) return;
-
-    animateNumber(peak1RmRef.current, peak1RM, { duration: 0.65, decimals: 1 });
-    animateNumber(peakWeightRef.current, peakWeight, { duration: 0.65, decimals: 1 });
-    animateNumber(deltaKgRef.current, progressDeltaKg, {
-      duration: 0.7,
-      decimals: 1,
-      prefix: progressDeltaKg >= 0 ? "+" : ""
-    });
-    animateNumber(volumeRef.current, totalVolume / 1000, { duration: 0.8, decimals: 1 });
-  }, [peak1RM, peakWeight, progressDeltaKg, totalVolume]);
 
   // Compute metric-specific Y-axis domain to prevent Recharts flat lines or clipping
   const yDomain = useMemo(() => {
@@ -371,8 +356,7 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                   strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#metricGrad)"
-                  isAnimationActive={!isReducedMotion()}
-                  animationDuration={800}
+                  isAnimationActive={false}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -381,7 +365,7 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
       </Card>
 
       {/* Volume Distribution Bar Chart */}
-      <Card className="border-border shadow-xs bg-card">
+      <Card className="border-border bg-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-bold">Session Tonnage Distribution (kg)</CardTitle>
           <CardDescription className="text-xs">
@@ -412,8 +396,7 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                   dataKey="volume"
                   fill="#7C8FD8"
                   radius={[4, 4, 0, 0]}
-                  isAnimationActive={!isReducedMotion()}
-                  animationDuration={700}
+                  isAnimationActive={false}
                 />
               </BarChart>
             </ResponsiveContainer>

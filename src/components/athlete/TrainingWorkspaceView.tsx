@@ -69,16 +69,17 @@ export function TrainingWorkspaceView() {
   }) || currentDay.prescriptions[0];
 
   return (
-    <div className="space-y-5">
-      {/* 1. & 2. Training Header: Title, Date & Status */}
-      <div className="bg-card border border-border rounded-2xl p-5 shadow-xs bg-gradient-to-r from-brand/10 via-card to-card">
+    <div className="space-y-4 max-w-4xl mx-auto">
+      {/* 1. & 2. Training Header: Clean Matte Surface */}
+      <div className="bg-card border border-border rounded-2xl p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-brand/40 text-brand bg-brand/5 text-xs uppercase tracking-wider font-semibold">
-              Today’s Training
-            </Badge>
+            <span className="text-[11px] font-mono uppercase tracking-wider text-brand font-semibold">
+              Today&apos;s Training
+            </span>
+            <span className="text-border">•</span>
             <span className="text-xs text-muted-foreground flex items-center gap-1 font-mono">
-              <Calendar className="w-3.5 h-3.5 inline text-brand" aria-hidden="true" /> {currentDateStr}
+              <Calendar className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" /> {currentDateStr}
             </span>
           </div>
 
@@ -88,69 +89,64 @@ export function TrainingWorkspaceView() {
               variant="outline"
               size="sm"
               onClick={handleOpenGeneralQuickLog}
-              className="text-xs font-semibold h-8 px-3 rounded-lg border-border hover:bg-secondary cursor-pointer min-h-[40px] focus-visible:ring-2 focus-visible:ring-brand flex items-center gap-1.5"
+              className="text-xs font-semibold h-9 px-3 rounded-lg"
             >
               <Plus className="w-3.5 h-3.5 text-brand" aria-hidden="true" />
               <span>Quick Log</span>
             </Button>
 
             {isCompleted ? (
-              <Badge variant="success" className="bg-success/15 text-success border border-success/30 font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5 mr-1" aria-hidden="true" /> Session Completed
+              <Badge variant="success" className="text-[11px] font-medium">
+                <CheckCircle2 className="w-3 h-3 mr-1" aria-hidden="true" /> Completed
               </Badge>
             ) : (
-              <Badge variant="brand" className="bg-brand text-white border-none font-semibold">
+              <Badge variant="outline" className="text-[11px] font-medium text-brand border-brand/30">
                 In Progress
               </Badge>
             )}
           </div>
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+        <h2 className="text-xl sm:text-2xl font-bold heading-tight text-foreground">
           {session.dayName}
         </h2>
-        <p className="text-muted-foreground text-sm mt-1">
-          Program: <span className="font-semibold text-foreground">{session.programTitle}</span> • Coach <span className="text-foreground">{program.coachName}</span>
+        <p className="text-muted-foreground text-xs sm:text-sm mt-1">
+          {session.programTitle} • Coach {program.coachName}
         </p>
 
         {/* 3. Session Progress Indicator */}
-        <div className="mt-4 pt-3.5 border-t border-border/80">
+        <div className="mt-4 pt-3.5 border-t border-border">
           <div className="flex justify-between items-center text-xs font-medium text-muted-foreground mb-1.5">
             <span>Overall Session Progress</span>
             <span className="font-semibold text-foreground tabular-nums">
               {completedSetsCount} / {totalPrescribedSets} sets ({progressPercent}%)
             </span>
           </div>
-          <Progress value={completedSetsCount} max={totalPrescribedSets} className="h-2.5" />
+          <Progress value={completedSetsCount} max={totalPrescribedSets} className="h-1.5" />
         </div>
       </div>
 
-      {/* 4. Coach Buddy Companion (Integrated Workout Mode) */}
+      {/* 4. Session Companion Strip */}
       <CoachBuddyCard mode="training" onOpenLogger={handleOpenGeneralQuickLog} />
 
       {/* 5. & 6. Prescribed Movement Lineup & Individual Exercise Cards */}
-      <Card className="border-border shadow-xs overflow-hidden rounded-2xl bg-card">
-        <CardContent className="p-5 sm:p-6 space-y-4">
+      <Card className="border-border overflow-hidden rounded-2xl bg-card">
+        <CardContent className="p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Prescribed Movement Lineup
+              Prescribed Lineup
             </span>
-            <span className="text-xs text-muted-foreground">
-              {currentDay.prescriptions.length} movements planned
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {currentDay.prescriptions.length} movements
             </span>
           </div>
 
-          {/* Beginner and Form Tips */}
-          <div className="p-3.5 rounded-xl bg-secondary/40 border border-border text-xs text-muted-foreground flex items-center gap-3">
-            <span className="text-base" role="img" aria-label="Lightbulb">💡</span>
-            <div className="leading-relaxed">
-              <span className="font-semibold text-foreground">Form Guidance: </span>
-              Control every rep smoothly. Lower the weight over 2–3 seconds, maintain a strong brace, and tap “Log Set” on the movement after completing each set.
-            </div>
-          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed border-l-2 border-l-brand pl-3 py-0.5">
+            Control every rep smoothly (2–3s eccentric), brace well, and tap <strong className="text-foreground">Log Set</strong> after each working set.
+          </p>
 
           {/* Individual Exercise Cards */}
-          <div className="space-y-3">
+          <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-card">
             {currentDay.prescriptions.map((rx, idx) => {
               const loggedSets = session.sets.filter(s => s.exerciseId === rx.exerciseId);
               const isRxComplete = loggedSets.length >= rx.sets;
@@ -159,19 +155,17 @@ export function TrainingWorkspaceView() {
               return (
                 <div
                   key={rx.id}
-                  className={`p-4 rounded-xl border transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                    isRxComplete 
-                      ? "border-success/30 bg-success/5" 
-                      : "border-border bg-card hover:border-brand/40 shadow-xs"
+                  className={`p-3.5 sm:p-4 transition-colors duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    isRxComplete ? "bg-success/5" : "bg-card"
                   }`}
                 >
-                  <div className="flex items-start gap-3.5">
+                  <div className="flex items-start gap-3">
                     {/* Visual Thumbnail & Movement Pose Preview Button */}
                     <button
                       type="button"
                       onClick={() => setDetailModalExercise({ id: rx.exerciseId, name: rx.exerciseName })}
-                      className="relative w-12 h-12 rounded-xl bg-secondary/80 border border-border overflow-hidden shrink-0 group focus-visible:ring-2 focus-visible:ring-brand cursor-pointer hover:border-brand/60 transition-all p-0.5"
-                      title={`Inspect 2-pose movement demonstration for ${rx.exerciseName}`}
+                      className="relative w-12 h-12 rounded-xl bg-secondary border border-border overflow-hidden shrink-0 focus-visible:ring-2 focus-visible:ring-brand cursor-pointer hover:border-brand/60 transition-colors duration-150 active:scale-[0.97] p-0.5"
+                      title={`Inspect movement demonstration for ${rx.exerciseName}`}
                       aria-label={`Inspect technique and poses for ${rx.exerciseName}`}
                     >
                       {thumbUrl ? (
@@ -179,17 +173,14 @@ export function TrainingWorkspaceView() {
                           src={thumbUrl}
                           alt={rx.exerciseName}
                           loading="lazy"
-                          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                          className="w-full h-full object-contain"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                           <Dumbbell className="w-5 h-5" aria-hidden="true" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-brand/15 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <Eye className="w-3.5 h-3.5 text-brand" aria-hidden="true" />
-                      </div>
-                      <div className="absolute bottom-0 right-0 bg-background/90 text-[10px] font-bold px-1 rounded-tl border-t border-l border-border/80">
+                      <div className="absolute bottom-0 right-0 bg-background/90 text-[10px] font-bold px-1 rounded-tl border-t border-l border-border tabular-nums">
                         {idx + 1}
                       </div>
                     </button>

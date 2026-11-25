@@ -38,24 +38,24 @@ export function UnlockTrackModal({
 }: UnlockTrackModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-neutral-900 border-white/10 text-white rounded-3xl p-5 sm:p-6">
+      <DialogContent className="max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-base font-bold flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-amber-400" />
+            <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">
+              <Trophy className="h-4 w-4 text-warning" />
               <span>Reward Milestones</span>
             </DialogTitle>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 font-bold">
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-warning/10 border border-warning/20 text-warning font-bold tabular-nums">
               Level {currentLevel}
             </span>
           </div>
-          <DialogDescription className="text-xs text-neutral-400">
+          <DialogDescription className="text-xs text-muted-foreground">
             Log workouts and micro-wins to unlock gear automatically.
           </DialogDescription>
         </DialogHeader>
 
         {/* Milestone Steps */}
-        <div className="space-y-2.5 mt-3 max-h-[60vh] overflow-y-auto pr-1">
+        <div className="space-y-2 mt-3 max-h-[60dvh] overflow-y-auto overscroll-contain pr-1">
           {MILESTONES.map((m) => {
             const isUnlocked = currentLevel >= m.level;
             const isNext = currentLevel + 1 === m.level;
@@ -63,38 +63,38 @@ export function UnlockTrackModal({
             return (
               <div
                 key={m.level}
-                className={`flex items-center justify-between p-3 rounded-2xl border transition-all ${
+                className={`flex items-center justify-between p-3 rounded-xl border ${
                   isNext
-                    ? "border-amber-400/40 bg-amber-500/10 shadow-sm"
+                    ? "border-warning/40 bg-warning/10"
                     : isUnlocked
-                    ? "border-emerald-500/20 bg-emerald-500/5"
-                    : "border-white/5 bg-black/30 opacity-70"
+                    ? "border-success/25 bg-success/5"
+                    : "border-border bg-secondary/40 opacity-70"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl select-none shrink-0">{m.icon}</span>
-                  <div>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-xl select-none shrink-0">{m.icon}</span>
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-xs font-bold text-white leading-tight">{m.title}</p>
-                      <span className="text-[10px] text-neutral-400 font-medium font-mono uppercase">
+                      <p className="text-xs font-bold text-foreground leading-tight truncate">{m.title}</p>
+                      <span className="text-[10px] text-muted-foreground font-medium font-mono uppercase shrink-0">
                         {m.type}
                       </span>
                     </div>
-                    <p className="text-[11px] text-neutral-400 mt-0.5">{m.desc}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{m.desc}</p>
                   </div>
                 </div>
 
-                <div className="shrink-0 text-right">
+                <div className="shrink-0 text-right ml-2">
                   {isUnlocked ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-md border border-success/20">
                       <Check className="h-3 w-3" /> Unlocked
                     </span>
                   ) : isNext ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-warning bg-warning/15 px-2 py-0.5 rounded-md border border-warning/30">
                       <Sparkles className="h-3 w-3" /> Next Up
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-500">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground tabular-nums">
                       <Lock className="h-3 w-3" /> Lvl {m.level}
                     </span>
                   )}
