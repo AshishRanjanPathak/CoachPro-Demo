@@ -32,22 +32,23 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
   const [adjustedNotice, setAdjustedNotice] = useState(false);
 
   const activeProgram = state.programs[0];
+  const defaultPrescriptions = activeProgram?.days?.[0]?.prescriptions ?? [];
 
   const handleOpenAdjust = (ath: AthleteProfile) => {
     setSelectedAthleteForAdjust(ath);
-    const day = activeProgram.days[0];
-    const rx = day.prescriptions[0];
-    setSelectedDayId(day.id);
-    setSelectedRxId(rx.id);
-    setNewLoad(rx.targetLoadKg ? Math.round(rx.targetLoadKg * 0.7) : 80); // Default to 30% deload for injured athletes
-    setNewReps(rx.repTarget || "8");
+    const day = activeProgram?.days?.[0];
+    const rx = day?.prescriptions?.[0];
+    setSelectedDayId(day?.id || "day-1");
+    setSelectedRxId(rx?.id || "rx-1");
+    setNewLoad(rx?.targetLoadKg ? Math.round(rx.targetLoadKg * 0.7) : 80); // Default to 30% deload for injured athletes
+    setNewReps(rx?.repTarget || "8");
     setAdjustmentNotes(`Deload / substituted due to ${ath.injuryStatus?.injuryLocation || "reported fatigue"}.`);
     setAdjustModalOpen(true);
   };
 
   const handleSaveAdjustment = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedAthleteForAdjust) return;
+    if (!selectedAthleteForAdjust || !activeProgram) return;
 
     adjustPrescription(activeProgram.id, selectedDayId, selectedRxId, {
       targetLoadKg: newLoad,
@@ -223,16 +224,20 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                 value={selectedRxId}
                 onChange={(e) => {
                   setSelectedRxId(e.target.value);
-                  const rx = activeProgram.days[0].prescriptions.find(p => p.id === e.target.value);
+                  const rx = defaultPrescriptions.find(p => p.id === e.target.value);
                   if (rx && rx.targetLoadKg) setNewLoad(Math.round(rx.targetLoadKg * 0.7));
                 }}
                 className="w-full text-xs bg-card border border-border rounded-md px-3 py-2 text-foreground font-semibold h-10"
               >
-                {activeProgram.days[0].prescriptions.map((rx) => (
-                  <option key={rx.id} value={rx.id}>
-                    {rx.exerciseName} (Current: {rx.targetLoadKg}kg × {rx.repTarget})
-                  </option>
-                ))}
+                {defaultPrescriptions.length === 0 ? (
+                  <option value="" disabled>No prescribed movements available</option>
+                ) : (
+                  defaultPrescriptions.map((rx) => (
+                    <option key={rx.id} value={rx.id}>
+                      {rx.exerciseName} (Current: {rx.targetLoadKg}kg × {rx.repTarget})
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 

@@ -17,11 +17,19 @@ export function DailyNudgeCard() {
   const todayKey = `coachpro_nudge_${new Date().toISOString().slice(0, 10)}`;
   const [dismissed, setDismissed] = useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem(todayKey) === "dismissed";
+    try {
+      return localStorage.getItem(todayKey) === "dismissed";
+    } catch {
+      return false;
+    }
   });
   const [highFived, setHighFived] = useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem(todayKey) === "high_fived";
+    try {
+      return localStorage.getItem(todayKey) === "high_fived";
+    } catch {
+      return false;
+    }
   });
 
   if (dismissed) return null;
@@ -42,12 +50,20 @@ export function DailyNudgeCard() {
     triggerOptimizedConfetti({ particleCount: 20, spread: 40, origin: { y: 0.7 } });
     addCompanionXp(10, "Daily High Five");
     setHighFived(true);
-    localStorage.setItem(todayKey, "high_fived");
+    try {
+      localStorage.setItem(todayKey, "high_fived");
+    } catch {
+      // Ignore storage write restrictions
+    }
   };
 
   const handleDismiss = () => {
     setDismissed(true);
-    localStorage.setItem(todayKey, "dismissed");
+    try {
+      localStorage.setItem(todayKey, "dismissed");
+    } catch {
+      // Ignore storage write restrictions
+    }
   };
 
   // Pick a stable message based on today's day number

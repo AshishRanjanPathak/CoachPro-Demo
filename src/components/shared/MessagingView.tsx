@@ -17,7 +17,7 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
   const { state, currentUser, sendMessage } = useAuth();
   const [inputText, setInputText] = useState("");
 
-  const isCoach = currentUser.role === "coach";
+  const isCoach = currentUser?.role === "coach";
   const defaultRecipient = isCoach
     ? (initialRecipientId || state.athletes[0]?.id || "usr-athlete-1")
     : "usr-coach-1";
@@ -30,16 +30,16 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
   // Active recipient info
   const activeRecipient = isCoach
     ? state.athletes.find(a => a.id === activeRecipientId) || state.athletes[0]
-    : state.users.find(u => u.id === "usr-coach-1") || state.users[1];
+    : state.users.find(u => u.id === "usr-coach-1") || state.users[1] || state.users[0];
 
   const { isKeyboardVisible, keyboardHeight } = useKeyboardViewport();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Filter messages between currentUser and activeRecipient
-  const conversationMessages = state.messages.filter(
+  const conversationMessages = (state.messages || []).filter(
     (m) =>
-      (m.senderId === currentUser.id && m.recipientId === activeRecipientId) ||
-      (m.senderId === activeRecipientId && m.recipientId === currentUser.id)
+      (m.senderId === currentUser?.id && m.recipientId === activeRecipientId) ||
+      (m.senderId === activeRecipientId && m.recipientId === currentUser?.id)
   );
 
   useEffect(() => {

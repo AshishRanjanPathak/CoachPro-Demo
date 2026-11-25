@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
+import { resolveActiveAthlete } from "@/lib/store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,22 +28,23 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
   const { state, currentUser, updateAthleteProfile } = useAuth();
 
   // Find active athlete profile corresponding to current logged in user
-  const athlete = state.athletes.find(a => a.id === currentUser.id) || state.athletes.find(a => a.id === "usr-athlete-1") || state.athletes[0];
+  const athlete = resolveActiveAthlete(state, currentUser?.id);
 
   const [editOpen, setEditOpen] = useState(false);
-  const [tempWeight, setTempWeight] = useState<number>(athlete.weightKg || 83.5);
-  const [tempHeight, setTempHeight] = useState<number>(athlete.heightCm || 178);
-  const [tempAge, setTempAge] = useState<number>(athlete.age || 26);
+  const [tempWeight, setTempWeight] = useState<number>(athlete?.weightKg || 83.5);
+  const [tempHeight, setTempHeight] = useState<number>(athlete?.heightCm || 178);
+  const [tempAge, setTempAge] = useState<number>(athlete?.age || 26);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   // Helper conversions for imperial/metric convenience (helpful for older lifters)
-  const heightInchesTotal = Math.round((athlete.heightCm || 178) / 2.54);
+  const heightInchesTotal = Math.round((athlete?.heightCm || 178) / 2.54);
   const feet = Math.floor(heightInchesTotal / 12);
   const inches = heightInchesTotal % 12;
-  const weightLbs = Math.round((athlete.weightKg || 83.5) * 2.20462);
+  const weightLbs = Math.round((athlete?.weightKg || 83.5) * 2.20462);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!athlete) return;
     updateAthleteProfile(athlete.id, {
       weightKg: tempWeight,
       heightCm: tempHeight,
@@ -67,8 +69,8 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             <div className="flex items-center gap-3">
               <div className="relative shrink-0">
                 <img
-                  src={athlete.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"}
-                  alt={athlete.name}
+                  src={athlete?.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"}
+                  alt={athlete?.name || "Athlete"}
                   className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-brand/50 shadow-xs"
                 />
                 <span
@@ -81,15 +83,15 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
               <div>
                 <div className="flex flex-wrap items-center gap-1.5">
                   <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
-                    {athlete.name}
+                    {athlete?.name || currentUser?.name || "Athlete"}
                   </h2>
                   <Badge variant="outline" className="text-[11px] font-medium border-brand/30 text-brand bg-brand/5 px-2 py-0">
-                    {athlete.experienceLevel || "Intermediate Lifter"}
+                    {athlete?.experienceLevel || "Intermediate Lifter"}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Coach: <span className="font-medium text-foreground">{athlete.assignedCoachName || "Sarah Jenkins, CSCS"}</span>
-                  {athlete.squad && (
+                  Coach: <span className="font-medium text-foreground">{athlete?.assignedCoachName || "Sarah Jenkins, CSCS"}</span>
+                  {athlete?.squad && (
                     <span className="hidden sm:inline"> • Squad: <span className="font-medium text-foreground">{athlete.squad}</span></span>
                   )}
                 </p>
@@ -136,7 +138,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-extrabold text-foreground tabular-nums">
-                  {athlete.age || 26}
+                  {athlete?.age || 26}
                 </span>
                 <span className="text-[11px] text-muted-foreground font-medium">years</span>
               </div>
@@ -151,7 +153,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-extrabold text-foreground tabular-nums">
-                  {athlete.heightCm || 178}
+                  {athlete?.heightCm || 178}
                 </span>
                 <span className="text-[11px] text-muted-foreground font-medium">cm</span>
               </div>
@@ -168,7 +170,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-extrabold text-foreground tabular-nums">
-                  {athlete.weightKg || 83.5}
+                  {athlete?.weightKg || 83.5}
                 </span>
                 <span className="text-[11px] text-muted-foreground font-medium">kg</span>
               </div>
@@ -185,7 +187,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-extrabold text-foreground tabular-nums">
-                  {athlete.readinessScore || 9}
+                  {athlete?.readinessScore || 9}
                 </span>
                 <span className="text-[11px] text-muted-foreground font-medium">/ 10</span>
               </div>
@@ -200,11 +202,11 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             <div className="flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 text-brand shrink-0" aria-hidden="true" />
               <p className="text-xs text-foreground/90 leading-relaxed">
-                <span className="font-semibold text-brand">Goal:</span> {athlete.trainingGoal || "Build strength while preserving joint health."}
+                <span className="font-semibold text-brand">Goal:</span> {athlete?.trainingGoal || "Build strength while preserving joint health."}
               </p>
             </div>
             <span className="text-[11px] text-muted-foreground shrink-0 font-medium">
-              Streak: {athlete.currentStreakDays}d active 🔥
+              Streak: {athlete?.currentStreakDays ?? 0}d active 🔥
             </span>
           </div>
         </CardContent>

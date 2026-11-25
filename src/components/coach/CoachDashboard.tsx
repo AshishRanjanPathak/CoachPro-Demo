@@ -224,7 +224,7 @@ export function CoachDashboard({
             <div className="flex -space-x-2">
               {athletes.slice(0, 3).map(ath => (
                 <div key={ath.id} className="w-7 h-7 rounded-full bg-brand/20 text-brand text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card shrink-0" title={ath.name}>
-                  {ath.name.split(" ").map(n => n[0]).join("")}
+                  {(ath.name || "A").split(" ").map(n => n[0]).join("")}
                 </div>
               ))}
               {athletes.length > 3 && (

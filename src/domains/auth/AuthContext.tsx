@@ -359,12 +359,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const fallbackProgram = remainingPrograms[0];
       const updatedSession =
-        prev.activeSession.programId === programId && fallbackProgram
-          ? {
-              ...prev.activeSession,
-              programId: fallbackProgram.id,
-              programTitle: fallbackProgram.title
-            }
+        prev.activeSession.programId === programId
+          ? fallbackProgram
+            ? {
+                ...prev.activeSession,
+                programId: fallbackProgram.id,
+                programTitle: fallbackProgram.title
+              }
+            : {
+                ...prev.activeSession,
+                programId: "",
+                programTitle: "No Active Program"
+              }
           : prev.activeSession;
 
       return {

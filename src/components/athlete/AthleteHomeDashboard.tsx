@@ -35,6 +35,7 @@ import {
   CompanionState,
   CompanionMode,
 } from "@/lib/companion";
+import { resolveActiveAthlete, resolveActiveSessionContext } from "@/lib/store";
 
 interface AthleteHomeDashboardProps {
   onGoToTraining: () => void;
@@ -47,22 +48,12 @@ export function AthleteHomeDashboard({
 }: AthleteHomeDashboardProps) {
   const { state, currentUser, updateAthleteProfile } = useAuth();
 
-  // Find active athlete
-  const athlete =
-    state.athletes.find((a) => a.id === currentUser.id) ||
-    state.athletes.find((a) => a.id === "usr-athlete-1") ||
-    state.athletes[0];
-  const session = state.activeSession;
-  const program =
-    state.programs.find((p) => p.id === session.programId) || state.programs[0];
-  const currentDay =
-    program.days.find((d) => d.dayNumber === session.dayNumber) || program.days[0];
+  // Resolve active athlete and session/program safely
+  const athlete = resolveActiveAthlete(state, currentUser?.id);
+  const { session, program, prescriptions, plannedSets } = resolveActiveSessionContext(state);
 
   // Workout set calculations (folds CoachBuddy workout progress into Today's Session)
-  const plannedSets = currentDay
-    ? currentDay.prescriptions.reduce((acc, rx) => acc + rx.sets, 0)
-    : 0;
-  const completedSets = session.sets ? session.sets.length : 0;
+  const completedSets = session.sets.length;
   const remainingSets = Math.max(0, plannedSets - completedSets);
   const isCompleted = plannedSets > 0 && completedSets >= plannedSets;
   const isInProgress = completedSets > 0 && !isCompleted;
@@ -72,8 +63,8 @@ export function AthleteHomeDashboard({
   const [loggerOpen, setLoggerOpen] = useState(false);
   const [bonoboSheetOpen, setBonoboSheetOpen] = useState(false);
   const [companion, setCompanion] = useState<CompanionState>(loadCompanionState);
-  const [tempWeight, setTempWeight] = useState<number>(athlete.weightKg || 83.5);
-  const [tempHeight, setTempHeight] = useState<number>(athlete.heightCm || 178);
+  const [tempWeight, setTempWeight] = useState<number>(athlete?.weightKg || 83.5);
+  const [tempHeight, setTempHeight] = useState<number>(athlete?.heightCm || 178);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
@@ -86,12 +77,12 @@ export function AthleteHomeDashboard({
       window.removeEventListener("coachpro_bonobo_updated", handleUpdated);
   }, []);
 
-  const weightKg = athlete.weightKg || 83.5;
+  const weightKg = athlete?.weightKg || 83.5;
   const weightLbs = Math.round(weightKg * 2.20462);
-  const adherence = athlete.adherencePercentage || 94;
-  const streak = athlete.currentStreakDays || 5;
-  const totalWorkouts = athlete.totalWorkoutsCompleted || 24;
-  const readiness = athlete.readinessScore || 9;
+  const adherence = athlete?.adherencePercentage ?? 94;
+  const streak = athlete?.currentStreakDays ?? 5;
+  const totalWorkouts = athlete?.totalWorkoutsCompleted ?? 24;
+  const readiness = athlete?.readinessScore ?? 9;
 
   const toggleCompanionMode = () => {
     const nextMode: CompanionMode =
@@ -103,6 +94,7 @@ export function AthleteHomeDashboard({
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!athlete) return;
     updateAthleteProfile(athlete.id, {
       weightKg: tempWeight,
       heightCm: tempHeight,
@@ -131,11 +123,11 @@ export function AthleteHomeDashboard({
             })}
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground heading-tight mt-0.5 truncate">
-            Hey, {athlete.name.split(" ")[0]}
+            Hey, {(athlete?.name || currentUser?.name || "Athlete").split(" ")[0]}
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5 truncate">
-            Coach: <span className="text-foreground font-medium">{athlete.assignedCoachName || "Sarah Jenkins, CSCS"}</span>
-            {athlete.squad ? ` • ${athlete.squad}` : ""}
+            Coach: <span className="text-foreground font-medium">{athlete?.assignedCoachName || "Sarah Jenkins, CSCS"}</span>
+            {athlete?.squad ? ` • ${athlete.squad}` : ""}
           </p>
         </div>
 
@@ -175,7 +167,7 @@ export function AthleteHomeDashboard({
               </span>
               <span className="text-border">•</span>
               <span className="text-xs text-muted-foreground truncate">
-                {program.title}
+                {program?.title || session.programTitle || "Strength Program"}
               </span>
             </div>
 
@@ -196,8 +188,13 @@ export function AthleteHomeDashboard({
               {session.dayName || "Strength & Power Session"}
             </h2>
             <p className="text-xs text-muted-foreground">
-              {currentDay?.prescriptions.length || 6} exercises prescribed • Goal:{" "}
-              <span className="text-foreground font-medium">{athlete.trainingGoal}</span>
+              {prescriptions.length > 0
+                ? `${prescriptions.length} exercises prescribed`
+                : "Open training / quick log ready"}{" "}
+              • Goal:{" "}
+              <span className="text-foreground font-medium">
+                {athlete?.trainingGoal || "Build strength & preserve joint health"}
+              </span>
             </p>
           </div>
 
@@ -257,7 +254,7 @@ export function AthleteHomeDashboard({
             <span className="text-xs font-normal text-muted-foreground">/10</span>
           </div>
           <span className="text-[11px] text-success font-medium mt-0.5 truncate tabular-nums">
-            {athlete.sleepHours || 7.5}h sleep
+            {athlete?.sleepHours || 7.5}h sleep
           </span>
         </div>
 
@@ -302,7 +299,7 @@ export function AthleteHomeDashboard({
             <span className="text-xs font-normal text-muted-foreground">%</span>
           </div>
           <span className="text-[11px] text-brand font-medium mt-0.5 truncate tabular-nums">
-            {athlete.recentPrCount || 3} Recent PRs 🏆
+            {athlete?.recentPrCount ?? 3} Recent PRs 🏆
           </span>
         </div>
       </div>
@@ -343,10 +340,10 @@ export function AthleteHomeDashboard({
           <div className="relative shrink-0">
             <img
               src={
-                athlete.avatarUrl ||
+                athlete?.avatarUrl ||
                 "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
               }
-              alt={athlete.name}
+              alt={athlete?.name || "Athlete"}
               loading="lazy"
               decoding="async"
               className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
@@ -361,14 +358,14 @@ export function AthleteHomeDashboard({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-foreground truncate">
-                {athlete.name}
+                {athlete?.name || currentUser?.name || "Athlete"}
               </span>
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
-                {athlete.experienceLevel || "Intermediate"}
+                {athlete?.experienceLevel || "Intermediate"}
               </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground truncate tabular-nums">
-              {athlete.heightCm || 178} cm • {weightKg} kg
+              {athlete?.heightCm || 178} cm • {weightKg} kg
             </p>
           </div>
         </div>

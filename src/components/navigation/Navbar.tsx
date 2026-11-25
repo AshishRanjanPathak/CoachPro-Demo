@@ -14,7 +14,11 @@ export function Navbar({ activeTab: _activeTab, onTabChange: _onTabChange }: Nav
   const { currentUser, logout } = useAuth();
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("coachpro_theme") !== "light";
+      try {
+        return localStorage.getItem("coachpro_theme") !== "light";
+      } catch {
+        return true;
+      }
     }
     return true;
   });
@@ -24,12 +28,20 @@ export function Navbar({ activeTab: _activeTab, onTabChange: _onTabChange }: Nav
     if (isDark) {
       document.documentElement.classList.add("dark");
       document.documentElement.classList.remove("light");
-      localStorage.setItem("coachpro_theme", "dark");
+      try {
+        localStorage.setItem("coachpro_theme", "dark");
+      } catch {
+        // Ignore storage write restrictions
+      }
       if (themeColorMeta) themeColorMeta.setAttribute("content", "#090D16");
     } else {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("light");
-      localStorage.setItem("coachpro_theme", "light");
+      try {
+        localStorage.setItem("coachpro_theme", "light");
+      } catch {
+        // Ignore storage write restrictions
+      }
       if (themeColorMeta) themeColorMeta.setAttribute("content", "#F8FAFC");
     }
   }, [isDark]);

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
+import { resolveActiveAthlete } from "@/lib/store";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,22 +11,22 @@ import { HeartPulse, AlertTriangle, Moon, CheckCircle2, ShieldAlert } from "luci
 
 export function RecoveryInjuryCard() {
   const { state, addCheckIn, currentUser } = useAuth();
-  const currentAthlete = state.athletes.find(a => a.id === currentUser.id) || state.athletes[0];
+  const currentAthlete = resolveActiveAthlete(state, currentUser?.id);
 
   const [soreness, setSoreness] = useState(2);
-  const [fatigue, setFatigue] = useState<"low" | "moderate" | "high" | "severe">(currentAthlete.fatigueLevel || "low");
+  const [fatigue, setFatigue] = useState<"low" | "moderate" | "high" | "severe">(currentAthlete?.fatigueLevel || "low");
   const [sleep, setSleep] = useState(8);
-  const [hasInjury, setHasInjury] = useState(currentAthlete.injuryStatus?.hasInjury || false);
-  const [injuryLocation, setInjuryLocation] = useState(currentAthlete.injuryStatus?.injuryLocation || "Right Knee / Patellar");
+  const [hasInjury, setHasInjury] = useState(currentAthlete?.injuryStatus?.hasInjury || false);
+  const [injuryLocation, setInjuryLocation] = useState(currentAthlete?.injuryStatus?.injuryLocation || "Right Knee / Patellar");
   const [injurySeverity, setInjurySeverity] = useState<"mild" | "moderate" | "severe">("moderate");
-  const [injuryNotes, setInjuryNotes] = useState(currentAthlete.injuryStatus?.details || "");
+  const [injuryNotes, setInjuryNotes] = useState(currentAthlete?.injuryStatus?.details || "");
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addCheckIn({
-      readinessScore: currentAthlete.readinessScore || 8,
+      readinessScore: currentAthlete?.readinessScore || 8,
       sorenessScore: soreness,
       fatigueLevel: fatigue,
       sleepHours: sleep,
@@ -45,7 +46,7 @@ export function RecoveryInjuryCard() {
   return (
     <div className="space-y-6">
       {/* Current Active Status Alert Banner */}
-      {currentAthlete.injuryStatus?.hasInjury && (
+      {currentAthlete?.injuryStatus?.hasInjury && (
         <div className="p-4 rounded-xl border border-warning/40 bg-warning/10 flex items-start gap-3" role="alert">
           <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" aria-hidden="true" />
           <div className="text-xs">

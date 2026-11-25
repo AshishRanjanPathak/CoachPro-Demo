@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
+import { resolveActiveSessionContext } from "@/lib/store";
 import { CoachBuddyCard } from "@/components/athlete/CoachBuddyCard";
 import { WorkoutLoggerModal } from "@/components/athlete/WorkoutLoggerModal";
 import { ExerciseDetailModal } from "@/components/exercise/ExerciseDetailModal";
@@ -40,11 +41,8 @@ export function TrainingWorkspaceView() {
     );
   }, []);
 
-  const session = state.activeSession;
-  const program = state.programs.find(p => p.id === session.programId) || state.programs[0];
-  const currentDay = program.days.find(d => d.dayNumber === session.dayNumber) || program.days[0];
+  const { session, program, prescriptions, plannedSets: totalPrescribedSets } = resolveActiveSessionContext(state);
 
-  const totalPrescribedSets = currentDay.prescriptions.reduce((acc, rx) => acc + rx.sets, 0);
   const completedSetsCount = session.sets.length;
   const isCompleted = session.status === "completed" || (completedSetsCount >= totalPrescribedSets && totalPrescribedSets > 0);
   const progressPercent = totalPrescribedSets > 0 ? Math.min(100, Math.round((completedSetsCount / totalPrescribedSets) * 100)) : 0;
@@ -63,10 +61,10 @@ export function TrainingWorkspaceView() {
     setLoggerOpen(true);
   };
 
-  const nextUnfinishedRx = currentDay.prescriptions.find(rx => {
+  const nextUnfinishedRx = prescriptions.find(rx => {
     const count = session.sets.filter(s => s.exerciseId === rx.exerciseId).length;
     return count < rx.sets;
-  }) || currentDay.prescriptions[0];
+  }) || prescriptions[0];
 
   return (
     <div className="space-y-4 max-w-4xl mx-auto">
@@ -108,10 +106,10 @@ export function TrainingWorkspaceView() {
         </div>
 
         <h2 className="text-xl sm:text-2xl font-bold heading-tight text-foreground">
-          {session.dayName}
+          {session.dayName || "Strength & Conditioning Session"}
         </h2>
         <p className="text-muted-foreground text-xs sm:text-sm mt-1">
-          {session.programTitle} • Coach {program.coachName}
+          {session.programTitle || program?.title || "Strength Program"} • Coach {program?.coachName || "Sarah Jenkins, CSCS"}
         </p>
 
         {/* 3. Session Progress Indicator */}
@@ -122,7 +120,7 @@ export function TrainingWorkspaceView() {
               {completedSetsCount} / {totalPrescribedSets} sets ({progressPercent}%)
             </span>
           </div>
-          <Progress value={completedSetsCount} max={totalPrescribedSets} className="h-1.5" />
+          <Progress value={completedSetsCount} max={Math.max(1, totalPrescribedSets)} className="h-1.5" />
         </div>
       </div>
 
@@ -137,7 +135,7 @@ export function TrainingWorkspaceView() {
               Prescribed Lineup
             </span>
             <span className="text-xs text-muted-foreground tabular-nums">
-              {currentDay.prescriptions.length} movements
+              {prescriptions.length} movements
             </span>
           </div>
 
@@ -147,7 +145,11 @@ export function TrainingWorkspaceView() {
 
           {/* Individual Exercise Cards */}
           <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-card">
-            {currentDay.prescriptions.map((rx, idx) => {
+            {prescriptions.length === 0 ? (
+              <div className="p-5 text-center text-xs text-muted-foreground">
+                No exercises prescribed in this block yet. Tap <strong className="text-foreground">Quick Log</strong> above to log any exercise.
+              </div>
+            ) : prescriptions.map((rx, idx) => {
               const loggedSets = session.sets.filter(s => s.exerciseId === rx.exerciseId);
               const isRxComplete = loggedSets.length >= rx.sets;
               const thumbUrl = resolveExerciseThumbnail(rx.exerciseId, rx.exerciseName);

@@ -6,6 +6,7 @@ import { Droplets, Moon, CheckCircle2, Zap, Sparkles } from "lucide-react";
 import { soundController } from "@/lib/audio";
 import { addCompanionXp, loadCompanionState, saveCompanionState } from "@/lib/companion";
 import { useAuth } from "@/domains/auth/AuthContext";
+import { resolveActiveSessionContext } from "@/lib/store";
 
 export function DailyMicroWin() {
   const { state, addWorkoutSets, addCheckIn } = useAuth();
@@ -14,10 +15,8 @@ export function DailyMicroWin() {
   const [restDayConfirmed, setRestDayConfirmed] = useState(false);
 
   // Today's prescribed workout
-  const session = state.activeSession;
-  const program = state.programs.find((p) => p.id === session.programId) || state.programs[0];
-  const currentDay = program?.days[0];
-  const prescriptionCount = currentDay?.prescriptions?.length || 0;
+  const { currentDay, prescriptions } = resolveActiveSessionContext(state);
+  const prescriptionCount = prescriptions.length;
 
   // 1. Hydration micro win
   const handleHydrate = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -80,7 +79,7 @@ export function DailyMicroWin() {
     triggerOptimizedConfetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
 
     // Prepare sets from coach prescriptions
-    const setsToLog = currentDay.prescriptions.map((rx, idx) => ({
+    const setsToLog = prescriptions.map((rx, idx) => ({
       exerciseId: rx.exerciseId,
       exerciseName: rx.exerciseName,
       setNumber: idx + 1,

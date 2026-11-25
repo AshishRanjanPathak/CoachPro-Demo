@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
+import { resolveActiveSessionContext } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Play, CheckCircle2, ChevronDown, ChevronUp, Dumbbell } from "lucide-react";
 
@@ -15,12 +16,9 @@ const STORAGE_KEY = "coachpro_buddy_collapsed";
 
 export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining }: CoachBuddyCardProps) {
   const { state } = useAuth();
-  const session = state.activeSession;
-  const program = state.programs.find(p => p.id === session.programId) || state.programs[0];
-  const currentDay = program.days.find(d => d.dayNumber === session.dayNumber) || program.days[0];
+  const { session, plannedSets } = resolveActiveSessionContext(state);
 
-  const plannedSets = currentDay ? currentDay.prescriptions.reduce((acc, rx) => acc + rx.sets, 0) : 0;
-  const completedSets = session.sets ? session.sets.length : 0;
+  const completedSets = session.sets.length;
   const remainingSets = Math.max(0, plannedSets - completedSets);
   const isCompleted = plannedSets > 0 && completedSets >= plannedSets;
   const isInProgress = completedSets > 0 && !isCompleted;

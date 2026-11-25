@@ -68,10 +68,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             </div>
 
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-bold text-white tracking-tight">
+              <h3 className="text-lg font-bold text-foreground tracking-tight">
                 Something went wrong in this section
               </h3>
-              <p className="mt-1 text-sm text-neutral-400 leading-relaxed">
+              <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
                 An unexpected display error occurred. Your workout data and progress remain safe.
               </p>
 
@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <button
                   type="button"
                   onClick={this.reset}
-                  className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-500/20 hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  className="inline-flex items-center gap-2 rounded-xl bg-destructive px-4 py-2.5 text-sm font-semibold text-destructive-foreground shadow-xs hover:opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-destructive cursor-pointer"
                 >
                   <RefreshCw className="h-4 w-4" aria-hidden="true" />
                   Try Again
@@ -89,7 +89,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                   <button
                     type="button"
                     onClick={() => this.setState(s => ({ showDetails: !s.showDetails }))}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-white/10 transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary/80 transition-colors cursor-pointer"
                   >
                     <span>{this.state.showDetails ? "Hide" : "View"} Error Details</span>
                     {this.state.showDetails ? (
@@ -102,10 +102,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </div>
 
               {this.state.showDetails && this.state.error && (
-                <div className="mt-4 overflow-x-auto rounded-xl bg-black/60 p-4 border border-white/10 text-xs font-mono text-red-300">
+                <div className="mt-4 overflow-x-auto rounded-xl bg-secondary p-4 border border-border text-xs font-mono text-destructive">
                   <p className="font-semibold">{this.state.error.name}: {this.state.error.message}</p>
                   {this.state.error.stack && (
-                    <pre className="mt-2 text-[11px] text-neutral-400 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                    <pre className="mt-2 text-[11px] text-muted-foreground whitespace-pre-wrap max-h-48 overflow-y-auto">
                       {this.state.error.stack}
                     </pre>
                   )}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useId, useRef } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
+import { resolveActiveSessionContext } from "@/lib/store";
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,10 +58,7 @@ export function WorkoutLoggerModal({
   initialMode = "batch"
 }: WorkoutLoggerModalProps) {
   const { state, addWorkoutSets, removeWorkoutSets, completeWorkoutSession } = useAuth();
-  const session = state.activeSession;
-  const program = state.programs.find(p => p.id === session.programId) || state.programs[0];
-  const currentDay = program.days.find(d => d.dayNumber === session.dayNumber) || program.days[0];
-  const prescriptions = currentDay?.prescriptions || [];
+  const { session, prescriptions } = resolveActiveSessionContext(state);
   const exercises = state.exercises || [];
   const repDbIndex = React.useMemo(() => getExerciseIndex(), []);
 

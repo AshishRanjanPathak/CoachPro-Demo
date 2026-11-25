@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
+import { resolveActiveSessionContext } from "@/lib/store";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,11 +32,8 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
     setCurrentDateStr(new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }));
   }, []);
 
-  const session = state.activeSession;
-  const program = state.programs.find(p => p.id === session.programId) || state.programs[0];
-  const currentDay = program.days.find(d => d.dayNumber === session.dayNumber) || program.days[0];
+  const { session, program, prescriptions, plannedSets: totalPrescribedSets } = resolveActiveSessionContext(state);
 
-  const totalPrescribedSets = currentDay.prescriptions.reduce((acc, rx) => acc + rx.sets, 0);
   const completedSetsCount = session.sets.length;
   const isCompleted = session.status === "completed" || (completedSetsCount >= totalPrescribedSets && totalPrescribedSets > 0);
 
@@ -54,10 +52,10 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
   };
 
   // Find next unfinished exercise
-  const nextUnfinishedRx = currentDay.prescriptions.find(rx => {
+  const nextUnfinishedRx = prescriptions.find(rx => {
     const count = session.sets.filter(s => s.exerciseId === rx.exerciseId).length;
     return count < rx.sets;
-  }) || currentDay.prescriptions[0];
+  }) || prescriptions[0];
 
   return (
     <>
@@ -71,7 +69,7 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
               </span>
               <span className="text-[11px] font-semibold text-warning bg-warning/10 border border-warning/20 px-2 py-0.5 rounded-full inline-flex items-center gap-1 tabular-nums">
                 <span>🍌</span>
-                <span>+{currentDay.prescriptions.length * 25} XP</span>
+                <span>+{prescriptions.length * 25} XP</span>
               </span>
               <span className="text-xs text-muted-foreground flex items-center gap-1 font-mono">
                 <Calendar className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" /> {currentDateStr}
@@ -102,10 +100,10 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
           </div>
 
           <h2 className="text-xl sm:text-2xl font-bold heading-tight text-foreground">
-            {session.dayName}
+            {session.dayName || "Strength & Conditioning Session"}
           </h2>
           <p className="text-muted-foreground text-xs sm:text-sm mt-1">
-            {session.programTitle} • Coach {program.coachName}
+            {session.programTitle || program?.title || "Strength Program"} • Coach {program?.coachName || "Sarah Jenkins, CSCS"}
           </p>
         </div>
 
@@ -114,10 +112,10 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
           <div className="flex justify-between items-center text-xs font-medium text-muted-foreground mb-1.5">
             <span>Overall Session Progress</span>
             <span className="font-semibold text-foreground tabular-nums">
-              {completedSetsCount} / {totalPrescribedSets} sets ({totalPrescribedSets > 0 ? Math.round((completedSetsCount / totalPrescribedSets) * 100) : 0}%)
+              {completedSetsCount} / {totalPrescribedSets} sets ({totalPrescribedSets > 0 ? Math.min(100, Math.round((completedSetsCount / totalPrescribedSets) * 100)) : 0}%)
             </span>
           </div>
-          <Progress value={completedSetsCount} max={totalPrescribedSets} className="h-1.5" />
+          <Progress value={completedSetsCount} max={Math.max(1, totalPrescribedSets)} className="h-1.5" />
         </div>
 
         {/* Prescribed Exercises List */}
@@ -127,7 +125,7 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
               Prescribed Lineup
             </span>
             <span className="text-xs text-muted-foreground tabular-nums">
-              {currentDay.prescriptions.length} movements
+              {prescriptions.length} movements
             </span>
           </div>
 
@@ -136,7 +134,11 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
           </p>
 
           <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-card">
-            {currentDay.prescriptions.map((rx, idx) => {
+            {prescriptions.length === 0 ? (
+              <div className="p-5 text-center text-xs text-muted-foreground">
+                No exercises prescribed in this block yet. Use <strong className="text-foreground">Quick Log</strong> to record freeform sets.
+              </div>
+            ) : prescriptions.map((rx, idx) => {
               const loggedSets = session.sets.filter(s => s.exerciseId === rx.exerciseId);
               const isRxComplete = loggedSets.length >= rx.sets;
               const thumbUrl = resolveExerciseThumbnail(rx.exerciseId, rx.exerciseName);

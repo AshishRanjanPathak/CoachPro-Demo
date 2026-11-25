@@ -1,5 +1,14 @@
 import { calculateEstimated1RM, formatWeight } from "../lib/utils";
-import { INITIAL_USERS, INITIAL_ATHLETES, INITIAL_EXERCISES, INITIAL_PROGRAMS, INITIAL_WORKOUT_SESSION } from "../lib/store";
+import {
+  INITIAL_USERS,
+  INITIAL_ATHLETES,
+  INITIAL_EXERCISES,
+  INITIAL_PROGRAMS,
+  INITIAL_WORKOUT_SESSION,
+  normalizeCoachProState,
+  resolveActiveSessionContext,
+  resolveActiveAthlete
+} from "../lib/store";
 import { WorkoutSet, Program } from "../types";
 import { getExerciseIndex, filterExercises, REPDB_ATTRIBUTION } from "../lib/exercises";
 import { validateEnv } from "../lib/env";
@@ -588,6 +597,51 @@ export async function runTests(): Promise<{ passed: number; failed: number; resu
     fs.existsSync(path.join(companionDir, "bonobo-recovery.png")) &&
     fs.existsSync(path.join(companionDir, "bonobo-celebration.png")),
     "High-definition welcoming Bonobo companion assets exist for all moods in public/companion/"
+  );
+
+  // Test J: Corrupted / Empty Storage Healing & Safe Context Resolvers
+  const healedEmptyPrograms = normalizeCoachProState({
+    programs: [],
+    activeSession: {
+      ...INITIAL_WORKOUT_SESSION,
+      programId: "deleted-prog-id"
+    }
+  });
+  assert(
+    healedEmptyPrograms.repaired === true &&
+      healedEmptyPrograms.state.programs.length === INITIAL_PROGRAMS.length &&
+      healedEmptyPrograms.state.activeSession.programId === INITIAL_PROGRAMS[0].id,
+    "normalizeCoachProState heals empty programs array and orphaned session programId"
+  );
+
+  const safeEmptyContext = resolveActiveSessionContext({
+    programs: [],
+    activeSession: { ...INITIAL_WORKOUT_SESSION, sets: [] }
+  });
+  assert(
+    safeEmptyContext.program === undefined &&
+      safeEmptyContext.currentDay === undefined &&
+      safeEmptyContext.prescriptions.length === 0 &&
+      safeEmptyContext.plannedSets === 0,
+    "resolveActiveSessionContext handles empty programs array without throwing"
+  );
+
+  const safeMissingDaysContext = resolveActiveSessionContext({
+    programs: [{ ...INITIAL_PROGRAMS[0], days: [] }],
+    activeSession: INITIAL_WORKOUT_SESSION
+  });
+  assert(
+    safeMissingDaysContext.program?.id === INITIAL_PROGRAMS[0].id &&
+      safeMissingDaysContext.currentDay === undefined &&
+      safeMissingDaysContext.prescriptions.length === 0 &&
+      safeMissingDaysContext.plannedSets === 0,
+    "resolveActiveSessionContext handles programs with zero days safely"
+  );
+
+  const resolvedAthleteFallback = resolveActiveAthlete({ athletes: INITIAL_ATHLETES }, "non-existent-user");
+  assert(
+    resolvedAthleteFallback?.id === "usr-athlete-1",
+    "resolveActiveAthlete falls back cleanly to default athlete when id missing"
   );
 
   return { passed, failed, results };

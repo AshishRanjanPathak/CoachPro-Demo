@@ -4,6 +4,8 @@ import {
   User,
   Exercise,
   Program,
+  ProgramDay,
+  ExercisePrescription,
   WorkoutSession,
   AthleteProfile,
   CoachNote,
@@ -1025,77 +1027,207 @@ export interface CoachProState {
   auditLogs: AuditEvent[];
 }
 
+export function createDefaultState(): CoachProState {
+  return {
+    currentRole: "athlete",
+    users: INITIAL_USERS,
+    athletes: INITIAL_ATHLETES,
+    exercises: INITIAL_EXERCISES,
+    programs: INITIAL_PROGRAMS,
+    activeSession: INITIAL_WORKOUT_SESSION,
+    notes: INITIAL_COACH_NOTES,
+    checkIns: INITIAL_CHECKINS,
+    messages: INITIAL_MESSAGES,
+    invoices: INITIAL_INVOICES,
+    auditLogs: INITIAL_AUDIT_LOGS
+  };
+}
+
+const VALID_ROLES: UserRole[] = ["athlete", "coach", "org_admin", "platform_admin"];
+
+/**
+ * Validates and repairs persisted CoachPRO state so missing or empty
+ * collections (e.g. from older storage payloads or deleted templates)
+ * never leave screens referencing undefined programs, days, or sessions.
+ */
+export function normalizeCoachProState(
+  rawState: Partial<CoachProState> | null | undefined
+): { state: CoachProState; repaired: boolean } {
+  const defaults = createDefaultState();
+  if (!rawState || typeof rawState !== "object") {
+    return { state: defaults, repaired: true };
+  }
+
+  let repaired = false;
+
+  const currentRole = VALID_ROLES.includes(rawState.currentRole as UserRole)
+    ? (rawState.currentRole as UserRole)
+    : ((repaired = true), defaults.currentRole);
+
+  const users =
+    Array.isArray(rawState.users) && rawState.users.length > 0
+      ? rawState.users
+      : ((repaired = true), defaults.users);
+
+  const exercises =
+    Array.isArray(rawState.exercises) && rawState.exercises.length >= INITIAL_EXERCISES.length
+      ? rawState.exercises
+      : ((repaired = true), defaults.exercises);
+
+  let athletes: AthleteProfile[];
+  if (!Array.isArray(rawState.athletes) || rawState.athletes.length < INITIAL_ATHLETES.length) {
+    athletes = defaults.athletes;
+    repaired = true;
+  } else {
+    athletes = rawState.athletes.map((a) => {
+      const init = INITIAL_ATHLETES.find((ia) => ia.id === a.id);
+      return {
+        ...a,
+        age: a.age ?? init?.age ?? 26,
+        heightCm: a.heightCm ?? init?.heightCm ?? 178,
+        weightKg: a.weightKg ?? init?.weightKg ?? 83.5,
+        experienceLevel: a.experienceLevel ?? init?.experienceLevel ?? "Intermediate Lifter (3 yrs)"
+      };
+    });
+  }
+
+  let programs: Program[];
+  if (!Array.isArray(rawState.programs) || rawState.programs.length === 0) {
+    programs = defaults.programs;
+    repaired = true;
+  } else {
+    programs = rawState.programs.map((prog) => {
+      if (!Array.isArray(prog.days)) repaired = true;
+      const safeDays = Array.isArray(prog.days)
+        ? prog.days.map((day, idx) => ({
+            ...day,
+            dayNumber: day.dayNumber ?? idx + 1,
+            prescriptions: Array.isArray(day.prescriptions) ? day.prescriptions : []
+          }))
+        : [];
+      return { ...prog, days: safeDays };
+    });
+  }
+
+  let activeSession: WorkoutSession;
+  if (
+    !rawState.activeSession ||
+    typeof rawState.activeSession !== "object" ||
+    !Array.isArray(rawState.activeSession.sets)
+  ) {
+    activeSession = defaults.activeSession;
+    repaired = true;
+  } else {
+    const matchedProgram =
+      programs.find((p) => p.id === rawState.activeSession?.programId) || programs[0];
+    if (matchedProgram && rawState.activeSession.programId !== matchedProgram.id) {
+      activeSession = {
+        ...rawState.activeSession,
+        programId: matchedProgram.id,
+        programTitle: matchedProgram.title
+      };
+      repaired = true;
+    } else {
+      activeSession = rawState.activeSession;
+    }
+  }
+
+  const notes = Array.isArray(rawState.notes) ? rawState.notes : ((repaired = true), defaults.notes);
+  const checkIns = Array.isArray(rawState.checkIns) ? rawState.checkIns : ((repaired = true), defaults.checkIns);
+  const messages = Array.isArray(rawState.messages) ? rawState.messages : ((repaired = true), defaults.messages);
+  const invoices = Array.isArray(rawState.invoices) ? rawState.invoices : ((repaired = true), defaults.invoices);
+  const auditLogs = Array.isArray(rawState.auditLogs) ? rawState.auditLogs : ((repaired = true), defaults.auditLogs);
+
+  return {
+    state: {
+      currentRole,
+      users,
+      athletes,
+      exercises,
+      programs,
+      activeSession,
+      notes,
+      checkIns,
+      messages,
+      invoices,
+      auditLogs
+    },
+    repaired
+  };
+}
+
+/**
+ * Resolves the active athlete profile matching userId, defaulting safely.
+ */
+export function resolveActiveAthlete(
+  state: Pick<CoachProState, "athletes">,
+  userId?: string
+): AthleteProfile | undefined {
+  const athletes = Array.isArray(state.athletes) ? state.athletes : INITIAL_ATHLETES;
+  if (userId) {
+    const direct = athletes.find((a) => a.id === userId);
+    if (direct) return direct;
+  }
+  return athletes.find((a) => a.id === "usr-athlete-1") || athletes[0];
+}
+
+/**
+ * Resolves active workout session, matching program, current day, and
+ * exercise prescriptions without throwing when programs or days are empty.
+ */
+export function resolveActiveSessionContext(
+  state: Pick<CoachProState, "programs" | "activeSession">
+): {
+  session: WorkoutSession;
+  program: Program | undefined;
+  currentDay: ProgramDay | undefined;
+  prescriptions: ExercisePrescription[];
+  plannedSets: number;
+} {
+  const rawSession = state.activeSession;
+  const session: WorkoutSession =
+    rawSession && Array.isArray(rawSession.sets)
+      ? rawSession
+      : { ...INITIAL_WORKOUT_SESSION, ...(rawSession || {}), sets: [] };
+
+  const programs = Array.isArray(state.programs) ? state.programs : [];
+  const program = programs.find((p) => p.id === session.programId) || programs[0];
+  const days = Array.isArray(program?.days) ? program.days : [];
+  const currentDay = days.find((d) => d.dayNumber === session.dayNumber) || days[0];
+  const prescriptions = Array.isArray(currentDay?.prescriptions) ? currentDay.prescriptions : [];
+  const plannedSets = prescriptions.reduce((acc, rx) => acc + (rx.sets || 0), 0);
+
+  return { session, program, currentDay, prescriptions, plannedSets };
+}
+
 export function loadSavedState(): CoachProState {
   if (typeof window === "undefined") {
-    return {
-      currentRole: "athlete",
-      users: INITIAL_USERS,
-      athletes: INITIAL_ATHLETES,
-      exercises: INITIAL_EXERCISES,
-      programs: INITIAL_PROGRAMS,
-      activeSession: INITIAL_WORKOUT_SESSION,
-      notes: INITIAL_COACH_NOTES,
-      checkIns: INITIAL_CHECKINS,
-      messages: INITIAL_MESSAGES,
-      invoices: INITIAL_INVOICES,
-      auditLogs: INITIAL_AUDIT_LOGS
-    };
+    return createDefaultState();
   }
 
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      const initial: CoachProState = {
-        currentRole: "athlete",
-        users: INITIAL_USERS,
-        athletes: INITIAL_ATHLETES,
-        exercises: INITIAL_EXERCISES,
-        programs: INITIAL_PROGRAMS,
-        activeSession: INITIAL_WORKOUT_SESSION,
-        notes: INITIAL_COACH_NOTES,
-        checkIns: INITIAL_CHECKINS,
-        messages: INITIAL_MESSAGES,
-        invoices: INITIAL_INVOICES,
-        auditLogs: INITIAL_AUDIT_LOGS
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+      const initial = createDefaultState();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+      } catch {
+        // Ignore storage quota or private mode errors
+      }
       return initial;
     }
-    const parsed: CoachProState = JSON.parse(raw);
-    if (!parsed.exercises || parsed.exercises.length < INITIAL_EXERCISES.length) {
-      parsed.exercises = INITIAL_EXERCISES;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+    const parsed = JSON.parse(raw) as Partial<CoachProState>;
+    const { state: normalized, repaired } = normalizeCoachProState(parsed);
+    if (repaired) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+      } catch {
+        // Ignore storage quota or private mode errors
+      }
     }
-    if (!parsed.athletes || parsed.athletes.length < INITIAL_ATHLETES.length) {
-      parsed.athletes = INITIAL_ATHLETES;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-    } else {
-      parsed.athletes = parsed.athletes.map(a => {
-        const init = INITIAL_ATHLETES.find(ia => ia.id === a.id);
-        return {
-          ...a,
-          age: a.age ?? init?.age ?? 26,
-          heightCm: a.heightCm ?? init?.heightCm ?? 178,
-          weightKg: a.weightKg ?? init?.weightKg ?? 83.5,
-          experienceLevel: a.experienceLevel ?? init?.experienceLevel ?? "Intermediate Lifter (3 yrs)"
-        };
-      });
-    }
-    return parsed;
+    return normalized;
   } catch {
-    return {
-      currentRole: "athlete",
-      users: INITIAL_USERS,
-      athletes: INITIAL_ATHLETES,
-      exercises: INITIAL_EXERCISES,
-      programs: INITIAL_PROGRAMS,
-      activeSession: INITIAL_WORKOUT_SESSION,
-      notes: INITIAL_COACH_NOTES,
-      checkIns: INITIAL_CHECKINS,
-      messages: INITIAL_MESSAGES,
-      invoices: INITIAL_INVOICES,
-      auditLogs: INITIAL_AUDIT_LOGS
-    };
+    return createDefaultState();
   }
 }
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useRef } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
+import { resolveActiveAthlete } from "@/lib/store";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -129,8 +130,8 @@ function generateBezierPath(points: { x: number; y: number }[]): string {
 }
 
 export function AthleteProgressView() {
-  const { state } = useAuth();
-  const athlete = state.athletes[0]; // Alex Chen
+  const { state, currentUser } = useAuth();
+  const athlete = resolveActiveAthlete(state, currentUser?.id);
 
   const personalRecords = useMemo(
     () => [
@@ -230,7 +231,7 @@ export function AthleteProgressView() {
                 Recent All-Time PRs
               </div>
               <div className="text-2xl font-bold text-foreground tabular-nums mt-0.5 flex items-baseline gap-1">
-                <span ref={prCountRef}>{athlete.recentPrCount}</span>
+                <span ref={prCountRef}>{athlete?.recentPrCount ?? 0}</span>
                 <span className="text-sm font-normal text-muted-foreground">Records</span>
               </div>
             </div>
@@ -247,7 +248,7 @@ export function AthleteProgressView() {
                 Workout Adherence
               </div>
               <div className="text-2xl font-bold text-foreground tabular-nums mt-0.5 flex items-baseline gap-0.5">
-                <span ref={adherenceRef}>{athlete.adherencePercentage}</span>
+                <span ref={adherenceRef}>{athlete?.adherencePercentage ?? 0}</span>
                 <span>%</span>
               </div>
             </div>
@@ -264,7 +265,7 @@ export function AthleteProgressView() {
                 Current Training Streak
               </div>
               <div className="text-2xl font-bold text-foreground tabular-nums mt-0.5 flex items-baseline gap-1">
-                <span ref={streakRef}>{athlete.currentStreakDays}</span>
+                <span ref={streakRef}>{athlete?.currentStreakDays ?? 0}</span>
                 <span className="text-sm font-normal text-muted-foreground">Days</span>
               </div>
             </div>

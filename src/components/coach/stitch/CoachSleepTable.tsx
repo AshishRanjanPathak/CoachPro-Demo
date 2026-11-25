@@ -56,7 +56,7 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
             <tbody className="divide-y divide-border text-foreground">
               {displayedAthletes.map((ath) => {
                 const isInjured = ath.status === "needs_attention" || ath.injuryStatus?.hasInjury;
-                const initials = ath.name.split(" ").map(n => n[0]).join("");
+                const initials = (ath.name || "A").split(" ").map(n => n[0]).join("");
                 const sleepH = ath.sleepHours || (ath.readinessScore >= 8 ? 8.2 : ath.readinessScore <= 4 ? 5.5 : 7.0);
                 const sleepPct = Math.min(100, Math.round((sleepH / 9) * 100));
 
