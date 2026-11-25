@@ -33,7 +33,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange: _onTabChange }: Nav
       } catch {
         // Ignore storage write restrictions
       }
-      if (themeColorMeta) themeColorMeta.setAttribute("content", "#090D16");
+      if (themeColorMeta) themeColorMeta.setAttribute("content", "#101010");
     } else {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("light");
@@ -42,7 +42,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange: _onTabChange }: Nav
       } catch {
         // Ignore storage write restrictions
       }
-      if (themeColorMeta) themeColorMeta.setAttribute("content", "#F8FAFC");
+      if (themeColorMeta) themeColorMeta.setAttribute("content", "#FAFAFA");
     }
   }, [isDark]);
 

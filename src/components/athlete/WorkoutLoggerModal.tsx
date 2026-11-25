@@ -468,10 +468,11 @@ export function WorkoutLoggerModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg max-h-[90dvh] overflow-y-auto p-5 sm:p-6 rounded-2xl">
       <DialogHeader className="border-b border-border/80 pb-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Badge variant="brand" className="text-xs font-semibold px-2.5 py-0.5">
+            <Badge variant="secondary" className="text-xs font-semibold px-2.5 py-0.5">
               {mode === "quick_set" ? "Quick Set Logger" : "Guided Logging Wizard"}
             </Badge>
             {mode === "batch" && step < 6 && (
@@ -576,7 +577,7 @@ export function WorkoutLoggerModal({
         )}
       </DialogHeader>
 
-      <DialogContent className="max-h-[85vh] overflow-y-auto px-4 sm:px-6 py-4">
+      <div className="max-h-[75dvh] overflow-y-auto px-1 py-4">
         {/* ========================================================================= */}
         {/* SUCCESS CONFIRMATION & UNDO (STEP 6) */}
         {/* ========================================================================= */}
@@ -663,7 +664,7 @@ export function WorkoutLoggerModal({
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 max-w-md mx-auto">
               <Button
                 type="button"
-                variant="brand"
+                variant="default"
                 onClick={() => {
                   setStep(mode === "quick_set" ? 1 : 1);
                   onOpenChange(false);
@@ -904,7 +905,7 @@ export function WorkoutLoggerModal({
             <div className="pt-3">
               <Button
                 type="button"
-                variant="brand"
+                variant="default"
                 disabled={isSubmitting}
                 onClick={() => handleCommitLogs(1)}
                 className="w-full font-bold text-base min-h-[56px] rounded-2xl shadow-md cursor-pointer flex items-center justify-center gap-2"
@@ -951,7 +952,7 @@ export function WorkoutLoggerModal({
                   </div>
                   <Button
                     type="button"
-                    variant="brand"
+                    variant="default"
                     onClick={() => {
                       const el = document.getElementById(searchInputId);
                       if (el) el.focus();
@@ -997,7 +998,14 @@ export function WorkoutLoggerModal({
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0">
-                              <Badge variant={isDone ? "success" : "secondary"} className="tabular-nums text-xs">
+                              <Badge
+                                variant="outline"
+                                className={
+                                  isDone
+                                    ? "tabular-nums text-xs border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                    : "tabular-nums text-xs"
+                                }
+                              >
                                 {count} / {rx.sets} sets
                               </Badge>
                               <ChevronRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
@@ -1230,7 +1238,7 @@ export function WorkoutLoggerModal({
                         onClick={() => handleWeightChange(preset)}
                         className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-medium transition-colors cursor-pointer min-h-[44px] ${
                           weight === preset && !isWeightSkipped
-                            ? "border-brand bg-brand text-white font-bold"
+                            ? "border-primary bg-primary text-primary-foreground font-bold"
                             : "border-border bg-card text-muted-foreground hover:bg-secondary"
                         }`}
                       >
@@ -1292,7 +1300,7 @@ export function WorkoutLoggerModal({
                   </Button>
                   <Button
                     type="button"
-                    variant="brand"
+                    variant="default"
                     onClick={() => setStep(3)}
                     className="gap-2 font-bold text-sm min-h-[48px] px-6 rounded-xl cursor-pointer"
                   >
@@ -1432,7 +1440,7 @@ export function WorkoutLoggerModal({
                           onClick={() => setReps(preset)}
                           className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-medium transition-colors cursor-pointer min-h-[44px] ${
                             reps === preset
-                              ? "border-brand bg-brand text-white font-bold"
+                              ? "border-primary bg-primary text-primary-foreground font-bold"
                               : "border-border bg-card text-muted-foreground hover:bg-secondary"
                           }`}
                         >
@@ -1596,7 +1604,7 @@ export function WorkoutLoggerModal({
                   </Button>
                   <Button
                     type="button"
-                    variant="brand"
+                    variant="default"
                     onClick={() => setStep(4)}
                     className="gap-2 font-bold text-sm min-h-[48px] px-6 rounded-xl cursor-pointer"
                   >
@@ -1716,7 +1724,7 @@ export function WorkoutLoggerModal({
                         onClick={() => setSetsCount(preset)}
                         className={`px-3.5 py-1.5 rounded-lg border text-xs font-mono font-medium transition-colors cursor-pointer min-h-[44px] ${
                           setsCount === preset
-                            ? "border-brand bg-brand text-white font-bold"
+                            ? "border-primary bg-primary text-primary-foreground font-bold"
                             : "border-border bg-card text-muted-foreground hover:bg-secondary"
                         }`}
                       >
@@ -1798,7 +1806,7 @@ export function WorkoutLoggerModal({
                   </Button>
                   <Button
                     type="button"
-                    variant="brand"
+                    variant="default"
                     onClick={() => setStep(5)}
                     className="gap-2 font-bold text-sm min-h-[48px] px-6 rounded-xl cursor-pointer"
                   >
@@ -1819,7 +1827,7 @@ export function WorkoutLoggerModal({
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Exercise Summary
                     </span>
-                    <Badge variant="brand" className="font-mono text-xs px-2.5 py-0.5">
+                    <Badge variant="secondary" className="font-mono text-xs px-2.5 py-0.5">
                       {setsCount} {setsCount === 1 ? "Set" : "Sets"} Planned
                     </Badge>
                   </div>
@@ -1888,7 +1896,7 @@ export function WorkoutLoggerModal({
                 <div className="space-y-2.5 pt-2">
                   <Button
                     type="button"
-                    variant="brand"
+                    variant="default"
                     disabled={isSubmitting}
                     onClick={() => handleCommitLogs(setsCount)}
                     className="w-full font-bold text-base min-h-[56px] rounded-2xl shadow-md cursor-pointer flex items-center justify-center gap-2"
@@ -1911,9 +1919,9 @@ export function WorkoutLoggerModal({
             )}
           </div>
         )}
-      </DialogContent>
+      </div>
 
-      <DialogFooter className="border-t border-border/80 pt-3 flex flex-row items-center justify-between">
+      <DialogFooter className="mx-0 mb-0 rounded-none bg-transparent border-t border-border/80 pt-3 px-0 pb-0 flex flex-row items-center justify-between sm:justify-between">
         <Button
           type="button"
           variant="ghost"
@@ -1940,6 +1948,7 @@ export function WorkoutLoggerModal({
           </Button>
         )}
       </DialogFooter>
+      </DialogContent>
     </Dialog>
 
     {/* Form & Technique Guide Modal with 2-Pose Demonstration */}

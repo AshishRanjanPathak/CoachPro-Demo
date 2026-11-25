@@ -92,7 +92,7 @@ export function ExerciseLibraryView() {
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               Exercise Library & Demonstrations
             </h2>
-            <Badge variant="brand" className="text-xs font-mono font-bold px-2 py-0.5">
+            <Badge variant="secondary" className="text-xs font-mono font-bold px-2 py-0.5">
               {result.total} Movements
             </Badge>
           </div>
@@ -152,7 +152,7 @@ export function ExerciseLibraryView() {
 
           <Button
             type="submit"
-            variant="brand"
+            variant="default"
             className="h-12 px-6 gap-2 font-bold rounded-xl cursor-pointer shrink-0 shadow-xs"
             aria-label="Execute exercise search"
           >
@@ -274,7 +274,7 @@ export function ExerciseLibraryView() {
                 </h4>
 
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                  <Badge variant="brand" className="text-[11px] capitalize px-2 py-0 font-medium">
+                  <Badge variant="secondary" className="text-[11px] capitalize px-2 py-0 font-medium">
                     {ex.primaryMuscle}
                   </Badge>
                   <Badge variant="secondary" className="text-[11px] capitalize px-2 py-0">
@@ -302,7 +302,7 @@ export function ExerciseLibraryView() {
 
               <Button
                 type="button"
-                variant="brand"
+                variant="default"
                 size="sm"
                 onClick={() => handleLogExerciseFromLibrary(ex.id)}
                 className="text-xs font-semibold h-9 px-3 rounded-xl cursor-pointer min-h-[40px] shadow-xs flex items-center gap-1"

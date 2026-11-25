@@ -146,7 +146,7 @@ export function AthleteHomeDashboard({
 
           <Button
             type="button"
-            variant="brand"
+            variant="default"
             size="sm"
             onClick={() => setBonoboSheetOpen(true)}
             className="h-9 px-3.5 rounded-lg text-xs font-semibold gap-1.5"
@@ -172,8 +172,12 @@ export function AthleteHomeDashboard({
             </div>
 
             <Badge
-              variant={isCompleted ? "success" : "outline"}
-              className="text-[11px] font-medium shrink-0"
+              variant="outline"
+              className={
+                isCompleted
+                  ? "text-[11px] font-medium shrink-0 border-success/30 bg-success/10 text-success"
+                  : "text-[11px] font-medium shrink-0"
+              }
             >
               {isCompleted
                 ? "Completed"
@@ -208,14 +212,17 @@ export function AthleteHomeDashboard({
                   {completedSets} / {plannedSets} sets
                 </span>
               </div>
-              <Progress value={completedSets} max={plannedSets} className="h-1.5" />
+              <Progress
+                value={Math.min(100, Math.round((completedSets / plannedSets) * 100))}
+                className="h-1.5"
+              />
             </div>
           )}
 
           <div className="flex items-center gap-2.5 pt-0.5">
             <Button
               type="button"
-              variant="brand"
+              variant="default"
               onClick={onGoToTraining}
               className="flex-1 h-11 rounded-xl text-xs sm:text-sm font-semibold gap-2"
             >
@@ -401,16 +408,16 @@ export function AthleteHomeDashboard({
 
       {/* Measurements Edit Modal */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogHeader>
-          <DialogTitle className="text-lg font-bold heading-tight">
-            Update Body Measurements
-          </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
-            Keep your current weight and height synchronized with your coach.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent className="sm:max-w-lg rounded-2xl p-5 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold heading-tight">
+              Update Body Measurements
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Keep your current weight and height synchronized with your coach.
+            </DialogDescription>
+          </DialogHeader>
 
-        <DialogContent>
           <form onSubmit={handleSave} className="space-y-4">
             <div className="space-y-2">
               <label
@@ -478,7 +485,7 @@ export function AthleteHomeDashboard({
               />
             </div>
 
-            <DialogFooter className="pt-3">
+            <DialogFooter className="mx-0 mb-0 rounded-none bg-transparent border-t border-border pt-3 px-0 pb-0">
               <div className="flex items-center justify-end gap-2 w-full">
                 <Button
                   type="button"
@@ -491,7 +498,7 @@ export function AthleteHomeDashboard({
                 </Button>
                 <Button
                   type="submit"
-                  variant="brand"
+                  variant="default"
                   size="sm"
                   className="h-10 text-xs font-semibold px-5"
                 >
@@ -508,7 +515,7 @@ export function AthleteHomeDashboard({
 
       {/* Interactive Bonobo AI Assistant Bottom Sheet */}
       <Dialog open={bonoboSheetOpen} onOpenChange={setBonoboSheetOpen}>
-        <DialogContent className="p-0 border-0 bg-transparent max-w-xl">
+        <DialogContent showCloseButton={false} className="p-0 border-0 bg-transparent sm:max-w-xl ring-0">
           <BonoboAssistantSheet onClose={() => setBonoboSheetOpen(false)} />
         </DialogContent>
       </Dialog>

@@ -209,7 +209,7 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
             />
             <Button
               type="submit"
-              variant="brand"
+              variant="default"
               aria-label="Send message"
               className="gap-1.5 h-11 px-3.5 sm:px-4 shrink-0 font-semibold min-h-[44px] min-w-[44px] cursor-pointer shadow-xs"
             >

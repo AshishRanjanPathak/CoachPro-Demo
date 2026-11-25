@@ -297,7 +297,7 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                 Performance across {analyticsData.length} verified sessions for {athlete.name} ({dateRange} window)
               </CardDescription>
             </div>
-            <Badge variant="brand" className="font-mono text-xs">
+            <Badge variant="secondary" className="font-mono text-xs">
               {dateRange} Window • {analyticsData.length} pts
             </Badge>
           </div>
@@ -312,14 +312,14 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
               >
                 <defs>
                   <linearGradient id="metricGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6477B8" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#6477B8" stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="var(--foreground)" stopOpacity={0.28} />
+                    <stop offset="95%" stopColor="var(--foreground)" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" opacity={0.6} />
-                <XAxis dataKey="date" stroke="#64748B" fontSize={11} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.7} />
+                <XAxis dataKey="date" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} />
                 <YAxis
-                  stroke="#64748B"
+                  stroke="var(--muted-foreground)"
                   fontSize={11}
                   tickLine={false}
                   domain={yDomain}
@@ -352,8 +352,8 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                       ? "weight"
                       : "est1rm"
                   }
-                  stroke="#7C8FD8"
-                  strokeWidth={3}
+                  stroke="var(--foreground)"
+                  strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#metricGrad)"
                   isAnimationActive={false}
@@ -380,21 +380,21 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                 data={analyticsData}
                 margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" opacity={0.6} />
-                <XAxis dataKey="date" stroke="#64748B" fontSize={11} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.7} />
+                <XAxis dataKey="date" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} />
                 <YAxis
-                  stroke="#64748B"
+                  stroke="var(--muted-foreground)"
                   fontSize={11}
                   tickLine={false}
                   tickFormatter={(val) => (val >= 1000 ? `${(val / 1000).toFixed(1)}k` : `${val}`)}
                 />
                 <Tooltip
                   formatter={(value: any) => [`${value} kg`, "Session Tonnage"]}
-                  contentStyle={{ backgroundColor: "#0F172A", borderColor: "#1E293B", borderRadius: "8px", fontSize: "12px", color: "#F8FAFC" }}
+                  contentStyle={{ backgroundColor: "var(--card)", borderColor: "var(--border)", borderRadius: "8px", fontSize: "12px", color: "var(--foreground)" }}
                 />
                 <Bar
                   dataKey="volume"
-                  fill="#7C8FD8"
+                  fill="var(--foreground)"
                   radius={[4, 4, 0, 0]}
                   isAnimationActive={false}
                 />
@@ -441,7 +441,7 @@ export function IndividualProgressAnalytics({ athlete }: IndividualProgressAnaly
                   <TableCell className="tabular-nums text-muted-foreground">{row.volume} kg</TableCell>
                   <TableCell>
                     {i === analyticsData.length - 1 ? (
-                      <Badge variant="brand" className="text-[10px] py-0">Latest PR</Badge>
+                      <Badge variant="default" className="text-[10px] py-0">Latest PR</Badge>
                     ) : (
                       <Badge variant="secondary" className="text-[10px] py-0">Verified</Badge>
                     )}

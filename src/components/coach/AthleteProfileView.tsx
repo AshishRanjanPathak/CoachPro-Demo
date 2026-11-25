@@ -225,7 +225,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
             <option value="inactive">Inactive</option>
           </select>
 
-          <Button variant="brand" onClick={() => setReportOpen(true)} className="gap-1.5 text-xs min-h-[44px]">
+          <Button variant="default" onClick={() => setReportOpen(true)} className="gap-1.5 text-xs min-h-[44px]">
             <FileText className="w-4 h-4" /> Export Client PDF Report
           </Button>
         </div>
@@ -264,7 +264,16 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold text-foreground">{athlete.name}</h2>
-                <Badge variant={athlete.status === "active" ? "success" : athlete.status === "needs_attention" ? "warning" : "secondary"}>
+                <Badge
+                  variant={athlete.status === "inactive" ? "secondary" : "outline"}
+                  className={
+                    athlete.status === "active"
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : athlete.status === "needs_attention"
+                        ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                        : undefined
+                  }
+                >
                   {athlete.status.replace("_", " ")}
                 </Badge>
               </div>
@@ -338,7 +347,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
                         <div className="flex items-center gap-3">
                           <span className="font-bold tabular-nums text-foreground">{set.completedWeightKg} kg × {set.completedReps} reps</span>
                           <span className="text-muted-foreground">RPE {set.rpe}</span>
-                          {set.isPr && <Badge variant="success" className="text-[10px] py-0">PR</Badge>}
+                          {set.isPr && <Badge variant="outline" className="text-[10px] py-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">PR</Badge>}
                         </div>
                       </div>
                     ))}
@@ -382,7 +391,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
                 </div>
               </CardContent>
               <div className="px-5 pb-4 flex justify-end">
-                <Button type="submit" variant="brand" size="sm" className="gap-1 text-xs min-h-[36px]">
+                <Button type="submit" variant="default" size="sm" className="gap-1 text-xs min-h-[36px]">
                   <Plus className="w-3.5 h-3.5" /> Post Note
                 </Button>
               </div>
@@ -423,7 +432,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
                   <div>
                     <div className="flex items-center gap-2">
                       <CardTitle className="text-base font-bold">{program.title}</CardTitle>
-                      <Badge variant="brand" className="capitalize text-[10px]">{program.level}</Badge>
+                      <Badge variant="secondary" className="capitalize text-[10px]">{program.level}</Badge>
                     </div>
                     <CardDescription className="text-xs mt-0.5">{program.description}</CardDescription>
                   </div>
@@ -443,7 +452,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
 
                     <Button
                       type="button"
-                      variant="brand"
+                      variant="default"
                       size="sm"
                       onClick={() => handleOpenCustomBuilder()}
                       className="text-xs gap-1.5 h-8 font-bold shadow-xs cursor-pointer"
@@ -501,7 +510,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <Button
                   type="button"
-                  variant="brand"
+                  variant="default"
                   size="sm"
                   onClick={() => handleOpenCustomBuilder()}
                   className="gap-1.5 text-xs font-bold min-h-[40px] px-4 cursor-pointer shadow-xs"
@@ -545,7 +554,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
       {/* MODAL: BUILD CUSTOM PROGRAM FOR THIS ATHLETE                             */}
       {/* ========================================================================= */}
       <Dialog open={isCustomModalOpen} onOpenChange={setIsCustomModalOpen}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-2xl border-border bg-card shadow-xl">
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden rounded-2xl border-border bg-card shadow-xl">
           <form onSubmit={handleSaveAndAssignCustom}>
             <DialogHeader className="p-5 border-b border-border/80 bg-secondary/30">
               <div className="flex items-center justify-between gap-3">
@@ -560,7 +569,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
                     Create a dedicated 1-on-1 periodization block automatically assigned to this athlete.
                   </DialogDescription>
                 </div>
-                <Badge variant="brand" className="text-xs font-semibold">1-on-1 Custom</Badge>
+                <Badge variant="secondary" className="text-xs font-semibold">1-on-1 Custom</Badge>
               </div>
 
               {/* Start from template selector */}
@@ -617,7 +626,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
                         }}
                         className={`h-10 rounded-xl text-xs font-bold border cursor-pointer ${
                           customWeeks === w
-                            ? "bg-brand text-white border-brand shadow-xs"
+                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
                             : "bg-card text-muted-foreground border-border hover:bg-secondary/60"
                         }`}
                       >
@@ -643,7 +652,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
                         }}
                         className={`h-10 rounded-xl text-xs font-bold capitalize border cursor-pointer ${
                           customLevel === lvl
-                            ? "bg-brand text-white border-brand shadow-xs"
+                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
                             : "bg-card text-muted-foreground border-border hover:bg-secondary/60"
                         }`}
                       >
@@ -697,7 +706,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
                       }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border cursor-pointer transition-[background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
                         activeCustomDayId === d.id
-                          ? "bg-brand text-white border-brand"
+                          ? "bg-primary text-primary-foreground border-primary"
                           : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
                       }`}
                     >
@@ -869,7 +878,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
               </div>
             </div>
 
-            <DialogFooter className="p-4 border-t border-border/80 bg-secondary/30 flex items-center justify-between sm:justify-between">
+            <DialogFooter className="mx-0 mb-0 p-4 border-t border-border/80 bg-secondary/30 flex items-center justify-between sm:justify-between">
               <Button
                 type="button"
                 variant="outline"
@@ -882,7 +891,7 @@ export function AthleteProfileView({ athlete, onBack }: AthleteProfileViewProps)
 
               <Button
                 type="submit"
-                variant="brand"
+                variant="default"
                 size="sm"
                 className="text-xs font-bold gap-1.5 min-h-[38px] px-4 cursor-pointer shadow-xs"
               >

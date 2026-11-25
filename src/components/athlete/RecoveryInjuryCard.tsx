@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { HeartPulse, AlertTriangle, Moon, CheckCircle2, ShieldAlert } from "lucide-react";
 
 export function RecoveryInjuryCard() {
@@ -152,17 +153,11 @@ export function RecoveryInjuryCard() {
                   </div>
                 </div>
 
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    aria-label="Report injury or pain flare-up"
-                    name="hasInjury"
-                    checked={hasInjury}
-                    onChange={(e) => setHasInjury(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-border peer-focus-visible:ring-2 peer-focus-visible:ring-destructive rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-transform peer-checked:bg-destructive"></div>
-                </label>
+                <Switch
+                  aria-label="Report injury or pain flare-up"
+                  checked={hasInjury}
+                  onCheckedChange={setHasInjury}
+                />
               </div>
 
               {hasInjury && (
@@ -235,7 +230,7 @@ export function RecoveryInjuryCard() {
           </CardContent>
 
           <CardFooter className="bg-card border-t border-border flex justify-end p-4">
-            <Button type="submit" variant="brand" disabled={submitted} className="min-h-[44px] gap-2 font-semibold">
+            <Button type="submit" variant="default" disabled={submitted} className="min-h-[44px] gap-2 font-semibold">
               {submitted ? (
                 <span className="flex items-center gap-1.5" role="status" aria-live="polite">
                   <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> Transmitted to Coach Attention Feed!

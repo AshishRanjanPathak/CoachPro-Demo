@@ -523,7 +523,7 @@ export function ProgramBuilder() {
             }}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-[background-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer ${
               activeView === "library"
-                ? "bg-brand text-white"
+                ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
             }`}
           >
@@ -531,7 +531,7 @@ export function ProgramBuilder() {
             <span>Program Library</span>
             <span
               className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                activeView === "library" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
+                activeView === "library" ? "bg-primary-foreground/15 text-primary-foreground" : "bg-secondary text-muted-foreground"
               }`}
             >
               {state.programs.length}
@@ -546,7 +546,7 @@ export function ProgramBuilder() {
             }}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-[background-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer ${
               activeView === "create"
-                ? "bg-brand text-white"
+                ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
             }`}
           >
@@ -589,7 +589,7 @@ export function ProgramBuilder() {
                 </p>
                 <Button
                   type="button"
-                  variant="brand"
+                  variant="default"
                   size="sm"
                   onClick={() => setActiveView("create")}
                   className="gap-2 font-bold cursor-pointer mt-2"
@@ -642,7 +642,7 @@ export function ProgramBuilder() {
                       <div className="pt-2 border-t border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                         <div className="flex items-center gap-2 flex-wrap">
                           {isAssigned ? (
-                            <Badge variant="success" className="gap-1.5 font-semibold text-xs py-1 px-2.5">
+                            <Badge variant="outline" className="gap-1.5 font-semibold text-xs py-1 px-2.5 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                               <Users className="w-3.5 h-3.5" />
                               <span>{assignedAthletes.length} Athletes Assigned</span>
                             </Badge>
@@ -687,7 +687,7 @@ export function ProgramBuilder() {
 
                           <Button
                             type="button"
-                            variant="brand"
+                            variant="default"
                             size="sm"
                             onClick={() => handleOpenAssignModal(prog)}
                             className="h-9 px-3.5 text-xs font-bold gap-1.5 shadow-xs cursor-pointer min-h-[36px]"
@@ -768,7 +768,7 @@ export function ProgramBuilder() {
                     Define block duration, target experience tier, and coaching rationale.
                   </CardDescription>
                 </div>
-                <Badge variant="brand" className="text-xs">Step 1</Badge>
+                <Badge variant="secondary" className="text-xs">Step 1</Badge>
               </div>
             </CardHeader>
 
@@ -810,7 +810,7 @@ export function ProgramBuilder() {
                         }}
                         className={`h-11 rounded-xl text-xs font-bold transition-[background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] border cursor-pointer ${
                           weeks === numWeeks
-                            ? "bg-brand text-white border-brand"
+                            ? "bg-primary text-primary-foreground border-primary"
                             : "bg-card text-muted-foreground border-border hover:bg-secondary/60"
                         }`}
                       >
@@ -836,7 +836,7 @@ export function ProgramBuilder() {
                         }}
                         className={`h-11 rounded-xl text-xs font-bold capitalize transition-[background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] border cursor-pointer ${
                           level === lvl
-                            ? "bg-brand text-white border-brand"
+                            ? "bg-primary text-primary-foreground border-primary"
                             : "bg-card text-muted-foreground border-border hover:bg-secondary/60"
                         }`}
                       >
@@ -857,7 +857,7 @@ export function ProgramBuilder() {
                     </label>
                   </div>
                   {targetAthleteId && (
-                    <Badge variant="brand" className="text-[10px]">
+                    <Badge variant="secondary" className="text-[10px]">
                       1-on-1 Custom Block
                     </Badge>
                   )}
@@ -928,7 +928,7 @@ export function ProgramBuilder() {
                     Configure exercise targets, rep schemes, and rest intervals per day.
                   </CardDescription>
                 </div>
-                <Badge variant="brand" className="text-xs">Step 2</Badge>
+                <Badge variant="secondary" className="text-xs">Step 2</Badge>
               </div>
 
               {/* Horizontal Day Tabs: Clean & uncluttered */}
@@ -943,7 +943,7 @@ export function ProgramBuilder() {
                     }}
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-[background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer flex items-center gap-1.5 ${
                       activeDayId === day.id
-                        ? "bg-brand text-white border-brand"
+                        ? "bg-primary text-primary-foreground border-primary"
                         : "bg-secondary/60 text-muted-foreground border-border hover:bg-secondary"
                     }`}
                   >
@@ -988,7 +988,7 @@ export function ProgramBuilder() {
                     <div className="flex items-center gap-2 shrink-0">
                       <Button
                         type="button"
-                        variant="brand"
+                        variant="default"
                         size="sm"
                         onClick={() => {
                           setVisualPickerDayId(currentDay.id);
@@ -1035,7 +1035,7 @@ export function ProgramBuilder() {
                         <p className="text-xs text-muted-foreground">No exercises added to this day yet.</p>
                         <Button
                           type="button"
-                          variant="brand"
+                          variant="default"
                           size="sm"
                           onClick={() => {
                             setVisualPickerDayId(currentDay.id);
@@ -1077,8 +1077,8 @@ export function ProgramBuilder() {
                                     <Dumbbell className="w-5 h-5" />
                                   </div>
                                 )}
-                                <div className="absolute inset-0 bg-brand/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                  <Eye className="w-3.5 h-3.5 text-white" />
+                                <div className="absolute inset-0 bg-background/75 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                  <Eye className="w-3.5 h-3.5 text-foreground" />
                                 </div>
                               </button>
 
@@ -1253,7 +1253,7 @@ export function ProgramBuilder() {
 
               <Button
                 type="submit"
-                variant="brand"
+                variant="default"
                 disabled={savedNotice}
                 className="min-h-[44px] px-6 text-xs font-bold gap-2 cursor-pointer shadow-xs"
               >
@@ -1281,7 +1281,7 @@ export function ProgramBuilder() {
           if (!open) setAssigningProgram(null);
         }}
       >
-        <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl border-border bg-card shadow-xl">
+        <DialogContent className="sm:max-w-xl p-0 overflow-hidden rounded-2xl border-border bg-card shadow-xl">
           {/* Modal Header */}
           <DialogHeader className="p-5 border-b border-border/80 bg-secondary/30">
             <div className="flex items-center justify-between gap-3">
@@ -1298,7 +1298,7 @@ export function ProgramBuilder() {
 
               {assigningProgram && (
                 <div className="text-right shrink-0">
-                  <Badge variant="brand" className="text-[11px] font-semibold capitalize">
+                  <Badge variant="secondary" className="text-[11px] font-semibold capitalize">
                     {assigningProgram.level}
                   </Badge>
                   <span className="text-[10px] text-muted-foreground block mt-0.5">
@@ -1340,7 +1340,7 @@ export function ProgramBuilder() {
                   }}
                   className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border whitespace-nowrap transition-colors cursor-pointer ${
                     squadFilter === "all"
-                      ? "bg-brand text-white border-brand shadow-xs"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
                       : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
                   }`}
                 >
@@ -1356,7 +1356,7 @@ export function ProgramBuilder() {
                     }}
                     className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border whitespace-nowrap transition-colors cursor-pointer ${
                       squadFilter === sq
-                        ? "bg-brand text-white border-brand shadow-xs"
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
                         : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
                     }`}
                   >
@@ -1444,7 +1444,7 @@ export function ProgramBuilder() {
 
                     <div className="shrink-0">
                       {isAlreadyAssigned && (
-                        <Badge variant="success" className="text-[10px] px-2 py-0.5">
+                        <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                           Active
                         </Badge>
                       )}
@@ -1456,7 +1456,7 @@ export function ProgramBuilder() {
           </div>
 
           {/* Modal Footer */}
-          <DialogFooter className="p-4 border-t border-border/80 bg-secondary/30 flex items-center justify-between sm:justify-between">
+          <DialogFooter className="mx-0 mb-0 p-4 border-t border-border/80 bg-secondary/30 flex items-center justify-between sm:justify-between">
             <span className="text-xs font-semibold text-muted-foreground">
               <strong className="text-foreground">{selectedAthleteIds.size}</strong> athletes selected
             </span>
@@ -1474,7 +1474,7 @@ export function ProgramBuilder() {
 
               <Button
                 type="button"
-                variant="brand"
+                variant="default"
                 size="sm"
                 onClick={handleConfirmAssignment}
                 className="text-xs font-bold gap-1.5 shadow-xs cursor-pointer min-h-[38px] px-4"
@@ -1491,7 +1491,7 @@ export function ProgramBuilder() {
       {/* MODAL: DELETE PROGRAM CONFIRMATION                                       */}
       {/* ========================================================================= */}
       <Dialog open={!!confirmDeleteProg} onOpenChange={open => !open && setConfirmDeleteProg(null)}>
-        <DialogContent className="max-w-md p-6 rounded-2xl">
+        <DialogContent className="sm:max-w-md p-6 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-destructive flex items-center gap-2">
               <Trash2 className="w-5 h-5" />
@@ -1503,7 +1503,7 @@ export function ProgramBuilder() {
               This removes the periodization template from your coaching library.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-end gap-2 pt-4">
+          <DialogFooter className="mx-0 mb-0 bg-transparent border-t-0 px-0 pb-0 flex justify-end gap-2 pt-4">
             <Button
               type="button"
               variant="outline"
@@ -1531,7 +1531,7 @@ export function ProgramBuilder() {
       {/* MODAL: VISUAL EXERCISE PICKER (RepDB 708 catalog)                        */}
       {/* ========================================================================= */}
       <Dialog open={!!visualPickerDayId} onOpenChange={open => !open && setVisualPickerDayId(null)}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-2xl border-border bg-card">
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden rounded-2xl border-border bg-card">
           <DialogHeader className="p-4 border-b border-border/80 bg-secondary/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -1540,7 +1540,7 @@ export function ProgramBuilder() {
                   {pickerTargetRxId ? "Search & Replace Exercise" : "Search & Add Exercise"}
                 </DialogTitle>
               </div>
-              <Badge variant="brand" className="text-xs font-mono">
+              <Badge variant="secondary" className="text-xs font-mono">
                 708 RepDB Catalog
               </Badge>
             </div>
@@ -1581,7 +1581,7 @@ export function ProgramBuilder() {
                   onClick={() => setPickerMuscle(m.id)}
                   className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border whitespace-nowrap transition-colors cursor-pointer ${
                     pickerMuscle === m.id
-                      ? "bg-brand text-white border-brand shadow-xs"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
                       : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"
                   }`}
                 >
@@ -1635,7 +1635,7 @@ export function ProgramBuilder() {
 
                     <Button
                       type="button"
-                      variant="brand"
+                      variant="default"
                       size="sm"
                       onClick={() => {
                         if (visualPickerDayId) {
@@ -1653,7 +1653,7 @@ export function ProgramBuilder() {
             )}
           </div>
 
-          <DialogFooter className="p-3 border-t border-border/80 bg-secondary/30">
+          <DialogFooter className="mx-0 mb-0 p-3 border-t border-border/80 bg-secondary/30">
             <Button
               type="button"
               variant="ghost"

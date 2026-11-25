@@ -66,7 +66,7 @@ export function PlatformOverview() {
       <Card className="border-border shadow-xs">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Badge variant="brand">Security & Compliance</Badge>
+            <Badge variant="secondary">Security & Compliance</Badge>
           </div>
           <CardTitle className="mt-1">Real-Time Platform Audit Log</CardTitle>
           <CardDescription>
@@ -100,7 +100,14 @@ export function PlatformOverview() {
                     {log.target}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={log.status === "success" ? "success" : "warning"} className="text-[10px] py-0 uppercase">
+                    <Badge
+                      variant="outline"
+                      className={
+                        log.status === "success"
+                          ? "text-[10px] py-0 uppercase border-success/30 bg-success/10 text-success"
+                          : "text-[10px] py-0 uppercase border-warning/30 bg-warning/10 text-warning"
+                      }
+                    >
                       {log.status}
                     </Badge>
                   </TableCell>

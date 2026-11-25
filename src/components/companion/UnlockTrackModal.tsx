@@ -38,7 +38,7 @@ export function UnlockTrackModal({
 }: UnlockTrackModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
+      <DialogContent className="sm:max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">

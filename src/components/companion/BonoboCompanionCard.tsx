@@ -355,7 +355,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
 
       {/* --- CLOSET MODAL --- */}
       <Dialog open={closetOpen} onOpenChange={setClosetOpen}>
-        <DialogContent className="max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
+        <DialogContent className="sm:max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">
               <Shirt className="h-4 w-4 text-warning" />
@@ -450,7 +450,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
 
       {/* --- THEME MODAL --- */}
       <Dialog open={themeOpen} onOpenChange={setThemeOpen}>
-        <DialogContent className="max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
+        <DialogContent className="sm:max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">
               <Palette className="h-4 w-4 text-brand" />
@@ -464,7 +464,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
           <div className="grid grid-cols-2 gap-2.5 mt-3">
             {[
               { id: "jungle", label: "🌿 Jungle", desc: "Clean emerald accent" },
-              { id: "cyber", label: "⚡ Indigo", desc: "Brand indigo accent" },
+              { id: "cyber", label: "⚡ Graphite", desc: "Crisp contrast accent" },
               { id: "cafe", label: "☕ Amber", desc: "Warm espresso amber" },
               { id: "obsidian", label: "◽ Classic", desc: "Minimal monochrome" }
             ].map((th) => {

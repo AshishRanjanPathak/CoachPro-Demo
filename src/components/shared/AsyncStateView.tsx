@@ -158,7 +158,7 @@ export function AsyncStateView({
             <button
               type="button"
               onClick={config.action.onClick}
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
             >
               {config.action.label}
             </button>

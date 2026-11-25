@@ -198,21 +198,21 @@ export function BonoboAvatar({
             />
             {/* Crown Jewels */}
             <circle cx="82" cy="27" r="2.5" fill="#EF4444" />
-            <circle cx="100" cy="23" r="3" fill="#3B82F6" />
+            <circle cx="100" cy="23" r="3" fill="#FFFFFF" />
             <circle cx="118" cy="27" r="2.5" fill="#10B981" />
           </g>
         )}
 
         {headwear === "beanie" && (
           <g>
-            {/* Cozy teal knit beanie */}
+            {/* Knit beanie */}
             <path
               d="M60 52 C65 24 135 24 140 52 Z"
-              fill="#0D9488"
+              fill="#262626"
             />
-            <rect x="58" y="50" width="84" height="10" rx="3" fill="#14B8A6" />
+            <rect x="58" y="50" width="84" height="10" rx="3" fill="#404040" />
             {/* Pompom on top */}
-            <circle cx="100" cy="24" r="8" fill="#F0FDFA" />
+            <circle cx="100" cy="24" r="8" fill="#F5F5F7" />
           </g>
         )}
 
@@ -220,9 +220,9 @@ export function BonoboAvatar({
         {prop === "tiny_dumbbell" && (
           <g transform="translate(130, 130) rotate(-15)">
             {/* Mini chrome dumbbell */}
-            <rect x="15" y="10" width="22" height="4" rx="2" fill="#94A3B8" />
-            <rect x="10" y="4" width="7" height="16" rx="2" fill="#475569" />
-            <rect x="35" y="4" width="7" height="16" rx="2" fill="#475569" />
+            <rect x="15" y="10" width="22" height="4" rx="2" fill="#D4D4D8" />
+            <rect x="10" y="4" width="7" height="16" rx="2" fill="#404040" />
+            <rect x="35" y="4" width="7" height="16" rx="2" fill="#404040" />
           </g>
         )}
 
@@ -251,7 +251,7 @@ export function BonoboAvatar({
 
         {/* Sleep Zzz static label when sleepy (no infinite bounce loop) */}
         {mood === "sleepy" && (
-          <g className="text-indigo-400 font-black text-sm" opacity="0.8">
+          <g className="text-muted-foreground font-black text-sm" opacity="0.8">
             <text x="145" y="45" fill="currentColor">Z</text>
             <text x="156" y="32" fill="currentColor" fontSize="10">z</text>
             <text x="165" y="22" fill="currentColor" fontSize="8">z</text>

@@ -106,7 +106,7 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
           {onGoToTraining && (
             <Button
               type="button"
-              variant="brand"
+              variant="default"
               onClick={onGoToTraining}
               className="w-full sm:w-auto font-bold text-xs h-11 px-5 rounded-xl cursor-pointer shadow-xs min-h-[44px] shrink-0"
             >
@@ -180,7 +180,7 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
             {!isCompleted && onOpenLogger && (
               <Button
                 type="button"
-                variant="brand"
+                variant="default"
                 size="sm"
                 onClick={onOpenLogger}
                 className="font-semibold text-xs h-10 px-3.5 rounded-xl min-h-[40px]"
@@ -266,7 +266,7 @@ export function CoachBuddyCard({ mode = "training", onOpenLogger, onGoToTraining
           {onOpenLogger && (
             <Button
               type="button"
-              variant={isCompleted ? "outline" : "brand"}
+              variant={isCompleted ? "outline" : "default"}
               onClick={onOpenLogger}
               className="w-full font-semibold text-xs min-h-[44px] rounded-xl"
             >

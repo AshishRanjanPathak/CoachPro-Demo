@@ -97,7 +97,7 @@ export function MotionVisualizer({
         {hasTwoPoses && (
           <div className="absolute top-3 left-3 flex items-center gap-1.5">
             <Badge
-              variant="brand"
+              variant="default"
               className="text-[11px] font-mono tracking-tight px-2 py-0.5 shadow-xs uppercase"
             >
               {activePose === "start" ? "1. Starting Pose" : "2. Peak Contraction"}
@@ -111,7 +111,7 @@ export function MotionVisualizer({
             type="button"
             onClick={() => setIsPlaying(p => !p)}
             aria-label={isPlaying ? "Pause two-pose demonstration" : "Play two-pose demonstration"}
-            className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-card border border-border text-foreground hover:bg-brand hover:text-white flex items-center justify-center transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] cursor-pointer min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand"
+            className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-card border border-border text-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-[background-color,color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] cursor-pointer min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring"
           >
             {isPlaying ? (
               <Pause className="w-4 h-4 fill-current" aria-hidden="true" />

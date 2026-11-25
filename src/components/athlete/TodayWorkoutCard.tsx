@@ -88,11 +88,11 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
               </Button>
 
               {isCompleted ? (
-                <Badge variant="success" className="font-medium text-[11px]">
+                <Badge variant="outline" className="font-medium text-[11px] border-success/30 bg-success/10 text-success">
                   <CheckCircle2 className="w-3.5 h-3.5 mr-1" aria-hidden="true" /> Completed
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-brand border-brand/30 font-semibold text-[11px]">
+                <Badge variant="outline" className="font-semibold text-[11px]">
                   In Progress
                 </Badge>
               )}
@@ -115,7 +115,7 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
               {completedSetsCount} / {totalPrescribedSets} sets ({totalPrescribedSets > 0 ? Math.min(100, Math.round((completedSetsCount / totalPrescribedSets) * 100)) : 0}%)
             </span>
           </div>
-          <Progress value={completedSetsCount} max={Math.max(1, totalPrescribedSets)} className="h-1.5" />
+          <Progress value={totalPrescribedSets > 0 ? Math.min(100, Math.round((completedSetsCount / totalPrescribedSets) * 100)) : 0} className="h-1.5" />
         </div>
 
         {/* Prescribed Exercises List */}
@@ -214,16 +214,19 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
 
                   {/* Exercise Actions: Progress Badge & Direct "Log Set" Entry Point A Button */}
                   <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 self-stretch sm:self-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50">
-                    <Badge variant={isRxComplete ? "success" : "secondary"} className="tabular-nums text-xs px-2.5 py-1 font-semibold">
+                    <Badge
+                      variant={isRxComplete ? "outline" : "secondary"}
+                      className={isRxComplete ? "tabular-nums text-xs px-2.5 py-1 font-semibold border-success/30 bg-success/10 text-success" : "tabular-nums text-xs px-2.5 py-1 font-semibold"}
+                    >
                       {loggedSets.length}&nbsp;/&nbsp;{rx.sets}&nbsp;sets
                     </Badge>
 
                     <Button
                       type="button"
-                      variant={isRxComplete ? "outline" : "brand"}
+                      variant={isRxComplete ? "outline" : "default"}
                       size="sm"
                       onClick={() => handleLogExerciseCard(rx.exerciseId)}
-                      className="font-bold text-xs h-10 px-4 rounded-xl min-h-[44px] cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-brand flex items-center gap-1.5"
+                      className="font-bold text-xs h-10 px-4 rounded-xl min-h-[44px] cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-ring flex items-center gap-1.5"
                       aria-label={`Log set for ${rx.exerciseName}`}
                     >
                       <Plus className="w-3.5 h-3.5" aria-hidden="true" />
@@ -248,14 +251,14 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
                 variant="outline"
                 size="sm"
                 onClick={resetWorkoutSession}
-                className="text-xs min-h-[48px] px-4 rounded-xl focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
+                className="text-xs min-h-[48px] px-4 rounded-xl focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4 mr-1.5" aria-hidden="true" /> Reset
               </Button>
             )}
 
             <Button
-              variant="brand"
+              variant="default"
               onClick={() => {
                 if (nextUnfinishedRx) {
                   handleLogExerciseCard(nextUnfinishedRx.exerciseId);

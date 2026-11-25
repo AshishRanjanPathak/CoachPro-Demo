@@ -62,7 +62,7 @@ export function PricingView() {
     <div className="space-y-8 max-w-5xl mx-auto py-4">
       {/* Header */}
       <div className="text-center space-y-3">
-        <Badge variant="brand" className="text-xs uppercase tracking-wider">
+        <Badge variant="secondary" className="text-xs uppercase tracking-wider">
           Transparent Commercial Plans
         </Badge>
         <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
@@ -91,7 +91,7 @@ export function PricingView() {
             }`}
           >
             <span>Annual Billing</span>
-            <Badge variant="success" className="text-[10px] py-0 px-1.5">Save 20%</Badge>
+            <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-success/30 bg-success/10 text-success">Save 20%</Badge>
           </button>
         </div>
       </div>
@@ -104,15 +104,15 @@ export function PricingView() {
           return (
             <Card
               key={plan.name}
-              className={`flex flex-col justify-between transition-colors duration-150 ${
-                plan.popular 
-                  ? "border-brand relative bg-card" 
+              className={`flex flex-col justify-between overflow-visible transition-colors duration-150 ${
+                plan.popular
+                  ? "ring-foreground relative bg-card"
                   : "border-border bg-card"
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge variant="brand" className="font-semibold text-xs py-0.5 px-3 uppercase tracking-wider">
+                  <Badge variant="default" className="font-semibold text-xs py-0.5 px-3 uppercase tracking-wider">
                     Most Popular
                   </Badge>
                 </div>
@@ -149,9 +149,9 @@ export function PricingView() {
                 </ul>
               </CardContent>
 
-              <CardFooter className="p-6 pt-0">
+              <CardFooter className="p-6 pt-0 bg-transparent border-t-0 mx-0 mb-0">
                 <Button
-                  variant={plan.popular ? "brand" : "outline"}
+                  variant={plan.popular ? "default" : "outline"}
                   className="w-full font-semibold min-h-[44px]"
                 >
                   {plan.cta}

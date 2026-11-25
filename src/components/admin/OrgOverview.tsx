@@ -100,7 +100,7 @@ export function OrgOverview() {
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs">{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant="success" className="text-xs py-0">Active Seat</Badge>
+                    <Badge variant="outline" className="text-xs py-0 border-success/30 bg-success/10 text-success">Active Seat</Badge>
                   </TableCell>
                 </TableRow>
               ))}
@@ -136,7 +136,7 @@ export function OrgOverview() {
                   <TableCell className="text-xs text-foreground">{inv.planName}</TableCell>
                   <TableCell className="font-bold tabular-nums text-foreground">${inv.amount.toFixed(2)} USD</TableCell>
                   <TableCell>
-                    <Badge variant="success" className="text-xs py-0 uppercase">Paid</Badge>
+                    <Badge variant="outline" className="text-xs py-0 uppercase border-success/30 bg-success/10 text-success">Paid</Badge>
                   </TableCell>
                 </TableRow>
               ))}

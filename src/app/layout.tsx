@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "BONOBO — High-Performance Athletic Coaching Platform",
@@ -30,8 +34,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F8FAFC" },
-    { media: "(prefers-color-scheme: dark)", color: "#090D16" },
+    { media: "(prefers-color-scheme: light)", color: "#FAFAFA" },
+    { media: "(prefers-color-scheme: dark)", color: "#101010" },
   ],
   interactiveWidget: "resizes-content",
 };
@@ -42,8 +46,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
-      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-brand/20">
+    <html lang="en" className={cn("dark", "font-sans", geist.variable)} style={{ colorScheme: "dark" }}>
+      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-foreground/15">
         {children}
       </body>
     </html>

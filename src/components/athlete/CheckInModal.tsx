@@ -37,7 +37,7 @@ export function CheckInCard() {
     <Card className="border-border shadow-xs">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Badge variant="brand">Daily Recovery</Badge>
+          <Badge variant="secondary">Daily Recovery</Badge>
           <span className="text-xs text-muted-foreground">{currentDateStr}</span>
         </div>
         <CardTitle className="mt-1">Athlete Daily Check-In</CardTitle>
@@ -124,7 +124,7 @@ export function CheckInCard() {
         </CardContent>
 
         <CardFooter className="bg-card border-t border-border flex justify-end p-4">
-          <Button type="submit" variant="brand" disabled={submitted} className="min-h-[44px]">
+          <Button type="submit" variant="default" disabled={submitted} className="min-h-[44px]">
             {submitted ? (
               <>
                 <CheckCircle2 className="w-4 h-4 mr-1.5" /> Transmitted to Coach!

@@ -4,8 +4,8 @@
   "description": "Production-grade, mobile-web-first athletic coaching platform for strength coaches and athletes.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#090D16",
-  "theme_color": "#090D16",
+  "background_color": "#101010",
+  "theme_color": "#101010",
   "orientation": "portrait-primary",
   "icons": [
     {

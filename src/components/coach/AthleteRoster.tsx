@@ -397,7 +397,7 @@ export function AthleteRoster() {
                             {athlete.injuryStatus?.injuryLocation || "Attention"}
                           </Badge>
                         ) : (
-                          <Badge variant="success" className="text-[10px] py-0 px-1.5 font-mono">
+                          <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-mono border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                             Optimal
                           </Badge>
                         )}
@@ -439,7 +439,7 @@ export function AthleteRoster() {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <h4 className="font-semibold text-foreground text-sm">{athlete.name}</h4>
-                        <Badge variant={isAttention ? "destructive" : "success"} className="text-[10px] py-0">
+                        <Badge variant={isAttention ? "destructive" : "outline"} className={isAttention ? "text-[10px] py-0" : "text-[10px] py-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"}>
                           {isAttention ? "Review" : "Optimal"}
                         </Badge>
                       </div>
@@ -575,7 +575,7 @@ export function AthleteRoster() {
             </Button>
             <Button
               type="button"
-              variant="brand"
+              variant="default"
               size="sm"
               onClick={handleBatchBroadcast}
               className="text-xs gap-1.5 min-h-[38px] flex-1 sm:flex-initial"

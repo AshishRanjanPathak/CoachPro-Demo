@@ -28,18 +28,18 @@ export function ClientReportModal({ open, onOpenChange, athlete, program }: Clie
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogHeader className="no-print">
-        <div className="flex items-center gap-2">
-          <Badge variant="brand">Official Report</Badge>
-          <span className="text-xs text-muted-foreground">Export Engine</span>
-        </div>
-        <DialogTitle className="mt-1">Athlete Performance & Progress Report</DialogTitle>
-        <DialogDescription>
-          Comprehensive executive progress summary formatted for client review and printing.
-        </DialogDescription>
-      </DialogHeader>
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto p-5 sm:p-6 rounded-2xl">
+        <DialogHeader className="no-print">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">Official Report</Badge>
+            <span className="text-xs text-muted-foreground">Export Engine</span>
+          </div>
+          <DialogTitle className="mt-1">Athlete Performance & Progress Report</DialogTitle>
+          <DialogDescription>
+            Comprehensive executive progress summary formatted for client review and printing.
+          </DialogDescription>
+        </DialogHeader>
 
-      <DialogContent className="max-h-[75vh] overflow-y-auto">
         {/* Printable Formal Report Body */}
         <div ref={reportRef} className="p-6 bg-card border border-border rounded-xl space-y-6 text-foreground print:border-none print:p-0">
           {/* Header & Branding */}
@@ -126,10 +126,8 @@ export function ClientReportModal({ open, onOpenChange, athlete, program }: Clie
             </div>
           </div>
         </div>
-      </DialogContent>
 
-      <DialogFooter className="no-print">
-        <div className="flex items-center justify-between w-full">
+        <DialogFooter className="no-print mx-0 mb-0 rounded-none bg-transparent border-t border-border pt-3 px-0 pb-0 sm:justify-between">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Close
           </Button>
@@ -137,12 +135,12 @@ export function ClientReportModal({ open, onOpenChange, athlete, program }: Clie
             <Button variant="outline" onClick={handlePrint} className="gap-1.5 min-h-[44px]">
               <Printer className="w-4 h-4" /> Print / PDF
             </Button>
-            <Button variant="brand" onClick={handlePrint} className="gap-1.5 min-h-[44px]">
+            <Button variant="default" onClick={handlePrint} className="gap-1.5 min-h-[44px]">
               <Download className="w-4 h-4" /> Save PDF Report
             </Button>
           </div>
-        </div>
-      </DialogFooter>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

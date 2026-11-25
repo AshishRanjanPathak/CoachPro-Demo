@@ -60,8 +60,8 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
   return (
     <>
       <Card className="border-border bg-card shadow-xs overflow-hidden rounded-2xl">
-        {/* Subtle top accent bar */}
-        <div className="h-1 w-full bg-gradient-to-r from-brand via-indigo-500 to-sky-400" />
+        {/* Subtle top monochrome accent line */}
+        <div className="h-0.5 w-full bg-border" />
 
         <CardContent className="p-4 sm:p-5 space-y-3.5">
           {/* Top Row: Athlete identity, friendly greeting, status */}
@@ -115,10 +115,10 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
               {onOpenMessages && (
                 <Button
                   type="button"
-                  variant="brand"
+                  variant="default"
                   size="sm"
                   onClick={onOpenMessages}
-                  className="text-xs h-9 px-3 gap-1.5 rounded-lg font-semibold cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-brand"
+                  className="text-xs h-9 px-3 gap-1.5 rounded-lg font-semibold cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label="Message Coach"
                 >
                   <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
@@ -149,7 +149,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             <div className="p-2.5 sm:p-3 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between">
               <div className="flex items-center justify-between text-muted-foreground mb-0.5">
                 <span className="text-[11px] font-semibold uppercase tracking-wider">Height</span>
-                <Ruler className="w-3.5 h-3.5 text-sky-400" aria-hidden="true" />
+                <Ruler className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-extrabold text-foreground tabular-nums">
@@ -212,19 +212,19 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
         </CardContent>
       </Card>
 
-      {/* Edit Profile Measurements Modal (Senior-friendly large buttons) */}
+      {/* Edit Profile Measurements Modal */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs border-brand/40 text-brand">Personal Metrics</Badge>
-          </div>
-          <DialogTitle className="text-lg font-bold">Update Your Measurements</DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
-            Keep your weight and measurements current so your coach can accurately auto-regulate your weights.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent className="sm:max-w-md p-5 sm:p-6 rounded-2xl">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">Personal Metrics</Badge>
+            </div>
+            <DialogTitle className="text-lg font-bold">Update Your Measurements</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Keep your weight and measurements current so your coach can accurately auto-regulate your weights.
+            </DialogDescription>
+          </DialogHeader>
 
-        <DialogContent>
           <form onSubmit={handleSave} className="space-y-4">
             {/* Body Weight */}
             <div className="space-y-2">
@@ -323,15 +323,15 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
               />
             </div>
 
-            <DialogFooter className="pt-3">
+            <DialogFooter className="mx-0 mb-0 rounded-none bg-transparent border-t border-border pt-3 px-0 pb-0">
               <div className="flex items-center justify-end gap-2 w-full">
                 <Button type="button" variant="ghost" size="sm" onClick={() => setEditOpen(false)} className="h-10 text-xs">
                   Cancel
                 </Button>
-                <Button type="submit" variant="brand" size="sm" className="h-10 text-xs font-semibold px-5 gap-1.5">
+                <Button type="submit" variant="default" size="sm" className="h-10 text-xs font-semibold px-5 gap-1.5">
                   {savedSuccess ? (
                     <>
-                      <Check className="w-4 h-4 text-emerald-300" /> Saved!
+                      <Check className="w-4 h-4 text-success" /> Saved!
                     </>
                   ) : (
                     "Save Measurements"

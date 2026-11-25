@@ -469,7 +469,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
               onChange={e => setApiKeyInput(e.target.value)}
               className="h-8 text-xs bg-card"
             />
-            <Button size="sm" variant="brand" onClick={handleSaveApiKey} className="h-8 px-3 text-xs">
+            <Button size="sm" variant="default" onClick={handleSaveApiKey} className="h-8 px-3 text-xs">
               Save
             </Button>
             {hasSavedKey && (
@@ -491,7 +491,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
             <div
               className={`max-w-[88%] sm:max-w-[80%] rounded-2xl p-3 text-xs leading-relaxed ${
                 msg.sender === "user"
-                  ? "bg-brand text-white rounded-br-xs shadow-xs"
+                  ? "bg-primary text-primary-foreground rounded-br-xs shadow-xs"
                   : "bg-secondary/70 text-foreground border border-border/80 rounded-bl-xs"
               }`}
             >
@@ -564,7 +564,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
 
                         <Button
                           type="button"
-                          variant="brand"
+                          variant="default"
                           size="sm"
                           onClick={() =>
                             handleConfirmWorkout(msg.id, msg.nlpResult!.workoutData!.exercises)
@@ -711,7 +711,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
           }`}
           title={isListening ? "Listening... tap to stop" : "Speak to Bonobo (Hands-free voice)"}
         >
-          <Mic className={`w-5 h-5 ${isListening ? "text-white" : "text-brand"}`} />
+          <Mic className={`w-5 h-5 ${isListening ? "animate-pulse" : "text-foreground"}`} />
         </Button>
 
         <Input
@@ -728,7 +728,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
 
         <Button
           type="button"
-          variant="brand"
+          variant="default"
           size="sm"
           onClick={() => handleSendMessage()}
           disabled={!inputText.trim() || isSubmitting}

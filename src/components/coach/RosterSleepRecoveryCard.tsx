@@ -23,7 +23,7 @@ export function RosterSleepRecoveryCard({ onSelectAthlete, onOpenMessage }: Rost
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Badge variant="brand" className="text-[10px] font-mono tracking-wider uppercase">
+              <Badge variant="secondary" className="text-[10px] font-mono tracking-wider uppercase">
                 Autonomic Readiness
               </Badge>
               <span className="text-xs text-muted-foreground">Daily Telemetry</span>
@@ -150,11 +150,13 @@ export function RosterSleepRecoveryCard({ onSelectAthlete, onOpenMessage }: Rost
                             variant={
                               ath.fatigueLevel === "high" || ath.fatigueLevel === "severe"
                                 ? "destructive"
-                                : ath.fatigueLevel === "moderate"
-                                ? "warning"
                                 : "outline"
                             }
-                            className="capitalize text-[10px] px-1.5 py-0"
+                            className={
+                              ath.fatigueLevel === "moderate"
+                                ? "capitalize text-[10px] px-1.5 py-0 border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                : "capitalize text-[10px] px-1.5 py-0"
+                            }
                           >
                             {ath.fatigueLevel}
                           </Badge>

@@ -354,22 +354,23 @@ export function CoachProgressionCurve() {
           <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 800 220" role="img" aria-label="1RM Overload Curve visual graph">
             <defs>
               <linearGradient id="progressionGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#7C8FD8" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#7C8FD8" stopOpacity="0.0" />
+                <stop offset="0%" stopColor="currentColor" stopOpacity="0.22" />
+                <stop offset="100%" stopColor="currentColor" stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
             {/* Horizontal Grid */}
-            <line stroke="#1E293B" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="20" y2="20" />
-            <line stroke="#1E293B" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="75" y2="75" />
-            <line stroke="#1E293B" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="130" y2="130" />
-            <line stroke="#1E293B" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="185" y2="185" />
+            <line stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="20" y2="20" />
+            <line stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="75" y2="75" />
+            <line stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="130" y2="130" />
+            <line stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="185" y2="185" />
 
             {/* Area Fill */}
             <polygon
               ref={polygonRef}
               fill="url(#progressionGradient)"
               points={areaPolygonPoints}
+              className="text-foreground"
             />
 
             {/* Smooth Cubic Bezier Line Path */}
@@ -377,10 +378,10 @@ export function CoachProgressionCurve() {
               ref={pathRef}
               d={pathD}
               fill="none"
-              stroke="#7C8FD8"
+              stroke="var(--foreground)"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="3.5"
+              strokeWidth="3"
             />
 
             {/* Coordinate Dots */}
@@ -396,9 +397,9 @@ export function CoachProgressionCurve() {
                     <circle
                       cx={coord.x}
                       cy={coord.y}
-                      fill={isSelected ? "#10B981" : "#0F172A"}
+                      fill={isSelected ? "var(--foreground)" : "var(--card)"}
                       r={isSelected ? 7 : 5}
-                      stroke={isSelected ? "#ffffff" : "#7C8FD8"}
+                      stroke="var(--foreground)"
                       strokeWidth={isSelected ? 2.5 : 2}
                       className="transition-[r,fill,stroke] duration-150 ease-[var(--ease-out)]"
                     />

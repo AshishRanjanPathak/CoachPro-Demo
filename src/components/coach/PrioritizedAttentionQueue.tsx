@@ -109,8 +109,12 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                       className="w-12 h-12 rounded-full object-cover border-2 border-border"
                     />
                     <div
-                      className={`absolute -top-1 -left-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-xs ${
-                        isInjured ? "bg-destructive" : isHighFatigue ? "bg-warning" : "bg-primary"
+                      className={`absolute -top-1 -left-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-xs ${
+                        isInjured
+                          ? "bg-destructive text-white"
+                          : isHighFatigue
+                            ? "bg-amber-500 text-black"
+                            : "bg-primary text-primary-foreground"
                       }`}
                     >
                       #{idx + 1}
@@ -130,11 +134,11 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                           <AlertTriangle className="w-3 h-3" /> Flagged Injury: {ath.injuryStatus?.injuryLocation}
                         </Badge>
                       ) : isHighFatigue ? (
-                        <Badge variant="warning" className="text-[10px] py-0 font-bold flex items-center gap-1">
+                        <Badge variant="outline" className="text-[10px] py-0 font-bold flex items-center gap-1 border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
                           <HeartPulse className="w-3 h-3" /> Elevated Fatigue ({ath.fatigueLevel})
                         </Badge>
                       ) : (
-                        <Badge variant="success" className="text-[10px] py-0">
+                        <Badge variant="outline" className="text-[10px] py-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                           Optimal Readiness
                         </Badge>
                       )}
@@ -197,21 +201,21 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
 
       {/* QUICK PRESCRIPTION ADJUSTMENT MODAL */}
       <Dialog open={adjustModalOpen} onOpenChange={setAdjustModalOpen}>
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <Badge variant="brand">Clinical Intervention</Badge>
-            <span className="text-xs text-muted-foreground">Live Rx Adjustment</span>
-          </div>
-          <DialogTitle className="mt-1">
-            Adjust Program for {selectedAthleteForAdjust?.name}
-          </DialogTitle>
-          <DialogDescription>
-            Immediately modify exercise prescriptions or loads in response to reported pain or fatigue.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent className="sm:max-w-lg p-5 sm:p-6 rounded-2xl">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">Clinical Intervention</Badge>
+              <span className="text-xs text-muted-foreground">Live Rx Adjustment</span>
+            </div>
+            <DialogTitle className="mt-1">
+              Adjust Program for {selectedAthleteForAdjust?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Immediately modify exercise prescriptions or loads in response to reported pain or fatigue.
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSaveAdjustment}>
-          <DialogContent className="space-y-4">
+          <form onSubmit={handleSaveAdjustment} className="space-y-4">
             {selectedAthleteForAdjust?.injuryStatus?.hasInjury && (
               <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">
                 <strong>Reported Pain:</strong> {selectedAthleteForAdjust.injuryStatus.injuryLocation} ({selectedAthleteForAdjust.injuryStatus.severity}) — “{selectedAthleteForAdjust.injuryStatus.details}”
@@ -274,14 +278,12 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                 className="text-xs h-10"
               />
             </div>
-          </DialogContent>
 
-          <DialogFooter>
-            <div className="flex justify-between items-center w-full">
+            <DialogFooter className="mx-0 mb-0 rounded-none bg-transparent border-t border-border pt-3 px-0 pb-0 sm:justify-between">
               <Button type="button" variant="ghost" onClick={() => setAdjustModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" variant="brand" disabled={adjustedNotice} className="font-semibold text-xs min-h-[44px]">
+              <Button type="submit" variant="default" disabled={adjustedNotice} className="font-semibold text-xs min-h-[44px]">
                 {adjustedNotice ? (
                   <>
                     <CheckCircle2 className="w-4 h-4 mr-1.5" /> Prescription Updated!
@@ -290,9 +292,9 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                   "Commit Prescription Adjustment"
                 )}
               </Button>
-            </div>
-          </DialogFooter>
-        </form>
+            </DialogFooter>
+          </form>
+        </DialogContent>
       </Dialog>
     </div>
   );

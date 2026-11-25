@@ -323,7 +323,7 @@ export function AthleteProgressView() {
               </div>
 
               {/* Overload Delta Badge */}
-              <Badge variant="brand" className="font-mono text-xs tabular-nums whitespace-nowrap">
+              <Badge variant="secondary" className="font-mono text-xs tabular-nums whitespace-nowrap">
                 <span ref={overloadNumRef}>+{overloadDelta.toFixed(1)}</span>
                 &nbsp;kg Overload
               </Badge>
@@ -354,8 +354,8 @@ export function AthleteProgressView() {
             <svg viewBox="0 0 500 160" className="w-full h-full overflow-visible">
               <defs>
                 <linearGradient id="athleteChartGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6477B8" stopOpacity="0.30" />
-                  <stop offset="100%" stopColor="#6477B8" stopOpacity="0.0" />
+                  <stop offset="0%" stopColor="var(--foreground)" stopOpacity="0.22" />
+                  <stop offset="100%" stopColor="var(--foreground)" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
 
@@ -383,8 +383,8 @@ export function AthleteProgressView() {
                 ref={pathRef}
                 d={pathD}
                 fill="none"
-                stroke="#6477B8"
-                strokeWidth="3.5"
+                stroke="var(--foreground)"
+                strokeWidth="3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -411,9 +411,9 @@ export function AthleteProgressView() {
                         cy={item.y}
                         r="9"
                         fill="none"
-                        stroke="#6477B8"
-                        strokeWidth="2"
-                        opacity={isSelected ? 0.9 : 0.4}
+                        stroke="var(--foreground)"
+                        strokeWidth="1.5"
+                        opacity={isSelected ? 0.85 : 0.35}
                       />
                     )}
 
@@ -421,10 +421,10 @@ export function AthleteProgressView() {
                     <circle
                       cx={item.x}
                       cy={item.y}
-                      r={isSelected ? "6" : "5"}
-                      fill="#FFFFFF"
-                      stroke="#6477B8"
-                      strokeWidth="3"
+                      r={isSelected ? "6" : "4.5"}
+                      fill="var(--card)"
+                      stroke="var(--foreground)"
+                      strokeWidth="2.5"
                     />
 
                     {/* Weight Label on Top */}
@@ -500,7 +500,7 @@ export function AthleteProgressView() {
                       <TrendingUp className={`w-4 h-4 ${isActive ? "text-brand" : "text-muted-foreground"}`} />
                       <span>{pr.exercise}</span>
                       {isActive && (
-                        <Badge variant="brand" className="text-[10px] py-0 ml-1">
+                        <Badge variant="default" className="text-[10px] py-0 ml-1">
                           Viewing Chart
                         </Badge>
                       )}
