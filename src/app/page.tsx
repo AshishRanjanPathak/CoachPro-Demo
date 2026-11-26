@@ -13,6 +13,7 @@ import { AthleteRoster } from "@/components/coach/AthleteRoster";
 import { AthleteProfileView } from "@/components/coach/AthleteProfileView";
 import { PrioritizedAttentionQueue } from "@/components/coach/PrioritizedAttentionQueue";
 import { CoachDashboard } from "@/components/coach/CoachDashboard";
+import { CoachProgressionCurve } from "@/components/coach/stitch/CoachProgressionCurve";
 import { ProgramBuilder } from "@/components/coach/ProgramBuilder";
 import { ExerciseLibraryView } from "@/components/coach/ExerciseLibraryView";
 import { MessagingView } from "@/components/shared/MessagingView";
@@ -76,6 +77,7 @@ function AppContent() {
           { id: "dashboard", label: "Coach Hub", icon: <Activity className="w-4 h-4 text-brand" /> },
           { id: "queue", label: "Attention Queue", icon: <AlertTriangle className="w-4 h-4 text-destructive" /> },
           { id: "roster", label: "Athlete Roster", icon: <Users className="w-4 h-4" /> },
+          { id: "telemetry", label: "Telemetry", icon: <TrendingUp className="w-4 h-4" /> },
           { id: "builder", label: "Program Builder", icon: <Layers className="w-4 h-4" /> },
           { id: "exercises", label: "Exercise Library", icon: <BookOpen className="w-4 h-4" /> },
           { id: "messages", label: "Athlete Messages", icon: <MessageSquare className="w-4 h-4" /> },
@@ -208,6 +210,7 @@ function AppContent() {
                 )
               )}
               {activeTab === "roster" && <AthleteRoster />}
+              {activeTab === "telemetry" && <CoachProgressionCurve />}
               {activeTab === "builder" && <ProgramBuilder />}
               {activeTab === "exercises" && <ExerciseLibraryView />}
               {activeTab === "messages" && <MessagingView initialRecipientId={targetedRecipientId} />}

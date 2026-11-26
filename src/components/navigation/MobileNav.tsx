@@ -78,6 +78,7 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
       { id: "dashboard", label: "Hub", icon: <Activity className="w-5 h-5" /> },
       { id: "queue", label: "Triage", icon: <AlertTriangle className="w-5 h-5" />, badge: triageCount },
       { id: "roster", label: "Roster", icon: <Users className="w-5 h-5" /> },
+      { id: "telemetry", label: "Telemetry", icon: <TrendingUp className="w-5 h-5" /> },
       { id: "builder", label: "Programs", icon: <Layers className="w-5 h-5" /> },
       { id: "messages", label: "Chat", icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
     ];
@@ -115,7 +116,7 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
                 triggerHaptic();
                 onTabChange(item.id);
               }}
-              className={`relative flex flex-col items-center justify-center flex-1 h-full min-h-[48px] py-1 cursor-pointer transition-[color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.96] touch-manipulation ${
+              className={`relative flex flex-col items-center justify-center flex-1 min-w-0 h-full min-h-[48px] py-1 px-0.5 cursor-pointer transition-[color,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.96] touch-manipulation ${
                 isActive 
                   ? "text-brand font-semibold" 
                   : "text-muted-foreground hover:text-foreground active:text-foreground"
@@ -136,7 +137,7 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
                 )}
               </div>
 
-              <span className={`text-[10px] mt-1 font-mono tracking-tight leading-none ${
+              <span className={`text-[10px] mt-1 font-mono tracking-tight leading-none truncate max-w-full ${
                 isActive ? "font-bold text-foreground" : "font-normal"
               }`}>
                 {item.label}

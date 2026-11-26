@@ -6,7 +6,6 @@ import { AthleteProfile } from "@/types";
 import { CoachTriageQueue } from "@/components/coach/stitch/CoachTriageQueue";
 import { CoachSleepTable } from "@/components/coach/stitch/CoachSleepTable";
 import { CoachActivityFeed } from "@/components/coach/stitch/CoachActivityFeed";
-import { CoachProgressionCurve } from "@/components/coach/stitch/CoachProgressionCurve";
 import {
   ArrowDown,
   PlusCircle,
@@ -203,7 +202,6 @@ export function CoachDashboard({
           onOpenMessages={onOpenMessages}
         />
         <CoachActivityFeed />
-        <CoachProgressionCurve />
       </div>
     </div>
   );

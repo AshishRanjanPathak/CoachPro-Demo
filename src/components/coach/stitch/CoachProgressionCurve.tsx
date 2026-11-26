@@ -1,8 +1,23 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
-import { TrendingUp, ChevronDown, Sparkles } from "lucide-react";
+import { AthleteProfile, Exercise, ExercisePrescription, Program, WorkoutSet } from "@/types";
+import { calculateEstimated1RM } from "@/lib/utils";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { TrendingUp, ChevronDown, Dumbbell, Search, X } from "lucide-react";
 
 export interface TelemetryPoint {
   date: string;
@@ -11,112 +26,215 @@ export interface TelemetryPoint {
   rpe: number;
   est1rm: number;
   tonnage: number;
+  source: "baseline" | "live";
+  isPr?: boolean;
 }
 
-// Generate realistic dynamic progression curves for athletes and exercises
-function getProgressionData(
-  athleteId: string,
-  exercise: "squat" | "bench" | "deadlift" | "ohp",
-  range: "1M" | "3M" | "6M" | "ALL"
-): { points: TelemetryPoint[]; peakEst1rm: number; deltaKg: number; deltaPct: number } {
-  // Deterministic seed multiplier based on athleteId
-  let factor = 1.0;
-  if (athleteId === "ath-2") factor = 0.82; // Maya (lighter weight class)
-  else if (athleteId === "ath-3") factor = 0.94; // Jordan
-  else if (athleteId === "ath-5") factor = 0.72; // Sophia
-  else if (athleteId === "ath-4" || athleteId === "ath-6") factor = 1.05;
-  else if (athleteId !== "usr-athlete-1") {
-    // Generate subtle unique hash factor for all 20 athletes
-    const charSum = athleteId.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    factor = 0.75 + ((charSum % 40) / 100);
+type MetricKey = "est1rm" | "weight" | "tonnage" | "reps";
+type TimeRange = "1M" | "3M" | "6M" | "ALL";
+
+function getAthleteSeedFactor(athleteId: string): number {
+  if (athleteId === "ath-2") return 0.82;
+  if (athleteId === "ath-3") return 0.94;
+  if (athleteId === "ath-5") return 0.72;
+  if (athleteId === "ath-4" || athleteId === "ath-6") return 1.05;
+  if (athleteId === "usr-athlete-1") return 1.0;
+  const charSum = athleteId.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return 0.75 + ((charSum % 40) / 100);
+}
+
+function getBaseExerciseParams(
+  exercise: Exercise,
+  athlete: AthleteProfile,
+  prescription?: ExercisePrescription
+): { baseWeight: number; baseReps: number; defaultSets: number } {
+  const factor = getAthleteSeedFactor(athlete.id);
+  const name = exercise.name.toLowerCase();
+  const parsedPrescribedReps = prescription ? parseInt(String(prescription.repTarget).split("-")[0], 10) : NaN;
+  const reps = !Number.isNaN(parsedPrescribedReps) && parsedPrescribedReps > 0 ? parsedPrescribedReps : null;
+
+  if (prescription?.targetLoadKg && prescription.targetLoadKg > 0) {
+    const scaled = athlete.id === "usr-athlete-1"
+      ? prescription.targetLoadKg
+      : Math.round(prescription.targetLoadKg * factor * 2) / 2;
+    return {
+      baseWeight: scaled,
+      baseReps: reps || 5,
+      defaultSets: prescription.sets || 4,
+    };
   }
 
-  // Base top-set working weight per movement
-  let baseWorkingWeight = 130;
-  let repCount = 5;
-  if (exercise === "squat") {
-    baseWorkingWeight = Math.round(135 * factor * 2) / 2;
-    repCount = 5;
-  } else if (exercise === "bench") {
-    baseWorkingWeight = Math.round(97.5 * factor * 2) / 2;
-    repCount = 5;
-  } else if (exercise === "deadlift") {
-    baseWorkingWeight = Math.round(175 * factor * 2) / 2;
-    repCount = 3;
-  } else if (exercise === "ohp") {
-    baseWorkingWeight = Math.round(62.5 * factor * 2) / 2;
-    repCount = 5;
+  if (exercise.trackingMethod === "isometric") {
+    return { baseWeight: 0, baseReps: reps || 45, defaultSets: prescription?.sets || 3 };
   }
+  if (exercise.trackingMethod === "distance_duration") {
+    return { baseWeight: 5, baseReps: prescription?.targetDurationMinutes || 25, defaultSets: 1 };
+  }
+  if (exercise.trackingMethod === "bodyweight_reps") {
+    return { baseWeight: 0, baseReps: reps || 12, defaultSets: prescription?.sets || 3 };
+  }
+  if (name.includes("leg press")) {
+    return { baseWeight: Math.round(180 * factor * 2) / 2, baseReps: reps || 10, defaultSets: 3 };
+  }
+  if (name.includes("curl") || name.includes("extension")) {
+    return { baseWeight: Math.round(25 * factor * 2) / 2, baseReps: reps || 10, defaultSets: 3 };
+  }
+  if (name.includes("lunge")) {
+    return { baseWeight: Math.round(24 * factor * 2) / 2, baseReps: reps || 10, defaultSets: 3 };
+  }
+  if (name.includes("deadlift") && !name.includes("romanian")) {
+    return { baseWeight: Math.round(170 * factor * 2) / 2, baseReps: reps || 3, defaultSets: 4 };
+  }
+  if (name.includes("romanian") || name.includes("rdl")) {
+    return { baseWeight: Math.round(100 * factor * 2) / 2, baseReps: reps || 8, defaultSets: 3 };
+  }
+  if (name.includes("squat") || name.includes("leg press")) {
+    return { baseWeight: Math.round(135 * factor * 2) / 2, baseReps: reps || 5, defaultSets: 4 };
+  }
+  if (name.includes("bench")) {
+    return { baseWeight: Math.round(97.5 * factor * 2) / 2, baseReps: reps || 5, defaultSets: 4 };
+  }
+  if (name.includes("overhead") || name.includes("shoulder press")) {
+    return { baseWeight: Math.round(62.5 * factor * 2) / 2, baseReps: reps || 5, defaultSets: 4 };
+  }
+  if (name.includes("pull-up") || name.includes("dip")) {
+    return { baseWeight: Math.round(12.5 * factor * 2) / 2, baseReps: reps || 6, defaultSets: 3 };
+  }
+  if (name.includes("row") || name.includes("lat")) {
+    return { baseWeight: Math.round(72.5 * factor * 2) / 2, baseReps: reps || 8, defaultSets: 3 };
+  }
+  return { baseWeight: Math.round(50 * factor * 2) / 2, baseReps: reps || 8, defaultSets: 3 };
+}
 
-  // Full progression session series
-  const fullSeries: TelemetryPoint[] = [
-    { date: "Oct 15", weight: baseWorkingWeight - 12.5, reps: repCount, rpe: 8.0, est1rm: 0, tonnage: 0 },
-    { date: "Nov 02", weight: baseWorkingWeight - 10.0, reps: repCount, rpe: 8.0, est1rm: 0, tonnage: 0 },
-    { date: "Nov 24", weight: baseWorkingWeight - 7.5, reps: repCount, rpe: 8.5, est1rm: 0, tonnage: 0 },
-    { date: "Dec 15", weight: baseWorkingWeight - 7.5, reps: repCount + 1, rpe: 8.5, est1rm: 0, tonnage: 0 },
-    { date: "Jan 10", weight: baseWorkingWeight - 5.0, reps: repCount, rpe: 8.0, est1rm: 0, tonnage: 0 },
-    { date: "Jan 24", weight: baseWorkingWeight - 2.5, reps: repCount, rpe: 8.5, est1rm: 0, tonnage: 0 },
-    { date: "Feb 08", weight: baseWorkingWeight, reps: repCount, rpe: 8.0, est1rm: 0, tonnage: 0 },
-    { date: "Feb 22", weight: baseWorkingWeight + 2.5, reps: repCount, rpe: 8.5, est1rm: 0, tonnage: 0 },
-    { date: "Mar 05", weight: baseWorkingWeight + 5.0, reps: repCount, rpe: 9.0, est1rm: 0, tonnage: 0 },
-    { date: "Mar 18", weight: baseWorkingWeight + 7.5, reps: repCount, rpe: 9.0, est1rm: 0, tonnage: 0 }
+function buildClientExerciseHistory(
+  athlete: AthleteProfile,
+  exercise: Exercise,
+  program: Program | undefined,
+  liveSets: WorkoutSet[],
+  range: TimeRange
+): TelemetryPoint[] {
+  const prescription = program?.days
+    .flatMap((d) => d.prescriptions)
+    .find((rx) => rx.exerciseId === exercise.id || rx.exerciseName === exercise.name);
+
+  const { baseWeight, baseReps, defaultSets } = getBaseExerciseParams(exercise, athlete, prescription);
+  const isIsometric = exercise.trackingMethod === "isometric";
+  const isCardio = exercise.trackingMethod === "distance_duration";
+  const isBodyweight = baseWeight === 0 && (exercise.trackingMethod === "bodyweight_reps" || isIsometric);
+
+  const seedHash = (athlete.id.length * 7 + exercise.id.length * 13) % 3;
+  const baselineTimeline = [
+    { date: "Oct 14", loadDelta: -15, repOffset: 0, rpe: 7.5 },
+    { date: "Oct 28", loadDelta: -12.5, repOffset: 0, rpe: 8.0 },
+    { date: "Nov 11", loadDelta: -10, repOffset: 0, rpe: 8.0 },
+    { date: "Nov 25", loadDelta: -7.5, repOffset: seedHash === 1 ? 1 : 0, rpe: 8.5 },
+    { date: "Dec 09", loadDelta: -7.5, repOffset: 1, rpe: 8.5 },
+    { date: "Jan 06", loadDelta: -5, repOffset: 0, rpe: 8.0 },
+    { date: "Jan 20", loadDelta: -2.5, repOffset: 0, rpe: 8.5 },
+    { date: "Feb 03", loadDelta: 0, repOffset: 0, rpe: 8.0 },
+    { date: "Feb 17", loadDelta: 2.5, repOffset: 0, rpe: 8.5 },
+    { date: "Mar 03", loadDelta: 5, repOffset: seedHash === 2 ? 1 : 0, rpe: 9.0 },
   ];
 
-  // Calculate Epley 1RM formula & realistic session volume tonnage
-  const populated = fullSeries.map((item, idx) => {
-    const est1rm = Math.round((item.weight * (1 + item.reps / 30)) * 10) / 10;
-    const baseSets = 4;
-    const tonnage = Math.round(item.weight * item.reps * (baseSets + (idx % 2)));
-    return { ...item, est1rm, tonnage };
+  const baselinePoints: TelemetryPoint[] = baselineTimeline.map((pt, idx) => {
+    if (isCardio) {
+      const distanceKm = Math.round((3.0 + idx * 0.25 + seedHash * 0.2) * 10) / 10;
+      const mins = baseReps + idx;
+      return {
+        date: pt.date,
+        weight: distanceKm,
+        reps: mins,
+        rpe: pt.rpe,
+        est1rm: distanceKm,
+        tonnage: mins,
+        source: "baseline",
+        isPr: idx === baselineTimeline.length - 1,
+      };
+    }
+
+    const reps = isIsometric
+      ? Math.max(15, baseReps + idx * 5)
+      : Math.max(1, baseReps + pt.repOffset + (isBodyweight ? Math.floor(idx / 2) : 0));
+    const weight = isBodyweight
+      ? 0
+      : Math.max(5, Math.round((baseWeight - 5 + pt.loadDelta) * 2) / 2);
+    const est1rm = isBodyweight ? reps : calculateEstimated1RM(weight, reps);
+    const tonnage = isBodyweight
+      ? reps * defaultSets
+      : Math.round(weight * reps * defaultSets);
+
+    return {
+      date: pt.date,
+      weight,
+      reps,
+      rpe: pt.rpe,
+      est1rm,
+      tonnage,
+      source: "baseline",
+      isPr: idx === baselineTimeline.length - 1,
+    };
   });
 
-  // Slice series according to selected time window
-  let sliced: TelemetryPoint[];
-  if (range === "1M") sliced = populated.slice(-4);
-  else if (range === "3M") sliced = populated.slice(-6);
-  else if (range === "6M") sliced = populated.slice(-8);
-  else sliced = populated;
+  // Merge any live logged sets from activeSession matching this athlete & exercise
+  const matchingLiveSets = liveSets.filter(
+    (s) => s.exerciseId === exercise.id || s.exerciseName.toLowerCase() === exercise.name.toLowerCase()
+  );
 
-  const first1rm = sliced[0].est1rm;
-  const peakEst1rm = Math.max(...sliced.map(p => p.est1rm));
-  const deltaKg = Math.round((peakEst1rm - first1rm) * 10) / 10;
-  const deltaPct = Math.round((deltaKg / first1rm) * 1000) / 10;
+  if (matchingLiveSets.length > 0) {
+    // Group live sets cleanly into session best / aggregate entry
+    const topSet = matchingLiveSets.reduce((best, s) => {
+      const bestScore = s.completedWeightKg * (1 + s.completedReps / 30);
+      const prevScore = best.completedWeightKg * (1 + best.completedReps / 30);
+      return bestScore >= prevScore ? s : best;
+    }, matchingLiveSets[0]);
 
-  return { points: sliced, peakEst1rm, deltaKg, deltaPct };
-}
+    const liveTonnage = matchingLiveSets.reduce(
+      (sum, s) => sum + (s.completedWeightKg > 0 ? s.completedWeightKg * s.completedReps : s.completedReps),
+      0
+    );
+    const parsedDate = topSet.completedAt ? new Date(topSet.completedAt) : new Date();
+    const formattedDate = Number.isNaN(parsedDate.getTime())
+      ? "Today"
+      : parsedDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-// Generate smooth cubic bezier SVG curve
-function generateBezierPath(points: { x: number; y: number }[]): string {
-  if (points.length === 0) return "";
-  if (points.length === 1) return `M ${points[0].x},${points[0].y}`;
-  let d = `M ${points[0].x},${points[0].y}`;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i === 0 ? 0 : i - 1];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
-    const cp1x = p1.x + (p2.x - p0.x) / 6;
-    const cp1y = p1.y + (p2.y - p0.y) / 6;
-    const cp2x = p2.x - (p3.x - p1.x) / 6;
-    const cp2y = p2.y - (p3.y - p1.y) / 6;
-    d += ` C ${Math.round(cp1x)},${Math.round(cp1y)} ${Math.round(cp2x)},${Math.round(cp2y)} ${Math.round(p2.x)},${Math.round(p2.y)}`;
+    baselinePoints.push({
+      date: `${formattedDate} (Live)`,
+      weight: topSet.completedWeightKg,
+      reps: topSet.completedReps,
+      rpe: topSet.rpe || 8.5,
+      est1rm: topSet.completedWeightKg > 0
+        ? calculateEstimated1RM(topSet.completedWeightKg, topSet.completedReps)
+        : topSet.completedReps,
+      tonnage: Math.round(liveTonnage),
+      source: "live",
+      isPr: Boolean(topSet.isPr),
+    });
   }
-  return d;
+
+  if (range === "1M") return baselinePoints.slice(-4);
+  if (range === "3M") return baselinePoints.slice(-6);
+  if (range === "6M") return baselinePoints.slice(-8);
+  return baselinePoints;
 }
 
 export function CoachProgressionCurve() {
   const { state } = useAuth();
-  const [selectedAthleteId, setSelectedAthleteId] = useState<string>("usr-athlete-1"); // Alex Chen default
-  const [selectedExercise, setSelectedExercise] = useState<"squat" | "bench" | "deadlift" | "ohp">("squat");
-  const [selectedRange, setSelectedRange] = useState<"1M" | "3M" | "6M" | "ALL">("3M");
-  const [activePointIndex, setActivePointIndex] = useState<number | null>(null);
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string>(
+    () => state.athletes[0]?.id || "usr-athlete-1"
+  );
+  const [selectedExerciseId, setSelectedExerciseId] = useState<string>("ex-1");
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>("est1rm");
+  const [selectedRange, setSelectedRange] = useState<TimeRange>("3M");
+  const [exerciseSearch, setExerciseSearch] = useState("");
 
-  const currentAthlete = state.athletes.find(a => a.id === selectedAthleteId) || state.athletes[0];
+  const currentAthlete = useMemo(
+    () => state.athletes.find((a) => a.id === selectedAthleteId) || state.athletes[0],
+    [state.athletes, selectedAthleteId]
+  );
 
-  // Group athletes by squad for clean multi-athlete scanning
   const squads = useMemo(() => {
-    const map = new Map<string, typeof state.athletes>();
-    state.athletes.forEach(ath => {
+    const map = new Map<string, AthleteProfile[]>();
+    state.athletes.forEach((ath) => {
       const sq = ath.squad || "General Cohort";
       if (!map.has(sq)) map.set(sq, []);
       map.get(sq)!.push(ath);
@@ -124,434 +242,489 @@ export function CoachProgressionCurve() {
     return Array.from(map.entries());
   }, [state.athletes]);
 
-  // Compute telemetry curve points reactively
-  const { points, peakEst1rm, deltaKg, deltaPct } = useMemo(() => {
-    return getProgressionData(selectedAthleteId, selectedExercise, selectedRange);
-  }, [selectedAthleteId, selectedExercise, selectedRange]);
+  const athleteProgram = useMemo(
+    () => state.programs.find((p) => p.id === currentAthlete?.assignedProgramId),
+    [state.programs, currentAthlete?.assignedProgramId]
+  );
 
-  // Active point for tooltip inspection
-  const activePoint = activePointIndex !== null && points[activePointIndex]
-    ? points[activePointIndex]
-    : points[points.length - 1];
+  const athleteLiveSets = useMemo(() => {
+    if (!currentAthlete) return [];
+    return state.activeSession?.athleteId === currentAthlete.id ? state.activeSession.sets : [];
+  }, [state.activeSession, currentAthlete]);
 
-  // Map points to SVG coordinates (ViewBox: 800 x 220)
-  const svgCoords = useMemo(() => {
-    const minVal = Math.min(...points.map(p => p.est1rm)) * 0.94;
-    const maxVal = Math.max(...points.map(p => p.est1rm)) * 1.04;
-    const valSpan = Math.max(1, maxVal - minVal);
-    const n = points.length;
+  // Exercises this client has done (live logged + prescribed program + foundational compounds)
+  const clientTrainedExercises = useMemo(() => {
+    const seen = new Set<string>();
+    const list: Exercise[] = [];
 
-    return points.map((p, i) => {
-      const x = 50 + (i / (n - 1)) * 700;
-      const y = 185 - ((p.est1rm - minVal) / valSpan) * 145;
-      return { x: Math.round(x), y: Math.round(y), raw: p };
-    });
-  }, [points]);
-
-  const pathD = useMemo(() => generateBezierPath(svgCoords), [svgCoords]);
-  const areaPolygonPoints = useMemo(() => {
-    if (svgCoords.length === 0) return "";
-    return `50,185 ${svgCoords.map(c => `${c.x},${c.y}`).join(" ")} ${svgCoords[svgCoords.length - 1].x},185`;
-  }, [svgCoords]);
-
-  // Volume tonnage mini bars computation
-  const tonnageBars = useMemo(() => {
-    const maxTonnage = Math.max(...points.map(p => p.tonnage), 1);
-    return points.slice(-6).map((p, idx, arr) => ({
-      val: `${(p.tonnage / 1000).toFixed(1)}k`,
-      heightPct: `${Math.round((p.tonnage / maxTonnage) * 90) + 10}%`,
-      active: idx === arr.length - 1,
-      date: p.date
-    }));
-  }, [points]);
-
-  const avgTonnage = useMemo(() => {
-    const total = points.reduce((acc, p) => acc + p.tonnage, 0);
-    return Math.round(total / points.length);
-  }, [points]);
-
-  // Milestone PR benchmarks for current athlete
-  const benchmarks = useMemo(() => {
-    const sqData = getProgressionData(selectedAthleteId, "squat", "ALL");
-    const bpData = getProgressionData(selectedAthleteId, "bench", "ALL");
-    const dlData = getProgressionData(selectedAthleteId, "deadlift", "ALL");
-
-    return {
-      squat: {
-        est1rm: sqData.peakEst1rm,
-        working: `${sqData.points[sqData.points.length - 1].weight} kg × ${sqData.points[sqData.points.length - 1].reps}`
-      },
-      bench: {
-        est1rm: bpData.peakEst1rm,
-        working: `${bpData.points[bpData.points.length - 1].weight} kg × ${bpData.points[bpData.points.length - 1].reps}`
-      },
-      deadlift: {
-        est1rm: dlData.peakEst1rm,
-        working: `${dlData.points[dlData.points.length - 1].weight} kg × ${dlData.points[dlData.points.length - 1].reps}`
+    const addIfFound = (id?: string, name?: string) => {
+      const match = state.exercises.find(
+        (ex) => (id && ex.id === id) || (name && ex.name.toLowerCase() === name.toLowerCase())
+      );
+      if (match && !seen.has(match.id)) {
+        seen.add(match.id);
+        list.push(match);
       }
     };
-  }, [selectedAthleteId]);
 
-  // Instant SVG telemetry rendering (zero mount bounce / fade-in delay)
-  const pathRef = useRef<SVGPathElement | null>(null);
-  const polygonRef = useRef<SVGPolygonElement | null>(null);
-  const peakNumberRef = useRef<HTMLSpanElement | null>(null);
-  const dotsGroupRef = useRef<SVGGElement | null>(null);
-  const barsGroupRef = useRef<HTMLDivElement | null>(null);
-  const milestonesRef = useRef<HTMLDivElement | null>(null);
+    athleteLiveSets.forEach((s) => addIfFound(s.exerciseId, s.exerciseName));
+    athleteProgram?.days.forEach((d) =>
+      d.prescriptions.forEach((rx) => addIfFound(rx.exerciseId, rx.exerciseName))
+    );
+    state.exercises.slice(0, 8).forEach((ex) => addIfFound(ex.id, ex.name));
 
-  const exerciseLabelMap = {
-    squat: "Barbell Back Squat",
-    bench: "Barbell Bench Press",
-    deadlift: "Conventional Deadlift",
-    ohp: "Overhead Press"
+    return list;
+  }, [state.exercises, athleteLiveSets, athleteProgram]);
+
+  const filteredAllExercises = useMemo(() => {
+    const q = exerciseSearch.trim().toLowerCase();
+    if (!q) return state.exercises;
+    return state.exercises.filter(
+      (ex) => ex.name.toLowerCase().includes(q) || ex.primaryMuscle.toLowerCase().includes(q)
+    );
+  }, [state.exercises, exerciseSearch]);
+
+  const selectedExercise = useMemo(
+    () =>
+      state.exercises.find((e) => e.id === selectedExerciseId) ||
+      clientTrainedExercises[0] ||
+      state.exercises[0],
+    [state.exercises, selectedExerciseId, clientTrainedExercises]
+  );
+
+  const historyPoints = useMemo(() => {
+    if (!currentAthlete || !selectedExercise) return [];
+    return buildClientExerciseHistory(
+      currentAthlete,
+      selectedExercise,
+      athleteProgram,
+      athleteLiveSets,
+      selectedRange
+    );
+  }, [currentAthlete, selectedExercise, athleteProgram, athleteLiveSets, selectedRange]);
+
+  const isIsometric = selectedExercise?.trackingMethod === "isometric";
+  const isCardio = selectedExercise?.trackingMethod === "distance_duration";
+  const isBodyweightOnly =
+    selectedExercise?.trackingMethod === "bodyweight_reps" || isIsometric;
+
+  const activeMetricKey: MetricKey =
+    (isBodyweightOnly || isCardio) && selectedMetric === "est1rm" ? (isCardio ? "weight" : "reps") : selectedMetric;
+
+  const peakEst1rm = useMemo(
+    () => (historyPoints.length > 0 ? Math.max(...historyPoints.map((p) => p.est1rm)) : 0),
+    [historyPoints]
+  );
+  const peakWorkingWeight = useMemo(
+    () => (historyPoints.length > 0 ? Math.max(...historyPoints.map((p) => p.weight)) : 0),
+    [historyPoints]
+  );
+  const totalTonnage = useMemo(
+    () => historyPoints.reduce((acc, p) => acc + p.tonnage, 0),
+    [historyPoints]
+  );
+
+  const firstVal = historyPoints[0]?.est1rm || 0;
+  const latestVal = historyPoints[historyPoints.length - 1]?.est1rm || 0;
+  const deltaVal = Math.round((latestVal - firstVal) * 10) / 10;
+  const deltaPct = firstVal > 0 ? Math.round((deltaVal / firstVal) * 1000) / 10 : 0;
+
+  const yDomain = useMemo((): [number, number] => {
+    if (historyPoints.length === 0) return [0, 100];
+    const values = historyPoints.map((p) => p[activeMetricKey]);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const pad = activeMetricKey === "reps" || isCardio ? 2 : Math.max((max - min) * 0.18, 4);
+    return [Math.max(0, Math.floor(min - pad)), Math.ceil(max + pad)];
+  }, [historyPoints, activeMetricKey, isCardio]);
+
+  const unitSuffix = isCardio
+    ? activeMetricKey === "tonnage" || activeMetricKey === "reps"
+      ? "min"
+      : "km"
+    : isIsometric
+      ? "s"
+      : activeMetricKey === "reps"
+        ? "reps"
+        : activeMetricKey === "tonnage"
+          ? "kg"
+          : isBodyweightOnly
+            ? "reps"
+            : "kg";
+
+  const handleSelectAthlete = (athId: string) => {
+    setSelectedAthleteId(athId);
   };
 
-  return (
-    <section className="bg-card rounded-xl p-4 sm:p-5 flex flex-col space-y-4 border border-border shadow-xs">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-brand" aria-hidden="true" />
-            <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight text-balance">
-              Strength Telemetry &amp; Progression Curves
-            </h2>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5 text-pretty">
-            High-precision velocity-adjusted 1RM estimation &amp; total tonnage curves across your roster
-          </p>
-        </div>
+  if (!currentAthlete || !selectedExercise) return null;
 
-        {/* Scalable Athlete Selector with Squad Grouping & Quick Pinned Switchers */}
-        <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
-          {/* Dropdown for All 20 Athletes across squads */}
-          <div className="relative">
-            <select
-              value={selectedAthleteId}
-              onChange={(e) => {
-                setSelectedAthleteId(e.target.value);
-                setActivePointIndex(null);
-              }}
-              aria-label="Select athlete for telemetry progression"
-              className="text-xs bg-secondary border border-border rounded-xl pl-3 pr-8 py-2 text-foreground font-semibold h-10 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none cursor-pointer min-w-[240px] appearance-none"
-            >
-              {squads.map(([squadName, squadAthletes]) => (
-                <optgroup key={squadName} label={`── ${squadName} (${squadAthletes.length}) ──`}>
-                  {squadAthletes.map(ath => (
-                    <option key={ath.id} value={ath.id}>
-                      {ath.name} — {ath.squad || "General"} {ath.status === "needs_attention" ? "⚠️" : "✓"}
+  return (
+    <div className="space-y-5 max-w-6xl mx-auto">
+      {/* Header & Client Switcher */}
+      <Card className="border-border bg-card">
+        <CardContent className="p-4 sm:p-5 space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <TrendingUp className="w-5 h-5 text-foreground" aria-hidden="true" />
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                  Strength &amp; Telemetry
+                </h1>
+                <p className="text-xs text-muted-foreground">
+                  {currentAthlete.name} • {athleteProgram?.title || "Strength Block"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="relative">
+                <select
+                  value={currentAthlete.id}
+                  onChange={(e) => handleSelectAthlete(e.target.value)}
+                  aria-label="Select athlete"
+                  className="text-xs bg-secondary border border-border rounded-xl pl-3 pr-8 py-2 text-foreground font-semibold h-10 min-w-[220px] appearance-none cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {squads.map(([squadName, squadAthletes]) => (
+                    <optgroup key={squadName} label={`${squadName} (${squadAthletes.length})`}>
+                      {squadAthletes.map((ath) => (
+                        <option key={ath.id} value={ath.id}>
+                          {ath.name} ({ath.squad || "Cohort"})
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              <div className="hidden lg:flex items-center gap-1 bg-secondary/70 p-1 rounded-xl border border-border">
+                {state.athletes.slice(0, 4).map((ath) => (
+                  <button
+                    key={ath.id}
+                    type="button"
+                    onClick={() => handleSelectAthlete(ath.id)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-colors cursor-pointer min-h-[30px] ${
+                      currentAthlete.id === ath.id
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {ath.name.split(" ")[0]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Client Exercise Selector (Every trained/prescribed exercise + catalog search) */}
+          <div className="pt-3 border-t border-border space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2 flex-1 max-w-md">
+                <div className="relative flex-1">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                  <Input
+                    type="text"
+                    placeholder="Find any exercise…"
+                    value={exerciseSearch}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setExerciseSearch(val);
+                      const hit = state.exercises.find((ex) =>
+                        ex.name.toLowerCase().includes(val.toLowerCase())
+                      );
+                      if (hit) setSelectedExerciseId(hit.id);
+                    }}
+                    className="pl-8 pr-7 h-9 text-xs bg-secondary/50 border-border"
+                    aria-label="Search exercise"
+                  />
+                  {exerciseSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setExerciseSearch("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+                      aria-label="Clear search"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <select
+                  aria-label="Choose exercise"
+                  value={selectedExercise.id}
+                  onChange={(e) => setSelectedExerciseId(e.target.value)}
+                  className="text-xs bg-secondary border border-border rounded-lg px-2.5 h-9 text-foreground font-semibold max-w-[200px] truncate cursor-pointer"
+                >
+                  {filteredAllExercises.map((ex) => (
+                    <option key={ex.id} value={ex.id}>
+                      {ex.name}
                     </option>
                   ))}
-                </optgroup>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
+                </select>
+              </div>
+
+              {/* Time Range Tabs */}
+              <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border self-start sm:self-auto">
+                {(["1M", "3M", "6M", "ALL"] as const).map((rng) => (
+                  <button
+                    key={rng}
+                    type="button"
+                    onClick={() => setSelectedRange(rng)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-mono cursor-pointer transition-colors ${
+                      selectedRange === rng
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {rng}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Client's Trained & Prescribed Exercise Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+              {clientTrainedExercises.map((ex) => {
+                const isSelected = selectedExercise.id === ex.id;
+                const hasLive = athleteLiveSets.some((s) => s.exerciseId === ex.id);
+                return (
+                  <button
+                    key={ex.id}
+                    type="button"
+                    onClick={() => setSelectedExerciseId(ex.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap border transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground border-primary font-semibold"
+                        : "bg-secondary/60 text-muted-foreground border-border hover:text-foreground"
+                    }`}
+                  >
+                    <span>{ex.name}</span>
+                    {hasLive && (
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          isSelected ? "bg-primary-foreground" : "bg-success"
+                        }`}
+                        title="Logged in active session"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Summary KPIs */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card className="p-4 border-border bg-card">
+          <div className="text-[11px] font-mono uppercase text-muted-foreground">
+            {isCardio ? "Peak Distance" : isIsometric ? "Peak Hold" : isBodyweightOnly ? "Peak Reps" : "Peak Est. 1RM"}
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-foreground mt-1">
+            {peakEst1rm}{" "}
+            <span className="text-xs font-normal text-muted-foreground">
+              {isCardio ? "km" : isIsometric ? "s" : isBodyweightOnly ? "reps" : "kg"}
+            </span>
+          </div>
+        </Card>
+
+        <Card className="p-4 border-border bg-card">
+          <div className="text-[11px] font-mono uppercase text-muted-foreground">
+            {isCardio ? "Best Run" : isIsometric ? "Hold Time" : "Best Load"}
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-foreground mt-1">
+            {isCardio ? `${peakWorkingWeight}` : peakWorkingWeight > 0 ? `${peakWorkingWeight}` : "BW"}{" "}
+            {peakWorkingWeight > 0 && (
+              <span className="text-xs font-normal text-muted-foreground">{isCardio ? "km" : "kg"}</span>
+            )}
+          </div>
+        </Card>
+
+        <Card className="p-4 border-border bg-card">
+          <div className="text-[11px] font-mono uppercase text-muted-foreground">Window Gain</div>
+          <div className="text-2xl font-bold tabular-nums text-success mt-1">
+            {deltaVal >= 0 ? `+${deltaVal}` : deltaVal}{" "}
+            <span className="text-xs font-normal text-muted-foreground">({deltaPct >= 0 ? `+${deltaPct}` : deltaPct}%)</span>
+          </div>
+        </Card>
+
+        <Card className="p-4 border-border bg-card">
+          <div className="text-[11px] font-mono uppercase text-muted-foreground">
+            {isCardio ? "Total Time" : "Period Volume"}
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-foreground mt-1">
+            {isCardio || isBodyweightOnly ? totalTonnage : `${(totalTonnage / 1000).toFixed(1)}k`}{" "}
+            <span className="text-xs font-normal text-muted-foreground">
+              {isCardio ? "min" : isIsometric ? "s" : isBodyweightOnly ? "reps" : "kg"}
+            </span>
+          </div>
+        </Card>
+      </div>
+
+      {/* Main Progression Chart (Clean Recharts Canvas, Unobstructed) */}
+      <Card className="border-border bg-card">
+        <CardHeader className="pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Dumbbell className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+            <CardTitle className="text-base font-bold">
+              {selectedExercise.name} — {currentAthlete.name}
+            </CardTitle>
           </div>
 
-          {/* Quick Pinned Shortcuts */}
-          <div className="hidden lg:flex items-center gap-1 bg-secondary/60 p-1 rounded-xl border border-border" role="tablist" aria-label="Pinned athlete quick switcher">
-            {[
-              { id: "usr-athlete-1", label: "Alex" },
-              { id: "ath-2", label: "Maya" },
-              { id: "ath-3", label: "Jordan" },
-              { id: "ath-5", label: "Sophia" }
-            ].map(item => (
+          {/* Metric Selector */}
+          <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border self-start sm:self-auto">
+            {(isCardio
+              ? [
+                  { id: "weight" as MetricKey, label: "Distance (km)" },
+                  { id: "reps" as MetricKey, label: "Duration (min)" },
+                ]
+              : isBodyweightOnly
+                ? [
+                    { id: "reps" as MetricKey, label: isIsometric ? "Hold (s)" : "Reps" },
+                    { id: "tonnage" as MetricKey, label: isIsometric ? "Total Hold" : "Total Reps" },
+                  ]
+                : [
+                    { id: "est1rm" as MetricKey, label: "Est. 1RM" },
+                    { id: "weight" as MetricKey, label: "Weight" },
+                    { id: "tonnage" as MetricKey, label: "Volume" },
+                    { id: "reps" as MetricKey, label: "Reps" },
+                  ]
+            ).map((m) => (
               <button
-                key={item.id}
+                key={m.id}
                 type="button"
-                role="tab"
-                aria-selected={selectedAthleteId === item.id}
-                onClick={() => {
-                  setSelectedAthleteId(item.id);
-                  setActivePointIndex(null);
-                }}
-                className={`px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition-colors cursor-pointer min-h-[32px] ${
-                  selectedAthleteId === item.id
-                    ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-card/40"
+                onClick={() => setSelectedMetric(m.id)}
+                className={`px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition-colors ${
+                  activeMetricKey === m.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {item.label}
+                {m.label}
               </button>
             ))}
           </div>
-        </div>
-      </div>
+        </CardHeader>
 
-      {/* Multi-Filter Control Strip */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Exercise selection">
-          {(["squat", "bench", "deadlift", "ohp"] as const).map(ex => (
-            <button
-              key={ex}
-              type="button"
-              aria-pressed={selectedExercise === ex}
-              onClick={() => {
-                setSelectedExercise(ex);
-                setActivePointIndex(null);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono min-h-[38px] border cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none transition-colors ${
-                selectedExercise === ex
-                  ? "bg-secondary text-brand font-bold border-brand/40 shadow-xs"
-                  : "bg-background text-muted-foreground hover:text-foreground border-transparent hover:bg-secondary/40"
-              }`}
-            >
-              {exerciseLabelMap[ex]}
-            </button>
-          ))}
-        </div>
-
-        {/* Time range selector */}
-        <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border" role="group" aria-label="Time range selector">
-          {(["1M", "3M", "6M", "ALL"] as const).map((rng) => (
-            <button
-              key={rng}
-              type="button"
-              aria-pressed={selectedRange === rng}
-              onClick={() => {
-                setSelectedRange(rng);
-                setActivePointIndex(null);
-              }}
-              className={`px-2.5 py-1 rounded text-xs font-mono min-h-[34px] cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none transition-colors ${
-                selectedRange === rng
-                  ? "bg-card text-brand font-semibold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {rng}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* High-Fidelity SVG Strength Curve Chart */}
-      <div className="bg-background rounded-xl p-4 sm:p-5 flex flex-col space-y-4 relative overflow-hidden border border-border">
-        <div className="flex items-baseline justify-between flex-wrap gap-2">
-          <div>
-            <span className="text-[10px] font-mono text-muted-foreground uppercase">
-              {currentAthlete.name} — {exerciseLabelMap[selectedExercise]} Estimated 1RM
-            </span>
-            <div className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-foreground tracking-tight mt-0.5 flex items-baseline">
-              <span ref={peakNumberRef}>{peakEst1rm.toFixed(1)} kg</span>
-              <span className="text-success text-base sm:text-lg font-semibold ml-2.5 tabular-nums">
-                +{deltaKg > 0 ? deltaKg : 0}&nbsp;kg (+{deltaPct}%)
-              </span>
-            </div>
-          </div>
-          <div className="text-right">
-            <span className="text-[10px] font-mono text-muted-foreground">Inspected Session</span>
-            <div className="text-xs sm:text-sm font-mono tabular-nums text-brand font-bold">
-              {activePoint.weight}&nbsp;kg × {activePoint.reps} @ RPE {activePoint.rpe}
-            </div>
-            <span className="text-[10px] font-mono text-muted-foreground/80 block">
-              {activePoint.date} • {activePoint.tonnage.toLocaleString()}&nbsp;kg session volume
-            </span>
-          </div>
-        </div>
-
-        {/* Area Chart SVG */}
-        <div className="relative w-full h-52 sm:h-56 pt-2">
-          <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 800 220" role="img" aria-label="1RM Overload Curve visual graph">
-            <defs>
-              <linearGradient id="progressionGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="currentColor" stopOpacity="0.22" />
-                <stop offset="100%" stopColor="currentColor" stopOpacity="0.0" />
-              </linearGradient>
-            </defs>
-
-            {/* Horizontal Grid */}
-            <line stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="20" y2="20" />
-            <line stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="75" y2="75" />
-            <line stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="130" y2="130" />
-            <line stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" x1="0" x2="800" y1="185" y2="185" />
-
-            {/* Area Fill */}
-            <polygon
-              ref={polygonRef}
-              fill="url(#progressionGradient)"
-              points={areaPolygonPoints}
-              className="text-foreground"
-            />
-
-            {/* Smooth Cubic Bezier Line Path */}
-            <path
-              ref={pathRef}
-              d={pathD}
-              fill="none"
-              stroke="var(--foreground)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="3"
-            />
-
-            {/* Coordinate Dots */}
-            <g ref={dotsGroupRef}>
-              {svgCoords.map((coord, i) => {
-                const isSelected = activePointIndex === i || (activePointIndex === null && i === svgCoords.length - 1);
-                return (
-                  <g
-                    key={i}
-                    className="cursor-pointer group"
-                    onClick={() => setActivePointIndex(i)}
-                  >
-                    <circle
-                      cx={coord.x}
-                      cy={coord.y}
-                      fill={isSelected ? "var(--foreground)" : "var(--card)"}
-                      r={isSelected ? 7 : 5}
-                      stroke="var(--foreground)"
-                      strokeWidth={isSelected ? 2.5 : 2}
-                      className="transition-[r,fill,stroke] duration-150 ease-[var(--ease-out)]"
-                    />
-                    {/* Invisible larger hit target */}
-                    <circle cx={coord.x} cy={coord.y} r={16} fill="transparent" />
-                  </g>
-                );
-              })}
-            </g>
-          </svg>
-
-          {/* Floating Tooltip Pill */}
-          <div className="absolute right-2 sm:right-6 top-1 bg-card border border-border p-2.5 rounded-xl shadow-md pointer-events-none flex flex-col">
-            <span className="text-[10px] font-mono text-brand font-bold uppercase">
-              {activePoint.date} • {exerciseLabelMap[selectedExercise]}
-            </span>
-            <span className="text-xs font-bold font-mono text-foreground tabular-nums">
-              {activePoint.est1rm} kg Est 1RM
-            </span>
-            <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
-              {activePoint.weight} kg × {activePoint.reps} reps (RPE {activePoint.rpe})
-            </span>
-          </div>
-        </div>
-
-        {/* X-Axis Labels */}
-        <div className="flex justify-between text-[11px] font-mono text-muted-foreground px-2 sm:px-6 overflow-x-auto">
-          {svgCoords.map((coord, i) => {
-            const isLast = i === svgCoords.length - 1;
-            return (
-              <span
-                key={i}
-                onClick={() => setActivePointIndex(i)}
-                className={`cursor-pointer hover:text-foreground transition-colors ${
-                  isLast ? "text-success font-bold" : ""
-                }`}
+        <CardContent className="pt-2">
+          <div className="h-72 sm:h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                key={`${currentAthlete.id}-${selectedExercise.id}-${activeMetricKey}-${selectedRange}`}
+                data={historyPoints}
+                margin={{ top: 14, right: 16, left: 0, bottom: 4 }}
               >
-                {coord.raw.date} ({coord.raw.weight}kg)
-              </span>
-            );
-          })}
-        </div>
-
-        {/* Session Tonnage Mini Bar Telemetry */}
-        <div className="pt-3 border-t border-border bg-card/40 p-3 rounded-lg flex flex-col space-y-2">
-          <div className="flex justify-between items-center text-xs font-mono">
-            <span className="text-muted-foreground">
-              Session Volume Tonnage (Last {tonnageBars.length} Sessions)
-            </span>
-            <span className="text-foreground font-semibold tabular-nums">
-              Mean: {avgTonnage.toLocaleString()}&nbsp;kg / session
-            </span>
+                <defs>
+                  <linearGradient id="coachTelemetryFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--foreground)" stopOpacity={0.22} />
+                    <stop offset="95%" stopColor="var(--foreground)" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                  axisLine={{ stroke: "var(--border)" }}
+                  tickLine={false}
+                  interval="preserveStartEnd"
+                  minTickGap={24}
+                />
+                <YAxis
+                  domain={yDomain}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
+                  tickFormatter={(val) => `${val} ${unitSuffix}`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border)",
+                    borderRadius: "10px",
+                    fontSize: "12px",
+                    color: "var(--foreground)",
+                  }}
+                  formatter={(value: unknown) => [`${value} ${unitSuffix}`, activeMetricKey === "est1rm" ? "Est. 1RM" : activeMetricKey === "weight" ? "Weight" : activeMetricKey === "tonnage" ? "Volume" : "Reps"]}
+                  labelStyle={{ color: "var(--muted-foreground)", fontWeight: 600, marginBottom: 4 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey={activeMetricKey}
+                  stroke="var(--foreground)"
+                  strokeWidth={2.5}
+                  fill="url(#coachTelemetryFill)"
+                  dot={{ r: 4, fill: "var(--card)", stroke: "var(--foreground)", strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: "var(--foreground)", stroke: "var(--card)", strokeWidth: 2 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
+        </CardContent>
+      </Card>
 
-          <div ref={barsGroupRef} className="grid grid-cols-6 gap-2 items-end h-14 pt-1">
-            {tonnageBars.map((bar, i) => (
-              <div key={i} className="flex flex-col items-center gap-1 h-full justify-end">
-                <div
-                  className={`tonnage-bar-fill w-full rounded-t transition-colors duration-150 ${
-                    bar.active ? "bg-success" : "bg-brand/50 hover:bg-brand"
-                  }`}
-                  style={{ height: bar.heightPct }}
-                  title={`${bar.date}: ${bar.val} kg tonnage`}
-                ></div>
-                <span className={`text-[9px] font-mono tabular-nums ${bar.active ? "text-success font-bold" : "text-muted-foreground"}`}>
-                  {bar.val}
-                </span>
-              </div>
-            ))}
+      {/* Complete Exercise History Till Date */}
+      <Card className="border-border bg-card">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <CardTitle className="text-sm font-bold">
+            Session Log — {selectedExercise.name}
+          </CardTitle>
+          <Badge variant="secondary" className="font-mono text-xs tabular-nums">
+            {historyPoints.length} sessions
+          </Badge>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>{isCardio ? "Distance" : "Load"}</TableHead>
+                  <TableHead>{isCardio ? "Duration" : isIsometric ? "Hold" : "Reps"}</TableHead>
+                  <TableHead>RPE</TableHead>
+                  {!isBodyweightOnly && !isCardio && <TableHead>Est. 1RM</TableHead>}
+                  <TableHead>{isCardio ? "Time" : isIsometric ? "Total Hold" : isBodyweightOnly ? "Total Reps" : "Volume"}</TableHead>
+                  <TableHead className="text-right">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[...historyPoints].reverse().map((row, idx) => (
+                  <TableRow key={`${row.date}-${idx}`}>
+                    <TableCell className="font-mono text-xs font-medium">{row.date}</TableCell>
+                    <TableCell className="font-bold tabular-nums">
+                      {isCardio ? `${row.weight} km` : row.weight > 0 ? `${row.weight} kg` : "BW"}
+                    </TableCell>
+                    <TableCell className="tabular-nums">
+                      {row.reps}{isIsometric ? "s" : isCardio ? " min" : ""}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground tabular-nums">
+                      {row.rpe}
+                    </TableCell>
+                    {!isBodyweightOnly && !isCardio && (
+                      <TableCell className="font-semibold tabular-nums">{row.est1rm} kg</TableCell>
+                    )}
+                    <TableCell className="tabular-nums text-muted-foreground">
+                      {row.tonnage.toLocaleString()} {isCardio ? "min" : isIsometric ? "s" : isBodyweightOnly ? "reps" : "kg"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {row.source === "live" ? (
+                        <Badge variant="default" className="text-[10px]">Live</Badge>
+                      ) : row.isPr ? (
+                        <Badge variant="outline" className="text-[10px] border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                          Peak
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-[10px]">Logged</Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
-        </div>
-      </div>
-
-      {/* Verified Personal Records (PR) Milestone Cards */}
-      <div ref={milestonesRef} className="flex flex-col space-y-2.5 pt-1">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">
-            {currentAthlete.name} — Verified Benchmark Milestones ({currentAthlete.squad || "General Cohort"})
-          </span>
-          <span className="text-xs font-mono text-brand flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-brand" /> Video-verified by coach
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div
-            onClick={() => setSelectedExercise("squat")}
-            className={`bg-background border p-3 rounded-xl flex items-center justify-between cursor-pointer transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
-              selectedExercise === "squat" ? "border-brand ring-1 ring-brand/30" : "border-border hover:border-brand/40"
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-success/20 text-success flex items-center justify-center font-bold text-xs font-mono tabular-nums shrink-0">
-                SQ
-              </div>
-              <div>
-                <div className="text-xs font-bold font-mono tabular-nums text-foreground">
-                  {benchmarks.squat.est1rm} kg (Est 1RM)
-                </div>
-                <div className="text-[11px] font-mono tabular-nums text-muted-foreground">
-                  {benchmarks.squat.working}
-                </div>
-              </div>
-            </div>
-            <span className="text-[11px] font-mono text-success font-semibold">★ Peak</span>
-          </div>
-
-          <div
-            onClick={() => setSelectedExercise("bench")}
-            className={`bg-background border p-3 rounded-xl flex items-center justify-between cursor-pointer transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
-              selectedExercise === "bench" ? "border-brand ring-1 ring-brand/30" : "border-border hover:border-brand/40"
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-brand/20 text-brand flex items-center justify-center font-bold text-xs font-mono tabular-nums shrink-0">
-                BP
-              </div>
-              <div>
-                <div className="text-xs font-bold font-mono tabular-nums text-foreground">
-                  {benchmarks.bench.est1rm} kg (Est 1RM)
-                </div>
-                <div className="text-[11px] font-mono tabular-nums text-muted-foreground">
-                  {benchmarks.bench.working}
-                </div>
-              </div>
-            </div>
-            <span className="text-[11px] font-mono text-muted-foreground">Logged</span>
-          </div>
-
-          <div
-            onClick={() => setSelectedExercise("deadlift")}
-            className={`bg-background border p-3 rounded-xl flex items-center justify-between cursor-pointer transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
-              selectedExercise === "deadlift" ? "border-brand ring-1 ring-brand/30" : "border-border hover:border-brand/40"
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-secondary text-foreground flex items-center justify-center font-bold text-xs font-mono tabular-nums">
-                DL
-              </div>
-              <div>
-                <div className="text-xs font-bold font-mono tabular-nums text-foreground">
-                  {benchmarks.deadlift.est1rm} kg (Est 1RM)
-                </div>
-                <div className="text-[11px] font-mono tabular-nums text-muted-foreground">
-                  {benchmarks.deadlift.working}
-                </div>
-              </div>
-            </div>
-            <span className="text-[11px] font-mono text-muted-foreground">Logged</span>
-          </div>
-        </div>
-      </div>
-    </section>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
