@@ -27,6 +27,8 @@ interface AuthContextType {
   deleteProgram: (programId: string) => void;
   updateAthleteStatus: (athleteId: string, status: 'active' | 'needs_attention' | 'inactive') => void;
   updateAthleteProfile: (athleteId: string, updates: Partial<AthleteProfile>) => void;
+  updateUserProfile: (userId: string, updates: Partial<Pick<User, "name" | "avatarUrl" | "email">>) => void;
+  recordSecurityAudit: (action: string, target?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -456,6 +458,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const updateUserProfile = (
+    userId: string,
+    updates: Partial<Pick<User, "name" | "avatarUrl" | "email">>
+  ) => {
+    setState(prev => {
+      const updatedUsers = prev.users.map(u =>
+        u.id === userId ? { ...u, ...updates } : u
+      );
+
+      // Sync matching athlete card avatar/name so Roster, Chat, and Athlete Card stay updated
+      const updatedAthletes = prev.athletes.map(ath =>
+        ath.id === userId
+          ? {
+              ...ath,
+              ...(updates.name ? { name: updates.name } : {}),
+              ...(updates.avatarUrl ? { avatarUrl: updates.avatarUrl } : {}),
+            }
+          : ath
+      );
+
+      const targetUser = updatedUsers.find(u => u.id === userId) || currentUser;
+      const auditEvent: AuditEvent = {
+        id: `aud-prof-${Date.now()}`,
+        timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
+        actorName: `${targetUser.name} (${targetUser.role})`,
+        action: updates.avatarUrl ? "Updated profile picture & account details" : "Updated account profile",
+        target: targetUser.email,
+        status: "success"
+      };
+
+      return {
+        ...prev,
+        users: updatedUsers,
+        athletes: updatedAthletes,
+        auditLogs: [auditEvent, ...prev.auditLogs]
+      };
+    });
+  };
+
+  const recordSecurityAudit = (action: string, target = currentUser.email) => {
+    const auditEvent: AuditEvent = {
+      id: `aud-sec-${Date.now()}`,
+      timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
+      actorName: `${currentUser.name} (${currentUser.role})`,
+      action,
+      target,
+      status: "success"
+    };
+    setState(prev => ({
+      ...prev,
+      auditLogs: [auditEvent, ...prev.auditLogs]
+    }));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -478,7 +534,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         addProgram,
         deleteProgram,
         updateAthleteStatus,
-        updateAthleteProfile
+        updateAthleteProfile,
+        updateUserProfile,
+        recordSecurityAudit
       }}
     >
       {children}

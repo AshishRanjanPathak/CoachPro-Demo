@@ -33,6 +33,14 @@ import {
   resolveDisplayStage,
 } from "../lib/companion";
 import { getAthleteReminders } from "../lib/athleteReminders";
+import {
+  DEFAULT_DEMO_PASSWORD,
+  evaluatePasswordStrength,
+  verifyUserPassword,
+  changePasswordProtected,
+  clearCredentialsForTest,
+  createInitialsAvatarDataUrl,
+} from "../lib/accountSecurity";
 import { offlineSyncManager } from "../lib/offlineSync";
 
 export async function runTests(): Promise<{ passed: number; failed: number; results: string[] }> {
@@ -723,6 +731,70 @@ export async function runTests(): Promise<{ passed: number; failed: number; resu
       completedReminders.some((r) => r.id === "bananas_ready"),
     "Completed workouts clear unlogged reminders and show waiting banana reward reminder"
   );
+
+  // Test M: Protected Password Change, Salted Hash Verification & Lockout Protection
+  clearCredentialsForTest();
+  assert(
+    !evaluatePasswordStrength("short").meetsMinimum &&
+      evaluatePasswordStrength("StrongPass9!").meetsMinimum &&
+      evaluatePasswordStrength("StrongPass9!").score === 4,
+    "Password strength meter rejects weak passwords and validates strong mixed+symbol passwords"
+  );
+
+  const validInitial = await verifyUserPassword("usr-coach-1", DEFAULT_DEMO_PASSWORD);
+  const invalidInitial = await verifyUserPassword("usr-coach-1", "wrongpass");
+  assert(
+    validInitial && !invalidInitial,
+    "Untouched account validates default demo credential and rejects invalid password"
+  );
+
+  const wrongCurAttempt = await changePasswordProtected({
+    userId: "usr-coach-1",
+    currentPassword: "incorrect-current",
+    newPassword: "NewStrongPassword9!",
+    confirmPassword: "NewStrongPassword9!",
+  });
+  assert(
+    !wrongCurAttempt.success && Boolean(wrongCurAttempt.error),
+    "Protected password change blocks update when current password is wrong"
+  );
+
+  // Test brute-force lockout after remaining 4 wrong attempts
+  let lockedOutRes = wrongCurAttempt;
+  for (let i = 0; i < 4; i++) {
+    lockedOutRes = await changePasswordProtected({
+      userId: "usr-coach-1",
+      currentPassword: "wrong-again",
+      newPassword: "NewStrongPassword9!",
+      confirmPassword: "NewStrongPassword9!",
+    });
+  }
+  assert(
+    !lockedOutRes.success && (lockedOutRes.lockedSecondsRemaining ?? 0) > 0,
+    "Repeated incorrect current password attempts enforce temporary lockout"
+  );
+
+  // Test clean password rotation on separate user & hash verification
+  const rotateRes = await changePasswordProtected({
+    userId: "usr-athlete-1",
+    currentPassword: DEFAULT_DEMO_PASSWORD,
+    newPassword: "NewStrongPassword9!",
+    confirmPassword: "NewStrongPassword9!",
+  });
+  const oldPwRejected = await verifyUserPassword("usr-athlete-1", DEFAULT_DEMO_PASSWORD);
+  const newPwAccepted = await verifyUserPassword("usr-athlete-1", "NewStrongPassword9!");
+  assert(
+    rotateRes.success && !oldPwRejected && newPwAccepted,
+    "Changing password stores salted hash, rejects old password, and validates new password"
+  );
+
+  const initialsUri = createInitialsAvatarDataUrl("Sarah Jenkins");
+  assert(
+    initialsUri.startsWith("data:image/svg+xml") && initialsUri.includes("SJ"),
+    "Initials avatar generator builds clean monogram SVG URI"
+  );
+
+  clearCredentialsForTest();
 
   return { passed, failed, results };
 }

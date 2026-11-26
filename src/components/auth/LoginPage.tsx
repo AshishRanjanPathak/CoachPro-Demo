@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { UserRole } from "@/types";
+import { verifyUserPassword } from "@/lib/accountSecurity";
 import {
   Dumbbell,
   Activity,
@@ -15,7 +16,7 @@ import {
 } from "lucide-react";
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, state } = useAuth();
   const [selectedRole, setSelectedRole] = useState<"athlete" | "coach" | "admin">("coach");
   const [email, setEmail] = useState("sarah@apexperformance.com");
   const [password, setPassword] = useState("password123");
@@ -59,7 +60,7 @@ export function LoginPage() {
     setEmail(roleMeta[roleKey].defaultEmail);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
       setErrorMsg("Please fill in all credentials.");
@@ -73,9 +74,22 @@ export function LoginPage() {
     setErrorMsg(null);
     setIsLoading(true);
 
+    // Check stored salted password hash when signing into a known account
+    const matchedUser = state.users.find(
+      (u) => u.email.toLowerCase() === email.trim().toLowerCase()
+    );
+    if (matchedUser) {
+      const valid = await verifyUserPassword(matchedUser.id, password);
+      if (!valid) {
+        setIsLoading(false);
+        setErrorMsg("Incorrect password for this account.");
+        return;
+      }
+    }
+
     setTimeout(() => {
       login(currentInfo.actualRole, email);
-    }, 450);
+    }, 350);
   };
 
   const handleGoogleAuth = () => {
