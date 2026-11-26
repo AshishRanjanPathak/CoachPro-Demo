@@ -107,7 +107,7 @@ export function CoachActivityFeed() {
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-mono tabular-nums text-muted-foreground pt-1">
                 <span>Estimated 1RM: <strong className="text-success">166.0&nbsp;kg</strong> (+4.2%)</span>
                 <span>•</span>
-                <span>Bar Velocity: <strong>0.54&nbsp;m/s</strong></span>
+                <span>Top Set: <strong>142.5&nbsp;kg × 5</strong></span>
                 <span>•</span>
                 <span>Session: Day 1 Lower</span>
               </div>
@@ -133,7 +133,7 @@ export function CoachActivityFeed() {
                 Completed <strong>Day 1: Lower Body Strength</strong> (58 mins, 14,200&nbsp;kg session volume)
               </p>
               <div className="flex items-center gap-3 text-[11px] font-mono tabular-nums text-muted-foreground pt-1">
-                <span>Heart Rate Avg: 144&nbsp;bpm</span>
+                <span>Duration: 55&nbsp;mins</span>
                 <span>•</span>
                 <span>Session RPE: 8.0</span>
               </div>
@@ -156,7 +156,7 @@ export function CoachActivityFeed() {
                 <span className="text-[11px] font-mono tabular-nums text-muted-foreground">08:15 Today</span>
               </div>
               <p className="text-xs text-foreground">
-                Submitted Morning Telemetry: <strong className="text-destructive">5.5 hrs sleep</strong>, Readiness 4/10, Soreness 4/5. Reported patellar pain during warm-up squats.
+                Submitted Morning Check-In: <strong className="text-destructive">5.5 hrs sleep</strong>, Readiness 4/10, Soreness 4/5. Reported knee pain during warm-up squats.
               </p>
               <div className="text-[11px] font-mono text-destructive pt-1 font-medium">
                 Automatic alert escalated to Sarah Jenkins

@@ -32,7 +32,7 @@ export function PricingView() {
       annualPrice: 159,
       features: [
         "Up to 50 active athletes",
-        "Advanced 1RM & velocity analytics",
+        "Advanced 1RM & strength progress analytics",
         "Executive PDF client report generator",
         "Private coach notes & injury flags",
         "Custom organization branding",
@@ -50,7 +50,7 @@ export function PricingView() {
         "Unlimited athlete seats & coaches",
         "Multi-tenant permissions & team isolation",
         "PostgreSQL audit trail & compliance export",
-        "Custom API & wearable data ingest",
+        "Custom API & gym data export",
         "Dedicated account technical lead"
       ],
       cta: "Contact Enterprise Sales",

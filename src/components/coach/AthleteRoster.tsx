@@ -128,7 +128,7 @@ export function AthleteRoster() {
               </h3>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Real-time autonomic readiness across all {totalCount} assigned athletes
+              Live readiness and training status across all {totalCount} assigned athletes
             </p>
           </div>
 
@@ -248,9 +248,9 @@ export function AthleteRoster() {
             aria-label="Sort athletes list"
             className="text-xs bg-secondary border border-border rounded-lg px-2.5 py-1.5 text-foreground font-semibold h-9 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none cursor-pointer"
           >
-            <option value="priority">Clinical Priority (Urgent First)</option>
-            <option value="cns">Readiness CNS (Lowest First)</option>
-            <option value="adherence">Compliance Adherence (Lowest First)</option>
+            <option value="priority">Attention Priority (Urgent First)</option>
+            <option value="cns">Readiness (Lowest First)</option>
+            <option value="adherence">Program Adherence (Lowest First)</option>
             <option value="name">Athlete Name (A–Z)</option>
           </select>
         </div>
@@ -312,10 +312,10 @@ export function AthleteRoster() {
                   </th>
                   <th className="py-2.5 px-3">Athlete</th>
                   <th className="py-2.5 px-3">Squad</th>
-                  <th className="py-2.5 px-3">Readiness CNS</th>
+                  <th className="py-2.5 px-3">Readiness</th>
                   <th className="py-2.5 px-3">Sleep</th>
                   <th className="py-2.5 px-3">Adherence</th>
-                  <th className="py-2.5 px-3">Clinical Status</th>
+                  <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-3 text-right">Action</th>
                 </tr>
               </thead>
@@ -447,7 +447,7 @@ export function AthleteRoster() {
                     </div>
                   </div>
                   <span className="text-xs font-mono font-bold text-brand tabular-nums">
-                    {athlete.readinessScore}&nbsp;/&nbsp;10 CNS
+                    {athlete.readinessScore}&nbsp;/&nbsp;10
                   </span>
                 </div>
 

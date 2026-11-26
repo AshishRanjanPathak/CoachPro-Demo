@@ -24,13 +24,13 @@ export function RosterSleepRecoveryCard({ onSelectAthlete, onOpenMessage }: Rost
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-[10px] font-mono tracking-wider uppercase">
-                Autonomic Readiness
+                Daily Recovery
               </Badge>
-              <span className="text-xs text-muted-foreground">Daily Telemetry</span>
+              <span className="text-xs text-muted-foreground">Morning Check-Ins</span>
             </div>
-            <CardTitle className="text-base sm:text-lg">Roster Sleep & Recovery Telemetry</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Roster Sleep & Recovery</CardTitle>
             <CardDescription className="text-xs">
-              Real-time autonomic readiness, sleep duration, and active recovery metrics across all athletes.
+              Daily readiness, sleep duration, and recovery status across all athletes.
             </CardDescription>
           </div>
         </div>
@@ -54,7 +54,7 @@ export function RosterSleepRecoveryCard({ onSelectAthlete, onOpenMessage }: Rost
               <Zap className="w-3.5 h-3.5 text-warning" />
             </div>
             <div className="text-xl font-bold text-foreground tabular-nums mt-1">6.3 / 10</div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">Autonomic baseline</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">Roster average</div>
           </div>
 
           <div className="p-3 rounded-lg bg-secondary/50 border border-border">

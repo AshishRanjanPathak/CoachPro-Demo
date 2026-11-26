@@ -36,7 +36,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
         targetLoadKg: 70,
         repTarget: "4 sets × 45s hold",
         exerciseName: "Spanish Squats (Belt Isometric)",
-        notes: "Deload preset: Knee offloading protocol for patellar tendon analgesia."
+        notes: "Deload preset: Knee-friendly swap to relieve patellar tendon strain."
       });
     }
     setDeloadApplied(true);
@@ -86,7 +86,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
                 </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-muted-foreground mt-2 tabular-nums">
                   <span>Sleep: <strong className="text-destructive">5.5 hrs</strong> (-2.1h)</span>
-                  <span>CNS Readiness: <strong className="text-destructive">4.0 / 10</strong></span>
+                  <span>Readiness: <strong className="text-destructive">4.0 / 10</strong></span>
                   <span>Fatigue: <strong className="text-destructive">4 / 5</strong></span>
                   <span>Soreness: <strong className="text-destructive">4 / 5</strong></span>
                 </div>
@@ -145,7 +145,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
                   <div className="mt-1 text-xs font-semibold text-foreground">
                     Spanish Squats (Belt Isometric)
                   </div>
-                  <span className="text-[11px] text-success mt-1">45s hold × 4 sets for tendon analgesia</span>
+                  <span className="text-[11px] text-success mt-1">45s hold × 4 sets for tendon relief</span>
                 </div>
 
                 <div className="bg-card p-3 rounded-lg border border-border flex flex-col">
@@ -159,7 +159,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
 
               <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
                 <p className="text-xs text-muted-foreground">
-                  Autonomic guardrails will automatically sync to Maya's athlete app immediately.
+                  Updated training targets will sync to Maya's athlete app immediately.
                 </p>
                 <div className="flex items-center gap-2">
                   <button
@@ -250,7 +250,7 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
               </div>
               <p className="text-xs sm:text-sm text-success mt-1 font-semibold flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
-                Peak Autonomic Readiness (9.0/10) • New PR Squat 142.5kg × 5 reps
+                Peak Readiness (9.0/10) • New PR Squat 142.5kg × 5 reps
               </p>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-muted-foreground mt-1.5">
                 <span>Sleep: <strong className="text-success">8.2 hrs</strong></span>

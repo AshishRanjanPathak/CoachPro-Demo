@@ -28,7 +28,7 @@ export function CoachLiveActivityCard() {
               <Badge variant="outline" className="text-[10px] font-mono tracking-wider uppercase">
                 Live Feed
               </Badge>
-              <span className="text-xs text-muted-foreground">Session Telemetry</span>
+              <span className="text-xs text-muted-foreground">Workout Logs</span>
             </div>
             <CardTitle className="text-base sm:text-lg">Recent Activity & Live Training Logs</CardTitle>
             <CardDescription className="text-xs">

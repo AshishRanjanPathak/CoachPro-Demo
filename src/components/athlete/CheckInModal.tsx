@@ -42,7 +42,7 @@ export function CheckInCard() {
         </div>
         <CardTitle className="mt-1">Athlete Daily Check-In</CardTitle>
         <CardDescription>
-          Transmit daily soreness, sleep, and recovery telemetry directly to Coach Sarah before training.
+          Log your daily soreness, sleep, and readiness for Coach Sarah before training.
         </CardDescription>
       </CardHeader>
 

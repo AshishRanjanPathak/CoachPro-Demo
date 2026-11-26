@@ -368,7 +368,7 @@ export function CoachProgressionCurve() {
               <TrendingUp className="w-5 h-5 text-foreground" aria-hidden="true" />
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
-                  Strength &amp; Telemetry
+                  Strength &amp; Progress
                 </h1>
                 <p className="text-xs text-muted-foreground">
                   {currentAthlete.name} • {athleteProgram?.title || "Strength Block"}

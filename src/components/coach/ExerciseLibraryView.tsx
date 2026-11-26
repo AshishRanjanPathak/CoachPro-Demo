@@ -97,7 +97,7 @@ export function ExerciseLibraryView() {
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Comprehensive catalog with two-pose illustrations, target biomechanics, and adaptive logging parameters.
+            Exercise catalog with two-pose illustrations, target muscles, and clear form cues.
           </p>
         </div>
 

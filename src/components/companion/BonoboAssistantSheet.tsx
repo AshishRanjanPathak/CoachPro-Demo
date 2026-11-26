@@ -600,7 +600,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-destructive">
                         <AlertTriangle className="w-4 h-4 text-destructive" />
-                        <span>Clinical Triage Alert</span>
+                        <span>Recovery Alert</span>
                       </div>
                       <Badge variant="destructive" className="capitalize text-[10px]">
                         {msg.nlpResult.injuryData.severity} Severity

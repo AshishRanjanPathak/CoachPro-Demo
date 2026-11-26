@@ -886,7 +886,7 @@ export const INITIAL_MESSAGES: Message[] = [
     senderName: "Alex Chen",
     senderRole: "athlete",
     recipientId: "usr-coach-1",
-    content: "Coach Sarah, hit 142.5kg on squats today! Bar speed felt fast, zero knee discomfort.",
+    content: "Coach Sarah, hit 142.5kg on squats today! Reps felt smooth and strong, zero knee discomfort.",
     timestamp: "2026-10-26 18:55",
     isRead: true
   },
@@ -897,7 +897,7 @@ export const INITIAL_MESSAGES: Message[] = [
     senderName: "Sarah Jenkins, CSCS",
     senderRole: "coach",
     recipientId: "usr-athlete-1",
-    content: "Saw the velocity logs Alex, incredible work. We will add 2.5kg to your working sets next block.",
+    content: "Saw the session log Alex, incredible work. We will add 2.5kg to your working sets next block.",
     timestamp: "2026-10-26 19:10",
     isRead: true
   },
@@ -920,7 +920,7 @@ export const INITIAL_COACH_NOTES: CoachNote[] = [
     athleteId: "usr-athlete-1",
     coachId: "usr-coach-1",
     authorName: "Sarah Jenkins, CSCS",
-    content: "Alex hit a solid 142.5kg x 5 on squat with zero knee cave. Bar speed remained above 0.45 m/s. Ready to increase load next cycle.",
+    content: "Alex hit a solid 142.5kg x 5 on squat with zero knee cave at RPE 8. Ready to increase load next cycle.",
     isPrivate: false,
     createdAt: "2026-10-26T14:30:00Z"
   },

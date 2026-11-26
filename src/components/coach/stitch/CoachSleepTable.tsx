@@ -40,10 +40,10 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
               <tr className="bg-secondary/60 text-muted-foreground font-mono uppercase text-[10px] tracking-wider border-b border-border">
                 <th className="py-3 px-4">Athlete / Program</th>
                 <th className="py-3 px-4">Sleep (Last Night)</th>
-                <th className="py-3 px-4">Readiness CNS</th>
+                <th className="py-3 px-4">Readiness</th>
                 <th className="py-3 px-4">Fatigue</th>
                 <th className="py-3 px-4">Soreness</th>
-                <th className="py-3 px-4">Clinical Status</th>
+                <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -128,10 +128,10 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
                         </button>
                         <button
                           type="button"
-                          aria-label={`Inspect full telemetry for ${ath.name}`}
+                          aria-label={`Inspect full profile for ${ath.name}`}
                           onClick={() => onSelectAthlete(ath.id)}
                           className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-brand transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
-                          title="Inspect Full Telemetry"
+                          title="Inspect Full Profile"
                         >
                           <LineChart className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>

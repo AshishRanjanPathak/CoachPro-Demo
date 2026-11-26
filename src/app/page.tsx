@@ -77,7 +77,7 @@ function AppContent() {
           { id: "dashboard", label: "Coach Hub", icon: <Activity className="w-4 h-4 text-brand" /> },
           { id: "queue", label: "Attention Queue", icon: <AlertTriangle className="w-4 h-4 text-destructive" /> },
           { id: "roster", label: "Athlete Roster", icon: <Users className="w-4 h-4" /> },
-          { id: "telemetry", label: "Telemetry", icon: <TrendingUp className="w-4 h-4" /> },
+          { id: "telemetry", label: "Strength", icon: <TrendingUp className="w-4 h-4" /> },
           { id: "builder", label: "Program Builder", icon: <Layers className="w-4 h-4" /> },
           { id: "exercises", label: "Exercise Library", icon: <BookOpen className="w-4 h-4" /> },
           { id: "messages", label: "Athlete Messages", icon: <MessageSquare className="w-4 h-4" /> },
@@ -90,7 +90,7 @@ function AppContent() {
         ];
       case "platform_admin":
         return [
-          { id: "overview", label: "SaaS Telemetry & Audit", icon: <ShieldCheck className="w-4 h-4" /> },
+          { id: "overview", label: "SaaS Metrics & Audit", icon: <ShieldCheck className="w-4 h-4" /> },
           { id: "pricing", label: "Plans & Pricing", icon: <CreditCard className="w-4 h-4" /> }
         ];
       default:

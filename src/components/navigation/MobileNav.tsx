@@ -78,7 +78,7 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
       { id: "dashboard", label: "Hub", icon: <Activity className="w-5 h-5" /> },
       { id: "queue", label: "Triage", icon: <AlertTriangle className="w-5 h-5" />, badge: triageCount },
       { id: "roster", label: "Roster", icon: <Users className="w-5 h-5" /> },
-      { id: "telemetry", label: "Telemetry", icon: <TrendingUp className="w-5 h-5" /> },
+      { id: "telemetry", label: "Strength", icon: <TrendingUp className="w-5 h-5" /> },
       { id: "builder", label: "Programs", icon: <Layers className="w-5 h-5" /> },
       { id: "messages", label: "Chat", icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
     ];

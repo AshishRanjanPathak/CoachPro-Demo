@@ -77,7 +77,7 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
             Prioritized Coach Attention Queue
           </h2>
           <p className="text-xs text-muted-foreground">
-            Athletes requiring clinical intervention, deload adjustments, or injury management ranked first.
+            Athletes needing quick program adjustments, deloads, or pain check-ins ranked first.
           </p>
         </div>
       </div>
@@ -204,8 +204,8 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
         <DialogContent className="sm:max-w-lg p-5 sm:p-6 rounded-2xl">
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary">Clinical Intervention</Badge>
-              <span className="text-xs text-muted-foreground">Live Rx Adjustment</span>
+              <Badge variant="secondary">Coach Adjustment</Badge>
+              <span className="text-xs text-muted-foreground">Program Update</span>
             </div>
             <DialogTitle className="mt-1">
               Adjust Program for {selectedAthleteForAdjust?.name}
