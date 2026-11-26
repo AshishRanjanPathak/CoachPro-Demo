@@ -9,56 +9,42 @@ export function CoachActivityFeed() {
       {/* Left Column: Adherence & Volume Progress (1 Col) */}
       <div className="flex flex-col space-y-4">
         {/* Weekly Adherence Progress Card */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 space-y-4 border border-border shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-              Weekly Adherence
-            </span>
-            <span className="text-xs font-mono text-brand font-medium">Goal: 85%</span>
-          </div>
+        <div className="bg-card rounded-xl p-4 sm:p-5 space-y-3 border border-border shadow-xs">
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+            Weekly Adherence
+          </span>
           <div>
             <div className="flex items-baseline justify-between mb-1.5">
               <span className="text-2xl font-bold font-mono tabular-nums text-foreground">82%</span>
-              <span className="text-xs text-muted-foreground font-medium tabular-nums">23&nbsp;/&nbsp;28 Completed</span>
+              <span className="text-xs text-muted-foreground font-medium tabular-nums">23&nbsp;/&nbsp;28</span>
             </div>
-            <div className="w-full bg-secondary h-2.5 rounded-full overflow-hidden flex">
+            <div className="w-full bg-secondary h-2 rounded-full overflow-hidden flex">
               <div
                 className="bg-brand h-full rounded-full transition-[width] duration-500 ease-out"
                 style={{ width: "82%" }}
               ></div>
             </div>
           </div>
-          <div className="pt-1 flex justify-between text-xs font-mono text-muted-foreground">
-            <span>Target pace: On-track</span>
-            <span className="text-brand font-semibold">-3% delta</span>
-          </div>
         </div>
 
         {/* Volume Tonnage Progress Card */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 space-y-4 border border-border shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-              Volume Tonnage
-            </span>
-            <span className="text-xs font-mono text-success font-medium">87.7% Cap</span>
-          </div>
+        <div className="bg-card rounded-xl p-4 sm:p-5 space-y-3 border border-border shadow-xs">
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+            Volume Tonnage
+          </span>
           <div>
             <div className="flex items-baseline justify-between mb-1.5">
               <span className="text-2xl font-bold font-mono tabular-nums text-success">
                 48,250 <span className="text-xs font-normal text-muted-foreground">kg</span>
               </span>
-              <span className="text-xs text-muted-foreground font-medium tabular-nums">Cap: 55,000&nbsp;kg</span>
+              <span className="text-xs text-muted-foreground font-medium tabular-nums">87.7%</span>
             </div>
-            <div className="w-full bg-secondary h-2.5 rounded-full overflow-hidden flex">
+            <div className="w-full bg-secondary h-2 rounded-full overflow-hidden flex">
               <div
                 className="bg-success h-full rounded-full transition-[width] duration-500 ease-out"
                 style={{ width: "87.7%" }}
               ></div>
             </div>
-          </div>
-          <div className="pt-1 flex justify-between text-xs font-mono text-muted-foreground">
-            <span>Accumulation Phase</span>
-            <span className="text-success font-semibold">+6,750 kg rem</span>
           </div>
         </div>
 

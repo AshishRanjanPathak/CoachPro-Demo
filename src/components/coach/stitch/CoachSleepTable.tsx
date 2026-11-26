@@ -21,22 +21,16 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
         <div className="flex items-center gap-2">
           <Activity className="w-5 h-5 text-brand" />
           <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-            Roster Autonomic &amp; Sleep Telemetry
+            Sleep &amp; Readiness
           </h2>
-          <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-secondary text-muted-foreground border border-border">
-            {athletes.length} Athletes Active
-          </span>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setShowAll(!showAll)}
-            className="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-secondary hover:bg-secondary/80 text-brand border border-border cursor-pointer transition-colors"
-          >
-            {showAll ? "Collapse to Top 6" : `View All ${athletes.length} Athletes`}
-          </button>
-          <span className="hidden sm:inline text-xs font-mono text-muted-foreground">Last synced: 14 mins ago</span>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowAll(!showAll)}
+          className="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-secondary hover:bg-secondary/80 text-brand border border-border cursor-pointer transition-colors"
+        >
+          {showAll ? "Top 6" : `View All ${athletes.length}`}
+        </button>
       </div>
 
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-xs">

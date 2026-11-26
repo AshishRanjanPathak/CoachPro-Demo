@@ -63,25 +63,12 @@ export function Navbar({ activeTab: _activeTab, onTabChange: _onTabChange }: Nav
             />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-black text-foreground text-base tracking-wider uppercase font-mono" translate="no">BONOBO</span>
-              <span className="text-[11px] font-mono text-muted-foreground hidden sm:inline">
-                / CoachPRO
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground hidden sm:block truncate">
-              {currentUser.organizationName}
-            </p>
+            <span className="font-black text-foreground text-base tracking-wider uppercase font-mono" translate="no">BONOBO</span>
           </div>
         </div>
 
         {/* Theme Toggle, User Info & Sign Out */}
         <div className="flex items-center gap-2 shrink-0">
-          <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground mr-1 capitalize">
-            <span className="w-1.5 h-1.5 rounded-full bg-success" aria-hidden="true" />
-            {currentUser.role.replace("_", " ")}
-          </span>
-
           <Button
             variant="ghost"
             size="sm"

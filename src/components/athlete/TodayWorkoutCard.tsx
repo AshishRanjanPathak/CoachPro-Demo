@@ -122,16 +122,12 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
         <CardContent className="p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Prescribed Lineup
+              Exercises
             </span>
             <span className="text-xs text-muted-foreground tabular-nums">
-              {prescriptions.length} movements
+              {prescriptions.length} total
             </span>
           </div>
-
-          <p className="text-xs text-muted-foreground leading-relaxed border-l-2 border-l-brand pl-3 py-0.5">
-            Control every rep (2–3s lower), brace firmly, and tap <strong className="text-foreground">Log Set</strong> on each movement as you finish.
-          </p>
 
           <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-card">
             {prescriptions.length === 0 ? (
@@ -184,29 +180,29 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
                         <button
                           type="button"
                           onClick={() => setDetailModalExercise({ id: rx.exerciseId, name: rx.exerciseName })}
-                          className="text-[11px] font-medium text-brand hover:underline inline-flex items-center gap-1 cursor-pointer bg-brand/5 hover:bg-brand/10 border border-brand/20 px-2 py-0.5 rounded-md"
+                          className="text-[11px] font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1 cursor-pointer px-1.5 py-0.5 rounded-md hover:bg-secondary"
                           title="View 2-pose demonstration and coaching tips"
                           aria-label={`View 2-pose demonstration for ${rx.exerciseName}`}
                         >
-                          <Eye className="w-3 h-3 text-brand" aria-hidden="true" />
-                          <span>Poses & Guide</span>
+                          <Eye className="w-3 h-3" aria-hidden="true" />
+                          <span>Guide</span>
                         </button>
                       </div>
 
                       <div className="text-xs sm:text-sm text-muted-foreground mt-1 flex flex-wrap items-center gap-2 tabular-nums">
                         <span className="font-medium text-foreground">{rx.sets}&nbsp;sets × {rx.repTarget}&nbsp;reps</span>
                         <span>•</span>
-                        <span>Weight: <strong className="text-foreground">{rx.targetLoadKg}&nbsp;kg</strong> ({Math.round((rx.targetLoadKg || 0) * 2.20462)} lbs)</span>
+                        <span className="font-medium text-foreground">{rx.targetLoadKg}&nbsp;kg</span>
                         {rx.targetRpe && (
                           <>
                             <span>•</span>
-                            <span className="text-brand font-medium">Effort: RPE {rx.targetRpe}</span>
+                            <span className="text-muted-foreground">RPE {rx.targetRpe}</span>
                           </>
                         )}
                       </div>
                       {rx.notes && (
-                        <p className="text-xs text-brand/90 font-medium mt-1 text-pretty bg-brand/5 px-2.5 py-1 rounded-md border border-brand/10 inline-block">
-                          Coach note: “{rx.notes}”
+                        <p className="text-xs text-muted-foreground mt-1 text-pretty">
+                          {rx.notes}
                         </p>
                       )}
                     </div>
@@ -240,12 +236,8 @@ export function TodayWorkoutCard({ loggerOpen: externalLoggerOpen, onLoggerOpenC
         </CardContent>
 
         {/* Footer Actions */}
-        <CardFooter className="p-5 sm:p-6 bg-card border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-muted-foreground w-full sm:w-auto text-center sm:text-left">
-            Rest periods between sets: <span className="font-semibold text-foreground">2–3 minutes recommended</span>
-          </div>
-
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+        <CardFooter className="p-4 sm:p-5 bg-card border-t border-border flex items-center justify-end gap-2.5">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
             {session.sets.length > 0 && (
               <Button
                 variant="outline"

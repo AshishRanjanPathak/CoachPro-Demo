@@ -61,15 +61,12 @@ export function PricingView() {
   return (
     <div className="space-y-8 max-w-5xl mx-auto py-4">
       {/* Header */}
-      <div className="text-center space-y-3">
-        <Badge variant="secondary" className="text-xs uppercase tracking-wider">
-          Transparent Commercial Plans
-        </Badge>
+      <div className="text-center space-y-2.5">
         <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-          Built for Serious Strength Coaches
+          Plans &amp; Pricing
         </h2>
-        <p className="text-muted-foreground text-sm max-w-xl mx-auto">
-          No hidden transaction fees. Scale from independent coaching to facility-wide operations with zero lock-in.
+        <p className="text-muted-foreground text-sm max-w-md mx-auto">
+          Simple plans for independent coaches and training facilities.
         </p>
 
         {/* Billing cycle toggle */}
@@ -135,10 +132,7 @@ export function PricingView() {
                 )}
               </CardHeader>
 
-              <CardContent className="p-6 pt-0 space-y-3 flex-1">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pt-2 border-t border-border">
-                  Plan Entitlements
-                </div>
+              <CardContent className="p-6 pt-0 space-y-3 flex-1 border-t border-border mt-2">
                 <ul className="space-y-2.5 text-xs text-foreground">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">

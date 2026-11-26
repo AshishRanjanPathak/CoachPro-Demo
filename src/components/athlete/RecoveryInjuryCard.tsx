@@ -64,16 +64,9 @@ export function RecoveryInjuryCard() {
 
       <Card className="border-border bg-card">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-brand font-semibold">
-              Daily Recovery &amp; Health
-            </span>
-            <span className="text-border">•</span>
-            <span className="text-xs text-muted-foreground font-mono tabular-nums">{new Date().toISOString().substring(0, 10)}</span>
-          </div>
-          <CardTitle className="mt-1 heading-tight">Fatigue, Soreness &amp; Injury Reporting</CardTitle>
+          <CardTitle className="heading-tight">Recovery &amp; Check-In</CardTitle>
           <CardDescription>
-            Report recovery telemetry and acute physical discomfort to alert your coach before training.
+            Log fatigue, sleep, soreness, or injury status.
           </CardDescription>
         </CardHeader>
 
@@ -233,10 +226,10 @@ export function RecoveryInjuryCard() {
             <Button type="submit" variant="default" disabled={submitted} className="min-h-[44px] gap-2 font-semibold">
               {submitted ? (
                 <span className="flex items-center gap-1.5" role="status" aria-live="polite">
-                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> Transmitted to Coach Attention Feed!
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> Sent to Coach
                 </span>
               ) : (
-                "Transmit Recovery & Health Status"
+                "Submit Check-In"
               )}
             </Button>
           </CardFooter>

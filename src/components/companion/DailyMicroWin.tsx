@@ -101,11 +101,8 @@ export function DailyMicroWin() {
       <div className="flex items-center justify-between mb-2.5">
         <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
           <Sparkles className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-          <span>Daily Check-Ins</span>
+          <span>Quick Check-Ins</span>
         </h4>
-        <span className="text-[11px] font-medium text-muted-foreground">
-          1-Tap Rewards
-        </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -120,25 +117,16 @@ export function DailyMicroWin() {
               : "border-border bg-secondary/40 hover:bg-secondary text-foreground cursor-pointer"
           }`}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-              companion.hasHydratedToday ? "bg-success/15 text-success" : "bg-card border border-border text-brand"
-            }`}>
-              <Droplets className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold leading-tight truncate">
-                {companion.hasHydratedToday ? "Hydrated" : "Drink Water"}
-              </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 truncate tabular-nums">
-                {companion.hasHydratedToday ? `${companion.waterStreakDays}d streak` : "Daily target"}
-              </p>
-            </div>
+          <div className="flex items-center gap-2 min-w-0">
+            <Droplets className={`h-4 w-4 shrink-0 ${companion.hasHydratedToday ? "text-success" : "text-brand"}`} />
+            <span className="text-xs font-semibold truncate">
+              {companion.hasHydratedToday ? `Hydrated (${companion.waterStreakDays}d)` : "Hydrate"}
+            </span>
           </div>
           {companion.hasHydratedToday ? (
             <CheckCircle2 className="h-4 w-4 text-success shrink-0 ml-2" />
           ) : (
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-card border border-border text-muted-foreground font-semibold tabular-nums shrink-0 ml-2">
+            <span className="text-[11px] font-mono text-muted-foreground tabular-nums shrink-0 ml-2">
               +15 XP
             </span>
           )}
@@ -155,25 +143,16 @@ export function DailyMicroWin() {
               : "border-border bg-secondary/40 hover:bg-secondary text-foreground cursor-pointer"
           }`}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-              restDayConfirmed ? "bg-brand/15 text-brand" : "bg-card border border-border text-muted-foreground"
-            }`}>
-              <Moon className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold leading-tight truncate">
-                {restDayConfirmed ? "Resting Well" : "Rest Day Pass"}
-              </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                {restDayConfirmed ? "Active recovery" : "Log rest day"}
-              </p>
-            </div>
+          <div className="flex items-center gap-2 min-w-0">
+            <Moon className={`h-4 w-4 shrink-0 ${restDayConfirmed ? "text-brand" : "text-muted-foreground"}`} />
+            <span className="text-xs font-semibold truncate">
+              {restDayConfirmed ? "Resting" : "Rest Day"}
+            </span>
           </div>
           {restDayConfirmed ? (
             <CheckCircle2 className="h-4 w-4 text-brand shrink-0 ml-2" />
           ) : (
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-card border border-border text-muted-foreground font-semibold tabular-nums shrink-0 ml-2">
+            <span className="text-[11px] font-mono text-muted-foreground tabular-nums shrink-0 ml-2">
               +20 XP
             </span>
           )}
@@ -190,25 +169,16 @@ export function DailyMicroWin() {
               : "border-border bg-secondary/40 hover:bg-secondary text-foreground cursor-pointer"
           }`}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-              workoutLogged ? "bg-success/15 text-success" : "bg-card border border-border text-success"
-            }`}>
-              <Zap className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold leading-tight truncate">
-                {workoutLogged ? "Workout Logged" : "1-Tap Complete"}
-              </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 truncate tabular-nums">
-                {workoutLogged ? "Earned bananas 🍌" : `Log ${prescriptionCount} prescribed lifts`}
-              </p>
-            </div>
+          <div className="flex items-center gap-2 min-w-0">
+            <Zap className="h-4 w-4 text-success shrink-0" />
+            <span className="text-xs font-semibold truncate">
+              {workoutLogged ? "Logged" : `Complete ${prescriptionCount} Lifts`}
+            </span>
           </div>
           {workoutLogged ? (
             <CheckCircle2 className="h-4 w-4 text-success shrink-0 ml-2" />
           ) : (
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-card border border-border text-success font-semibold tabular-nums shrink-0 ml-2">
+            <span className="text-[11px] font-mono text-success tabular-nums shrink-0 ml-2">
               +40 XP
             </span>
           )}

@@ -64,7 +64,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
     {
       id: "welcome",
       sender: "bonobo",
-      text: "Hey champ! 👋 I'm your Bonobo gym & recovery companion. Tap the mic or type to log workouts (e.g. '4 sets squats 140kg x 5 reps'), report soreness, or check your training recovery!",
+      text: "Hey! Ask me to log workouts, track soreness, or help with recovery.",
       timestamp: "Just now"
     }
   ]);
@@ -379,7 +379,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5 truncate">
-                <span>{companion.mode === "gamified" ? "Bonobo Companion" : "Bonobo Copilot"}</span>
+                <span>{companion.mode === "gamified" ? "Bonobo AI" : "Bonobo Copilot"}</span>
                 {isSpeaking && (
                   <span className="flex items-center gap-1 text-brand text-[10px] font-medium shrink-0">
                     <Sparkles className="w-3 h-3" />
@@ -395,9 +395,8 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
             {/* Daily Limit Tracker */}
             <div className="flex items-center gap-1.5 mt-0.5 tabular-nums">
               <span className="text-[10px] text-muted-foreground">
-                Voice: <strong className={aiUsage.remaining <= 3 ? "text-warning" : "text-brand"}>{aiUsage.remaining}</strong>/{aiUsage.limit} left
+                <strong className={aiUsage.remaining <= 3 ? "text-warning" : "text-brand"}>{aiUsage.remaining}</strong>/{aiUsage.limit} daily
               </span>
-              <span className="text-[10px] text-muted-foreground/60">• resets daily</span>
             </div>
           </div>
         </div>

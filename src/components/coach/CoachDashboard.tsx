@@ -9,7 +9,6 @@ import { CoachActivityFeed } from "@/components/coach/stitch/CoachActivityFeed";
 import { CoachProgressionCurve } from "@/components/coach/stitch/CoachProgressionCurve";
 import { AthleteRoster } from "@/components/coach/AthleteRoster";
 import {
-  TrendingUp,
   ArrowDown,
   PlusCircle,
   Megaphone,
@@ -33,7 +32,7 @@ export function CoachDashboard({
   onOpenMessages,
   onNavigateToBuilder,
 }: CoachDashboardProps) {
-  const { state, currentUser } = useAuth();
+  const { state } = useAuth();
   const [activeSegment, setActiveSegment] = useState<"hub" | "triage" | "roster" | "builder" | "analytics" | "messages">("hub");
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
 
@@ -61,23 +60,13 @@ export function CoachDashboard({
               <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-success ring-2 ring-card"></span>
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-                  Sarah Jenkins, CSCS
-                </span>
-                <span className="px-1.5 py-0.5 rounded bg-brand/15 text-brand text-[10px] font-mono font-bold uppercase border border-brand/20">
-                  Lead Coach
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mt-0.5 flex-wrap">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-success"></span>
-                  Online • Active Lab Session
-                </span>
+              <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+                Sarah Jenkins, CSCS
+              </span>
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mt-0.5">
+                <span className="font-mono">{athletes.length} Athletes</span>
                 <span>•</span>
-                <span className="font-mono text-brand font-medium">3 Active Programs</span>
-                <span className="hidden sm:inline">•</span>
-                <span className="hidden sm:inline text-muted-foreground">{currentUser.organizationName}</span>
+                <span className="font-mono">3 Programs</span>
               </div>
             </div>
           </div>
@@ -134,7 +123,7 @@ export function CoachDashboard({
             }`}
           >
             <Gauge className="w-3.5 h-3.5" />
-            <span>Coach Hub</span>
+            <span>Overview</span>
           </button>
           <button
             type="button"
@@ -146,7 +135,7 @@ export function CoachDashboard({
             }`}
           >
             <HeartPulse className="w-3.5 h-3.5 text-destructive" />
-            <span>Clinical Triage</span>
+            <span>Triage</span>
             <span className="w-1.5 h-1.5 rounded-full bg-destructive"></span>
           </button>
           <button
@@ -159,7 +148,7 @@ export function CoachDashboard({
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Athlete Roster</span>
+            <span>Roster</span>
           </button>
           <button
             type="button"
@@ -171,7 +160,7 @@ export function CoachDashboard({
             }`}
           >
             <Dumbbell className="w-3.5 h-3.5" />
-            <span>Program Builder</span>
+            <span>Programs</span>
           </button>
           <button
             type="button"
@@ -183,7 +172,7 @@ export function CoachDashboard({
             }`}
           >
             <LineChart className="w-3.5 h-3.5" />
-            <span>Telemetry Analytics</span>
+            <span>Analytics</span>
           </button>
           <button
             type="button"
@@ -195,7 +184,7 @@ export function CoachDashboard({
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            <span>Athlete Messages</span>
+            <span>Messages</span>
           </button>
         </div>
       </section>
@@ -203,130 +192,82 @@ export function CoachDashboard({
       {/* Section: Top Telemetry KPI Cards (4 Cards) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Active Roster Load */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-              Active Cohort
-            </span>
-            <span className="px-2 py-0.5 rounded-full bg-secondary text-brand text-[10px] font-mono font-semibold flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />
-              +2.4% Load
-            </span>
+        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border border-border">
+          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+            Active Roster
+          </span>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums flex items-baseline gap-1.5">
+            <span>{athletes.length}</span>
+            <span className="text-sm font-normal text-muted-foreground">Athletes</span>
           </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums flex items-baseline gap-1.5">
-              <span>{athletes.length}</span>
-              <span className="text-sm font-normal text-muted-foreground">Athletes</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">100% on scheduled microcycles</p>
-          </div>
-          <div className="flex items-center justify-between pt-1">
-            <div className="flex -space-x-2">
-              {athletes.slice(0, 3).map(ath => (
-                <div key={ath.id} className="w-7 h-7 rounded-full bg-brand/20 text-brand text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card shrink-0" title={ath.name}>
-                  {(ath.name || "A").split(" ").map(n => n[0]).join("")}
-                </div>
-              ))}
-              {athletes.length > 3 && (
-                <div className="w-7 h-7 rounded-full bg-secondary text-muted-foreground text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card shrink-0">
-                  +{athletes.length - 3}
-                </div>
-              )}
-            </div>
-            <span className="text-[11px] font-mono text-muted-foreground">Across 4 Squads</span>
+          <div className="flex -space-x-2 pt-1">
+            {athletes.slice(0, 3).map(ath => (
+              <div key={ath.id} className="w-7 h-7 rounded-full bg-secondary text-foreground text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card shrink-0" title={ath.name}>
+                {(ath.name || "A").split(" ").map(n => n[0]).join("")}
+              </div>
+            ))}
+            {athletes.length > 3 && (
+              <div className="w-7 h-7 rounded-full bg-secondary text-muted-foreground text-[10px] font-mono font-bold flex items-center justify-center ring-2 ring-card shrink-0">
+                +{athletes.length - 3}
+              </div>
+            )}
           </div>
         </div>
 
         {/* KPI 2: Clinical Triage Alerts */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border border-l-2 border-l-destructive">
+        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border border-border border-l-2 border-l-destructive">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-              Clinical Attention
+              Attention
             </span>
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-destructive/15 text-destructive text-[10px] font-mono font-bold border border-destructive/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-destructive"></span>
-              Action Reqd
-            </span>
+            <span className="w-2 h-2 rounded-full bg-destructive" aria-hidden="true" />
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-destructive tracking-tight flex items-baseline gap-2 tabular-nums">
-              <span>1 Urgent</span>
-              <span className="text-sm font-normal text-muted-foreground">/ 1 Caution</span>
+              <span>{injuredCount} Urgent</span>
+              <span className="text-sm font-normal text-muted-foreground">/ {highFatigueCount} Fatigue</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">Maya Patel: Patellar Tendon</p>
-          </div>
-          <div className="flex items-center gap-1.5 pt-1 overflow-hidden">
-            <span className="px-2 py-0.5 rounded bg-destructive/15 text-destructive text-[10px] font-mono truncate">
-              Maya P. 6/10 Pain
-            </span>
-            <span className="px-2 py-0.5 rounded bg-warning/15 text-warning text-[10px] font-mono truncate">
-              Jordan T. Back
-            </span>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">Maya Patel • Patellar Tendon</p>
           </div>
         </div>
 
         {/* KPI 3: Sleep Telemetry */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-              Roster Avg Sleep
-            </span>
-            <span className="text-[10px] font-mono text-muted-foreground">Baseline: 7.5h</span>
-          </div>
+        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border border-border">
+          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+            Avg Sleep
+          </span>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums flex items-baseline gap-1">
               <span>7.0</span>
               <span className="text-sm font-normal text-muted-foreground">hrs</span>
             </div>
-            <p className="text-xs text-destructive mt-0.5 flex items-center gap-1">
-              <ArrowDown className="w-3.5 h-3.5" aria-hidden="true" />
-              -0.5h 7-day rolling deficit
+            <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 tabular-nums">
+              <ArrowDown className="w-3 h-3 text-destructive" aria-hidden="true" />
+              -0.5h vs 7.5h target
             </p>
           </div>
-          <div className="space-y-1 pt-1">
-            <div className="w-full bg-secondary h-2 rounded-full overflow-hidden flex">
-              <div className="bg-destructive h-full" style={{ width: "25%" }} title="Maya (5.5h)"></div>
-              <div className="bg-warning h-full" style={{ width: "35%" }} title="Jordan (7.2h)"></div>
-              <div className="bg-success h-full" style={{ width: "40%" }} title="Alex (8.2h)"></div>
-            </div>
-            <div className="flex justify-between text-[10px] font-mono text-muted-foreground">
-              <span>Maya: 5.5h</span>
-              <span>Jordan: 7.2h</span>
-              <span>Alex: 8.2h</span>
-            </div>
+          <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden flex">
+            <div className="bg-destructive h-full" style={{ width: "25%" }} title="Maya (5.5h)"></div>
+            <div className="bg-warning h-full" style={{ width: "35%" }} title="Jordan (7.2h)"></div>
+            <div className="bg-success h-full" style={{ width: "40%" }} title="Alex (8.2h)"></div>
           </div>
         </div>
 
         {/* KPI 4: Autonomic Readiness Gauge */}
-        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-border">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-              Autonomic Index
-            </span>
-            <span className="px-2 py-0.5 rounded-full bg-secondary text-brand text-[10px] font-mono font-semibold">
-              HRV &amp; CNS
-            </span>
+        <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border border-border">
+          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+            Readiness
+          </span>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight flex items-baseline gap-1 tabular-nums">
+            <span>6.3</span>
+            <span className="text-sm text-muted-foreground">/ 10</span>
           </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight flex items-baseline gap-1 tabular-nums">
-              <span>6.3</span>
-              <span className="text-sm text-muted-foreground">/ 10</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">Aggregate readiness score</p>
-          </div>
-          <div className="space-y-1 pt-1">
-            <div className="grid grid-cols-5 gap-1 h-2">
-              <div className="bg-destructive rounded-full"></div>
-              <div className="bg-warning rounded-full"></div>
-              <div className="bg-warning/70 rounded-full"></div>
-              <div className="bg-success rounded-full"></div>
-              <div className="bg-secondary rounded-full"></div>
-            </div>
-            <div className="flex justify-between text-[10px] font-mono text-muted-foreground">
-              <span>4.0 (Maya)</span>
-              <span>Mean 6.3</span>
-              <span>9.0 (Alex)</span>
-            </div>
+          <div className="grid grid-cols-5 gap-1 h-1.5">
+            <div className="bg-destructive rounded-full"></div>
+            <div className="bg-warning rounded-full"></div>
+            <div className="bg-warning/70 rounded-full"></div>
+            <div className="bg-success rounded-full"></div>
+            <div className="bg-secondary rounded-full"></div>
           </div>
         </div>
       </section>

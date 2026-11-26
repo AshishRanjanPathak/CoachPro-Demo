@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { resolveActiveSessionContext } from "@/lib/store";
-import { CoachBuddyCard } from "@/components/athlete/CoachBuddyCard";
 import { WorkoutLoggerModal } from "@/components/athlete/WorkoutLoggerModal";
 import { ExerciseDetailModal } from "@/components/exercise/ExerciseDetailModal";
 import { resolveExerciseThumbnail } from "@/lib/exercises";
@@ -17,8 +16,6 @@ import {
   CheckCircle2,
   RotateCcw,
   Calendar,
-  Sparkles,
-  Info,
   Plus,
   Eye
 } from "lucide-react";
@@ -109,39 +106,32 @@ export function TrainingWorkspaceView() {
           {session.dayName || "Strength & Conditioning Session"}
         </h2>
         <p className="text-muted-foreground text-xs sm:text-sm mt-1">
-          {session.programTitle || program?.title || "Strength Program"} • Coach {program?.coachName || "Sarah Jenkins, CSCS"}
+          {session.programTitle || program?.title || "Strength Program"}
         </p>
 
-        {/* 3. Session Progress Indicator */}
+        {/* Session Progress Indicator */}
         <div className="mt-4 pt-3.5 border-t border-border">
           <div className="flex justify-between items-center text-xs font-medium text-muted-foreground mb-1.5">
-            <span>Overall Session Progress</span>
+            <span>Progress</span>
             <span className="font-semibold text-foreground tabular-nums">
-              {completedSetsCount} / {totalPrescribedSets} sets ({progressPercent}%)
+              {completedSetsCount} / {totalPrescribedSets} sets
             </span>
           </div>
           <Progress value={progressPercent} className="h-1.5" />
         </div>
       </div>
 
-      {/* 4. Session Companion Strip */}
-      <CoachBuddyCard mode="training" onOpenLogger={handleOpenGeneralQuickLog} />
-
-      {/* 5. & 6. Prescribed Movement Lineup & Individual Exercise Cards */}
+      {/* Prescribed Movement Lineup & Individual Exercise Cards */}
       <Card className="border-border overflow-hidden rounded-2xl bg-card">
         <CardContent className="p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Prescribed Lineup
+              Exercises
             </span>
             <span className="text-xs text-muted-foreground tabular-nums">
-              {prescriptions.length} movements
+              {prescriptions.length} total
             </span>
           </div>
-
-          <p className="text-xs text-muted-foreground leading-relaxed border-l-2 border-l-brand pl-3 py-0.5">
-            Control every rep smoothly (2–3s eccentric), brace well, and tap <strong className="text-foreground">Log Set</strong> after each working set.
-          </p>
 
           {/* Individual Exercise Cards */}
           <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-card">
@@ -195,29 +185,29 @@ export function TrainingWorkspaceView() {
                         <button
                           type="button"
                           onClick={() => setDetailModalExercise({ id: rx.exerciseId, name: rx.exerciseName })}
-                          className="text-[11px] font-medium text-brand hover:underline inline-flex items-center gap-1 cursor-pointer bg-brand/5 hover:bg-brand/10 border border-brand/20 px-2 py-0.5 rounded-md"
+                          className="text-[11px] font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1 cursor-pointer px-1.5 py-0.5 rounded-md hover:bg-secondary"
                           title="View 2-pose demonstration and coaching tips"
                           aria-label={`View 2-pose demonstration for ${rx.exerciseName}`}
                         >
-                          <Eye className="w-3 h-3 text-brand" aria-hidden="true" />
-                          <span>Poses & Guide</span>
+                          <Eye className="w-3 h-3" aria-hidden="true" />
+                          <span>Guide</span>
                         </button>
                       </div>
 
                       <div className="text-xs sm:text-sm text-muted-foreground mt-1 flex flex-wrap items-center gap-2 tabular-nums">
                         <span className="font-medium text-foreground">{rx.sets}&nbsp;sets × {rx.repTarget}&nbsp;reps</span>
                         <span>•</span>
-                        <span>Weight: <strong className="text-foreground">{rx.targetLoadKg}&nbsp;kg</strong> ({Math.round((rx.targetLoadKg || 0) * 2.20462)} lbs)</span>
+                        <span className="font-medium text-foreground">{rx.targetLoadKg}&nbsp;kg</span>
                         {rx.targetRpe && (
                           <>
                             <span>•</span>
-                            <span className="text-brand font-medium">Effort: RPE {rx.targetRpe}</span>
+                            <span className="text-muted-foreground">RPE {rx.targetRpe}</span>
                           </>
                         )}
                       </div>
                       {rx.notes && (
-                        <p className="text-xs text-brand/90 font-medium mt-1 text-pretty bg-brand/5 px-2.5 py-1 rounded-md border border-brand/10 inline-block">
-                          Coach note: “{rx.notes}”
+                        <p className="text-xs text-muted-foreground mt-1 text-pretty">
+                          {rx.notes}
                         </p>
                       )}
                     </div>
@@ -250,13 +240,9 @@ export function TrainingWorkspaceView() {
           </div>
         </CardContent>
 
-        {/* 7. Workout Completion Summary & Primary Controls */}
-        <CardFooter className="p-5 sm:p-6 bg-card border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-muted-foreground w-full sm:w-auto text-center sm:text-left">
-            Rest periods between sets: <span className="font-semibold text-foreground">2–3 minutes recommended</span>
-          </div>
-
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+        {/* Workout Completion Summary & Primary Controls */}
+        <CardFooter className="p-4 sm:p-5 bg-card border-t border-border flex items-center justify-end gap-2.5">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
             {session.sets.length > 0 && (
               <Button
                 type="button"

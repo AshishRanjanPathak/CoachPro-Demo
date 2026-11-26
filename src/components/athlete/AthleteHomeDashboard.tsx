@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import {
   Edit3,
   ArrowRight,
-  MessageSquare,
   Plus,
   Sparkles,
   Sliders,
@@ -26,7 +25,6 @@ import {
 import { WorkoutLoggerModal } from "@/components/athlete/WorkoutLoggerModal";
 import { BonoboCompanionCard } from "@/components/companion/BonoboCompanionCard";
 import { DailyMicroWin } from "@/components/companion/DailyMicroWin";
-import { DailyNudgeCard } from "@/components/companion/DailyNudgeCard";
 import { FlyingSnackOverlay } from "@/components/companion/FlyingSnackOverlay";
 import { BonoboAssistantSheet } from "@/components/companion/BonoboAssistantSheet";
 import {
@@ -44,7 +42,6 @@ interface AthleteHomeDashboardProps {
 
 export function AthleteHomeDashboard({
   onGoToTraining,
-  onOpenMessages,
 }: AthleteHomeDashboardProps) {
   const { state, currentUser, updateAthleteProfile } = useAuth();
 
@@ -125,10 +122,6 @@ export function AthleteHomeDashboard({
           <h1 className="text-xl sm:text-2xl font-bold text-foreground heading-tight mt-0.5 truncate">
             Hey, {(athlete?.name || currentUser?.name || "Athlete").split(" ")[0]}
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">
-            Coach: <span className="text-foreground font-medium">{athlete?.assignedCoachName || "Sarah Jenkins, CSCS"}</span>
-            {athlete?.squad ? ` • ${athlete.squad}` : ""}
-          </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -187,18 +180,14 @@ export function AthleteHomeDashboard({
             </Badge>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <h2 className="text-lg sm:text-xl font-bold text-foreground heading-tight">
               {session.dayName || "Strength & Power Session"}
             </h2>
             <p className="text-xs text-muted-foreground">
               {prescriptions.length > 0
-                ? `${prescriptions.length} exercises prescribed`
-                : "Open training / quick log ready"}{" "}
-              • Goal:{" "}
-              <span className="text-foreground font-medium">
-                {athlete?.trainingGoal || "Build strength & preserve joint health"}
-              </span>
+                ? `${prescriptions.length} exercises`
+                : "Open session"}
             </p>
           </div>
 
@@ -274,7 +263,7 @@ export function AthleteHomeDashboard({
             <span className="text-xs font-normal text-muted-foreground ml-1">days</span>
           </div>
           <span className="text-[11px] text-muted-foreground mt-0.5 truncate tabular-nums">
-            {totalWorkouts} sessions logged
+            {totalWorkouts} sessions
           </span>
         </div>
 
@@ -293,7 +282,7 @@ export function AthleteHomeDashboard({
             <span className="text-xs font-normal text-muted-foreground ml-1">kg</span>
           </div>
           <span className="text-[11px] text-muted-foreground mt-0.5 truncate tabular-nums">
-            ~{weightLbs} lbs • Tap to edit
+            ~{weightLbs} lbs
           </span>
         </button>
 
@@ -305,29 +294,23 @@ export function AthleteHomeDashboard({
             {adherence}
             <span className="text-xs font-normal text-muted-foreground">%</span>
           </div>
-          <span className="text-[11px] text-brand font-medium mt-0.5 truncate tabular-nums">
-            {athlete?.recentPrCount ?? 3} Recent PRs 🏆
+          <span className="text-[11px] text-muted-foreground font-medium mt-0.5 truncate tabular-nums">
+            {athlete?.recentPrCount ?? 3} PRs
           </span>
         </div>
       </div>
 
-      {/* 4. Companion Zone (Full Bonobo engine in Companion mode, lightweight bar in Pro mode) */}
+      {/* 4. Companion Zone (Compact Pro View bar vs Full Bonobo card) */}
       {companion.mode === "gamified" ? (
         <div className="space-y-3">
-          <DailyNudgeCard />
           <BonoboCompanionCard onOpenAssistant={() => setBonoboSheetOpen(true)} />
           <DailyMicroWin />
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-card px-4 py-3 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-foreground">
-              Minimalist Pro Mode Active
-            </p>
-            <p className="text-[11px] text-muted-foreground truncate">
-              Pure training metrics with Bonobo AI voice logging ready on demand.
-            </p>
-          </div>
+          <span className="text-xs font-medium text-muted-foreground">
+            Pro View
+          </span>
           <Button
             type="button"
             variant="outline"
@@ -336,75 +319,10 @@ export function AthleteHomeDashboard({
             className="h-9 px-3 text-xs shrink-0 gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5 text-brand" />
-            <span>Voice AI</span>
+            <span>Ask Bonobo</span>
           </Button>
         </div>
       )}
-
-      {/* 5. Compact Athlete & Coach Footer Bar */}
-      <div className="bg-card border border-border rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 content-auto">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="relative shrink-0">
-            <img
-              src={
-                athlete?.avatarUrl ||
-                "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
-              }
-              alt={athlete?.name || "Athlete"}
-              loading="lazy"
-              decoding="async"
-              className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
-            />
-            <span
-              className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-success border-2 border-card"
-              title="Active Status"
-              aria-label="Active Status"
-            />
-          </div>
-
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-foreground truncate">
-                {athlete?.name || currentUser?.name || "Athlete"}
-              </span>
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
-                {athlete?.experienceLevel || "Intermediate"}
-              </Badge>
-            </div>
-            <p className="text-[11px] text-muted-foreground truncate tabular-nums">
-              {athlete?.heightCm || 178} cm • {weightKg} kg
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setEditOpen(true)}
-            className="text-xs h-9 px-3 gap-1.5"
-            aria-label="Update body measurements"
-          >
-            <Edit3 className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
-            <span>Measurements</span>
-          </Button>
-
-          {onOpenMessages && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onOpenMessages}
-              className="text-xs h-9 px-3 gap-1.5"
-              aria-label="Message coach"
-            >
-              <MessageSquare className="w-3.5 h-3.5 text-brand" aria-hidden="true" />
-              <span>Coach Chat</span>
-            </Button>
-          )}
-        </div>
-      </div>
 
       {/* Measurements Edit Modal */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>

@@ -284,30 +284,22 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
             className="mt-2.5 w-full text-left rounded-xl bg-secondary/40 border border-border px-3.5 py-2 text-xs text-foreground hover:bg-secondary/70 transition-colors duration-150 cursor-pointer"
           >
             <p className="leading-snug font-medium">&ldquo;{currentQuote}&rdquo;</p>
-            <span className="text-[11px] text-muted-foreground block mt-0.5 tabular-nums">
-              Tap to cycle • Fed {companion.snacksFedToday} today
-            </span>
           </button>
 
           {/* XP Progress Bar */}
           <div className="mt-3 space-y-1">
             <div className="flex items-center justify-between text-xs font-medium">
-              <span className="text-muted-foreground flex items-center gap-1">
+              <span className="font-mono text-muted-foreground tabular-nums text-[11px] flex items-center gap-1">
                 <Zap className="h-3 w-3 text-warning" aria-hidden="true" />
-                <span>Growth</span>
+                <span>{companion.xp} / {companion.xpToNextLevel} XP</span>
               </span>
-              <div className="flex items-center gap-2.5">
-                <span className="font-mono text-muted-foreground tabular-nums text-[11px]">
-                  {companion.xp} / {companion.xpToNextLevel} XP ({xpPercent}%)
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setTrackOpen(true)}
-                  className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
-                >
-                  Rewards →
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setTrackOpen(true)}
+                className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
+              >
+                Rewards →
+              </button>
             </div>
             <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
               <div
@@ -361,8 +353,8 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
               <Shirt className="h-4 w-4 text-warning" />
               Bonobo&apos;s Closet &amp; Gear
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              Unlock new gear automatically as you log workouts and level up.
+            <DialogDescription className="sr-only">
+              Select headwear and handheld props unlocked by leveling up.
             </DialogDescription>
           </DialogHeader>
 

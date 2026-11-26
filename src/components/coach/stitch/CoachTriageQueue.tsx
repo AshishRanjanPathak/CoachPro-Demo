@@ -49,20 +49,12 @@ export function CoachTriageQueue({ onSelectAthlete, onOpenMessages }: CoachTriag
   return (
     <section className="flex flex-col space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <HeartPulse className="w-5 h-5 text-destructive" />
-            <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-              Prioritized Clinical Attention Queue
-            </h2>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Stratified by autonomic strain, subjective pain telemetry, and neuromuscular risk
-          </p>
+        <div className="flex items-center gap-2">
+          <HeartPulse className="w-5 h-5 text-destructive" />
+          <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+            Attention Queue
+          </h2>
         </div>
-        <span className="self-start sm:self-auto text-[11px] font-mono text-muted-foreground bg-secondary px-2.5 py-1 rounded-full border border-border">
-          Real-time Neuromuscular Triage
-        </span>
       </div>
 
       <div className="grid grid-cols-1 gap-4">

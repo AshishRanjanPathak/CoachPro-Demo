@@ -11,9 +11,7 @@ import {
   EyeOff,
   ArrowRight,
   AlertCircle,
-  CheckCircle2,
-  Lock,
-  Layers
+  CheckCircle2
 } from "lucide-react";
 
 export function LoginPage() {
@@ -104,41 +102,29 @@ export function LoginPage() {
               <span className="text-xl font-black tracking-wider text-foreground uppercase font-mono">BONOBO</span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary border border-border text-muted-foreground text-xs font-medium">
-            <span className="w-2 h-2 rounded-full bg-brand" aria-hidden="true"></span>
-            <span className="text-[11px] font-mono tracking-wider uppercase">Platform v3.4</span>
-          </div>
         </header>
 
-        {/* Editorial Hero Framing with Gradient Overlay */}
+        {/* Clean Hero Photo */}
         <div className="relative w-full rounded-2xl overflow-hidden aspect-[16/9] shadow-xs border border-border bg-card">
           <img
             alt="Athletic coach and performer training with dumbbell in fitness studio"
             className="w-full h-full object-cover object-center"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuC39imyrZkBFlpeFJcAuajRxNQm3xM-AYPtmuPhOrS3L1yqeAbhqdCXJcO1a-kTkBjUuRaxQGE-WGGFY2-5d_dDQlxs1mECUCFJupDXwX2CF3FOY50DaMs2psC_R2tQkNrTZuObllzflUerL4Xw__Lqf3O3K-yc9GdY4RQvaEwkEw53E5eMlkfeF7_fbgh3I5xJHJ2FVtOxTCjCOPC9DClSo2KclqloV126PQDQRXcq"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent flex flex-col justify-end p-4">
-            <span className="text-[10px] font-mono tracking-widest text-brand uppercase font-semibold">
-              High-Performance Ecosystem
-            </span>
-            <p className="text-sm text-foreground font-semibold mt-0.5 leading-snug">
-              Precision biomechanics &amp; athlete periodization
-            </p>
-          </div>
         </div>
 
-        {/* Headline & Supporting Copy */}
-        <div className="flex flex-col gap-1 text-left">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground text-balance">
-            Train with purpose. Progress with confidence.
+        {/* Concise Heading */}
+        <div className="flex flex-col gap-0.5 text-left">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Sign in to BONOBO
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground text-pretty">
-            Your training, your coach, your progress — all in one place.
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Choose your role to continue.
           </p>
         </div>
 
         {/* Role Segmented Selector */}
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col">
           <div
             role="radiogroup"
             aria-label="Portal access role"
@@ -165,12 +151,6 @@ export function LoginPage() {
                 </button>
               );
             })}
-          </div>
-
-          {/* Dynamic Contextual Notice */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/60 border border-border/60 text-muted-foreground text-left text-xs">
-            <span className="text-brand shrink-0">{currentInfo.icon}</span>
-            <span className="text-[12px] leading-relaxed">{currentInfo.copy}</span>
           </div>
         </div>
 
@@ -320,27 +300,6 @@ export function LoginPage() {
             </p>
           </div>
         </div>
-
-        {/* Security & Legal Footer */}
-        <footer className="flex flex-col items-center gap-2.5 pt-1 pb-4 text-center">
-          <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-            <Lock className="w-3.5 h-3.5 text-brand" />
-            <span className="text-[11px]">Secure access to your coaching workspace</span>
-          </div>
-          <div className="flex items-center justify-center gap-3 text-[11px] text-muted-foreground">
-            <a href="#help" className="hover:text-foreground transition-colors">
-              Help &amp; Documentation
-            </a>
-            <span className="w-1 h-1 rounded-full bg-border"></span>
-            <a href="#privacy" className="hover:text-foreground transition-colors">
-              Privacy Protocol
-            </a>
-            <span className="w-1 h-1 rounded-full bg-border"></span>
-            <a href="#terms" className="hover:text-foreground transition-colors">
-              Terms of Service
-            </a>
-          </div>
-        </footer>
       </div>
     </div>
   );
