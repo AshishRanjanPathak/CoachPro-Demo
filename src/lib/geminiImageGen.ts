@@ -10,13 +10,13 @@ export interface CompanionImageGenParams {
 
 const DEFAULT_PROMPTS: Record<string, string> = {
   welcoming:
-    "3D stylized character render of a friendly, athletic bonobo companion smiling warmly, waving hello. Wearing a red athletic headband, clean dark charcoal studio background, welcoming and encouraging fitness companion aesthetic.",
+    "High-end stylized 3D character render of Barnaby, a friendly athletic young bonobo ape smiling warmly. Straight-on symmetrical chest-up portrait leaving ~22% headroom, bare natural head with no headwear or held props, crisp platinum rim light on a seamless matte #101010 dark background.",
   pumped:
-    "3D stylized character render of an energetic athletic bonobo companion flexing with a dumbbell, focused workout expression, red athletic headband, dark gym studio lighting.",
+    "High-end stylized 3D character render of Barnaby, a friendly athletic young bonobo ape with an intense locked-in workout expression. Straight-on symmetrical chest-up portrait leaving ~22% headroom, bare natural head with no headwear or held props, crisp platinum rim light on a seamless matte #101010 dark background.",
   recovery:
-    "3D stylized character render of a relaxed bonobo companion in recovery mode holding a water bottle, gentle caring smile, green athletic headband, calming dark background.",
+    "High-end stylized 3D character render of Barnaby, a friendly athletic young bonobo ape with a calm deeply rested serene expression. Straight-on symmetrical chest-up portrait leaving ~22% headroom, bare natural head with no headwear or held props, soft platinum-silver rim light on a seamless matte #101010 dark background.",
   celebration:
-    "3D stylized character render of a joyful bonobo companion holding a golden banana trophy in the air, celebrating a new personal record with subtle sparkle confetti, red headband.",
+    "High-end stylized 3D character render of Barnaby, a friendly athletic young bonobo ape celebrating with a beaming joyful smile. Straight-on symmetrical chest-up portrait leaving ~22% headroom, bare natural head with no headwear or held props, warm platinum rim light on a seamless matte #101010 dark background.",
 };
 
 export async function generateCompanionImageWithNanoBanana(params: CompanionImageGenParams): Promise<{
@@ -38,47 +38,59 @@ export async function generateCompanionImageWithNanoBanana(params: CompanionImag
   const prompt = params.prompt || DEFAULT_PROMPTS[mood] || DEFAULT_PROMPTS.welcoming;
   const ai = new GoogleGenAI({ apiKey: resolvedKey });
 
-  // Nano Banana 2.1 is the primary workhorse model
+  // Nano Banana Pro is the highest-tier studio quality model, followed by Nano Banana 2.1 and 3.1 Flash Lite
   const candidateModels = [
-    "gemini-nano-banana-2.1",
     "gemini-3-pro-image",
-    "gemini-3.1-flash-lite-image"
+    "gemini-nano-banana-2.1",
+    "gemini-3.1-flash-lite-image",
   ];
 
   let lastError: Error | null = null;
 
   for (const model of candidateModels) {
     try {
-      // Call modern image generation
-      const response = await ai.models.generateImages({
+      const interaction = await ai.interactions.create({
         model,
-        prompt,
-        config: {
-          numberOfImages: 1,
-          outputMimeType: "image/png",
-          aspectRatio: "1:1",
+        input: prompt,
+        response_format: {
+          type: "image",
+          aspect_ratio: "1:1",
+          image_size: "1K",
         },
       });
 
-      if (response && response.generatedImages && response.generatedImages.length > 0) {
-        const imageBase64 = response.generatedImages[0].image?.imageBytes;
-        if (imageBase64) {
-          const buffer = Buffer.from(imageBase64, "base64");
-          const publicDir = path.join(process.cwd(), "public", "companion");
-          if (!fs.existsSync(publicDir)) {
-            fs.mkdirSync(publicDir, { recursive: true });
+      let imageBase64 = interaction.output_image?.data;
+
+      if (!imageBase64 && Array.isArray(interaction.steps)) {
+        for (const step of interaction.steps) {
+          if (step.type === "model_output" && Array.isArray(step.content)) {
+            const imgBlock = step.content.find(
+              (c): c is { type: "image"; data?: string } => c.type === "image"
+            );
+            if (imgBlock?.data) {
+              imageBase64 = imgBlock.data;
+              break;
+            }
           }
-
-          const targetFileName = `bonobo-${mood}.png`;
-          const targetPath = path.join(publicDir, targetFileName);
-          fs.writeFileSync(targetPath, buffer);
-
-          return {
-            success: true,
-            filePath: targetPath,
-            url: `/companion/${targetFileName}?t=${Date.now()}`,
-          };
         }
+      }
+
+      if (imageBase64) {
+        const buffer = Buffer.from(imageBase64, "base64");
+        const publicDir = path.join(process.cwd(), "public", "companion");
+        if (!fs.existsSync(publicDir)) {
+          fs.mkdirSync(publicDir, { recursive: true });
+        }
+
+        const targetFileName = `bonobo-${mood}.png`;
+        const targetPath = path.join(publicDir, targetFileName);
+        fs.writeFileSync(targetPath, buffer);
+
+        return {
+          success: true,
+          filePath: targetPath,
+          url: `/companion/${targetFileName}?t=${Date.now()}`,
+        };
       }
     } catch (err: unknown) {
       lastError = err instanceof Error ? err : new Error(String(err));

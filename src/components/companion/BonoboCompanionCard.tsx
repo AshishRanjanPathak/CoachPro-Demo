@@ -366,6 +366,19 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
             </DialogDescription>
           </DialogHeader>
 
+          {/* Live Closet Preview */}
+          <div className="mt-3 flex flex-col items-center justify-center rounded-xl border border-border bg-secondary/30 py-3 px-4">
+            <BonoboAvatar
+              size={112}
+              mood={companion.mood}
+              headwear={companion.equippedHeadwear}
+              prop={companion.equippedProp}
+            />
+            <span className="mt-2 text-[11px] font-mono text-muted-foreground">
+              {companion.name} • Live Gear Preview
+            </span>
+          </div>
+
           {/* Headwear Selector */}
           <div className="space-y-2 mt-3">
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">

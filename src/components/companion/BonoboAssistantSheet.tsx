@@ -79,12 +79,19 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
     setAiUsage(getDailyAiUsage(currentUser?.id));
   }, [currentUser?.id]);
 
-  // Track speech synthesis speaking states
+  // Track speech synthesis speaking states and keep companion gear in sync
   useEffect(() => {
+    const handleCompanionUpdated = (e: Event) => {
+      const custom = e as CustomEvent<CompanionState>;
+      if (custom.detail) setCompanion(custom.detail);
+    };
+    window.addEventListener("coachpro_bonobo_updated", handleCompanionUpdated);
+
     speechController.setSpeakingListener(speaking => {
       setIsSpeaking(speaking);
     });
     return () => {
+      window.removeEventListener("coachpro_bonobo_updated", handleCompanionUpdated);
       speechController.stopSpeaking();
       speechController.stopListening();
     };
@@ -358,10 +365,15 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
       <div className="px-3.5 py-3 border-b border-border bg-card flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           {companion.mode === "gamified" && (
-            <div className={`w-9 h-9 rounded-full bg-brand/10 border border-brand/25 flex items-center justify-center shrink-0 transition-transform duration-150 ease-[var(--ease-out)] ${
+            <div className={`w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shrink-0 transition-transform duration-150 ease-[var(--ease-out)] ${
               isSpeaking ? "ring-2 ring-brand ring-offset-1" : ""
             }`}>
-              <BonoboAvatar mood={companion.mood} size={36} />
+              <BonoboAvatar
+                mood={companion.mood}
+                headwear={companion.equippedHeadwear}
+                prop={companion.equippedProp}
+                size={40}
+              />
             </div>
           )}
           <div className="min-w-0">
