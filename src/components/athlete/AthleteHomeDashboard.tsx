@@ -21,6 +21,8 @@ import {
   Plus,
   Sparkles,
   Sliders,
+  BellRing,
+  X,
 } from "lucide-react";
 import { WorkoutLoggerModal } from "@/components/athlete/WorkoutLoggerModal";
 import { BonoboCompanionCard } from "@/components/companion/BonoboCompanionCard";
@@ -33,6 +35,11 @@ import {
   CompanionState,
   CompanionMode,
 } from "@/lib/companion";
+import {
+  loadDismissedReminderIds,
+  dismissReminderForToday,
+  AthleteReminderId,
+} from "@/lib/athleteReminders";
 import { resolveActiveAthlete, resolveActiveSessionContext } from "@/lib/store";
 
 interface AthleteHomeDashboardProps {
@@ -60,18 +67,27 @@ export function AthleteHomeDashboard({
   const [loggerOpen, setLoggerOpen] = useState(false);
   const [bonoboSheetOpen, setBonoboSheetOpen] = useState(false);
   const [companion, setCompanion] = useState<CompanionState>(loadCompanionState);
+  const [dismissedReminders, setDismissedReminders] = useState<AthleteReminderId[]>([]);
   const [tempWeight, setTempWeight] = useState<number>(athlete?.weightKg || 83.5);
   const [tempHeight, setTempHeight] = useState<number>(athlete?.heightCm || 178);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
+    setDismissedReminders(loadDismissedReminderIds());
     const handleUpdated = (e: Event) => {
       const custom = e as CustomEvent<CompanionState>;
       if (custom.detail) setCompanion(custom.detail);
     };
+    const handleDismissSync = (e: Event) => {
+      const custom = e as CustomEvent<AthleteReminderId[]>;
+      if (Array.isArray(custom.detail)) setDismissedReminders(custom.detail);
+    };
     window.addEventListener("coachpro_bonobo_updated", handleUpdated);
-    return () =>
+    window.addEventListener("coachpro_reminders_updated", handleDismissSync);
+    return () => {
       window.removeEventListener("coachpro_bonobo_updated", handleUpdated);
+      window.removeEventListener("coachpro_reminders_updated", handleDismissSync);
+    };
   }, []);
 
   const weightKg = athlete?.weightKg || 83.5;
@@ -149,6 +165,47 @@ export function AthleteHomeDashboard({
           </Button>
         </div>
       </header>
+
+      {/* Post-Workout Unlogged Reminder Strip (dismissible, zero clutter) */}
+      {!isCompleted &&
+        ((completedSets === 0 && !dismissedReminders.includes("workout_unlogged")) ||
+          (isInProgress && !dismissedReminders.includes("workout_unfinished"))) && (
+          <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-warning/35 bg-warning/10 text-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <BellRing className="w-4 h-4 text-warning shrink-0" aria-hidden="true" />
+              <p className="text-foreground font-medium leading-snug">
+                {completedSets === 0
+                  ? "You haven't logged today's workout yet — log your sets right after your session!"
+                  : `${remainingSets} set${remainingSets === 1 ? "" : "s"} still unlogged — finish logging after your last rep so your streak counts.`}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Button
+                type="button"
+                size="sm"
+                variant="default"
+                onClick={() => setLoggerOpen(true)}
+                className="h-8 px-3 text-[11px] font-semibold rounded-lg"
+              >
+                Log After Workout
+              </Button>
+              <button
+                type="button"
+                aria-label="Remind me later"
+                onClick={() =>
+                  setDismissedReminders(
+                    dismissReminderForToday(
+                      completedSets === 0 ? "workout_unlogged" : "workout_unfinished"
+                    )
+                  )
+                }
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
 
       {/* 2. Today's Session (Consolidated Mission + Progress + Launch) */}
       <Card className="border-border bg-card">

@@ -13,6 +13,13 @@ interface MessagingViewProps {
   initialRecipientId?: string;
 }
 
+const ATHLETE_QUICK_REPLIES = [
+  "Done! Survived today's session 🏋️",
+  "Legs are officially jelly 🦵",
+  "New PR incoming soon 🔥",
+  "Quick exercise swap question 🤔",
+];
+
 export function MessagingView({ initialRecipientId }: MessagingViewProps) {
   const { state, currentUser, sendMessage } = useAuth();
   const [inputText, setInputText] = useState("");
@@ -63,8 +70,8 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
           }`}
         >
           <div className="p-3.5 sm:p-4 border-b border-border bg-secondary/30">
-            <h3 className="font-bold text-sm text-foreground">Athlete Threads ({state.athletes.length})</h3>
-            <p className="text-xs text-muted-foreground">Select an athlete to open encrypted chat</p>
+            <h3 className="font-bold text-sm text-foreground">Athlete Chats ({state.athletes.length})</h3>
+            <p className="text-xs text-muted-foreground">Tap an athlete to message</p>
           </div>
 
           <div className="divide-y divide-border overflow-y-auto flex-1 no-scrollbar" role="tablist" aria-label="Athlete threads">
@@ -141,14 +148,10 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
             <div>
               <h3 className="font-bold text-sm text-foreground">{activeRecipient.name}</h3>
               <p className="text-[11px] text-muted-foreground">
-                {isCoach ? (("squad" in activeRecipient && activeRecipient.squad) || "Assigned Athlete") : "Head Strength Coach"} • Verified
+                {isCoach ? (("squad" in activeRecipient && activeRecipient.squad) || "Athlete") : "Coach • Replies fast (mostly between coffee sips)"}
               </p>
             </div>
           </div>
-
-          <Badge variant="outline" className="text-[9px] sm:text-[10px] font-mono">
-            SECURE
-          </Badge>
         </div>
 
         {/* Message History */}
@@ -156,8 +159,8 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
           {conversationMessages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground space-y-2">
               <MessageSquare className="w-8 h-8 opacity-40" />
-              <p className="text-xs font-medium">No previous messages with {activeRecipient.name}.</p>
-              <p className="text-[11px]">Send technical feedback, check-in responses, or workout questions below.</p>
+              <p className="text-xs font-medium">No messages yet with {activeRecipient.name}.</p>
+              <p className="text-[11px]">Drop a quick workout update, PR brag, or question below.</p>
             </div>
           ) : (
             conversationMessages.map((msg) => {
@@ -190,11 +193,26 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
 
         {/* Input Bar pinned cleanly above mobile keyboard */}
         <CardFooter
-          className="p-2.5 sm:p-3 bg-card border-t border-border keyboard-smooth-shift"
+          className="p-2.5 sm:p-3 bg-card border-t border-border keyboard-smooth-shift flex-col items-stretch gap-2"
           style={{
             paddingBottom: isKeyboardVisible ? `${keyboardHeight}px` : undefined,
           }}
         >
+          {!isCoach && (
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+              {ATHLETE_QUICK_REPLIES.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => sendMessage(activeRecipientId, preset)}
+                  className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-border bg-secondary/50 hover:bg-secondary text-foreground whitespace-nowrap transition-colors active:scale-[0.97] cursor-pointer"
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
+          )}
+
           <form onSubmit={handleSend} className="flex gap-2 w-full">
             <Input
               type="text"

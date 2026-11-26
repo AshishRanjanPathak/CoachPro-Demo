@@ -395,6 +395,69 @@ button, a, input, select, textarea {
   }
 }
 
+/* 2D Stylized Bonobo Companion Motion (compositor-only transform & opacity) */
+@keyframes bonobo-breathe {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+@keyframes bonobo-aura-pulse {
+  0%, 100% {
+    transform: scale(0.97);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes bonobo-halo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bonobo-evolve-burst {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.4;
+  }
+  55% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.bonobo-breathe {
+  animation: bonobo-breathe 3.2s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+.bonobo-aura-pulse {
+  transform-origin: center;
+  animation: bonobo-aura-pulse 2.2s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+.bonobo-halo-spin {
+  transform-origin: center;
+  animation: bonobo-halo-spin 18s linear infinite;
+}
+
+.bonobo-evolve-burst {
+  animation: bonobo-evolve-burst 480ms var(--ease-out);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

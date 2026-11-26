@@ -16,8 +16,76 @@ export type CompanionMood =
 
 export type CompanionMode = "gamified" | "pro_minimalist";
 export type CompanionTheme = "jungle" | "cyber" | "cafe" | "obsidian";
-export type CompanionHeadwear = "none" | "red_headband" | "gold_crown" | "beanie";
-export type CompanionProp = "none" | "tiny_dumbbell" | "banana" | "iced_coffee";
+export type CompanionHeadwear = "none" | "red_headband" | "beanie" | "scouter" | "gold_crown";
+export type CompanionProp = "none" | "tiny_dumbbell" | "banana" | "iced_coffee" | "golden_banana";
+export type EvolutionStageNumber = 1 | 2 | 3 | 4;
+
+export interface EvolutionStageInfo {
+  stage: EvolutionStageNumber;
+  id: "baby_bonobo" | "iron_ape" | "super_bonobo" | "apex_bonobo";
+  name: string;
+  badgeTitle: string;
+  tagline: string;
+  minLevel: number;
+  auraLabel: string;
+  auraHex: string;
+}
+
+export const EVOLUTION_STAGES: EvolutionStageInfo[] = [
+  {
+    stage: 1,
+    id: "baby_bonobo",
+    name: "Baby Bonobo",
+    badgeTitle: "Stage 1 • Rookie",
+    tagline: "Fresh in the squat rack. Powered by bananas and rookie gains.",
+    minLevel: 1,
+    auraLabel: "None",
+    auraHex: "#A1A1AA",
+  },
+  {
+    stage: 2,
+    id: "iron_ape",
+    name: "Iron Ape",
+    badgeTitle: "Stage 2 • Iron Form",
+    tagline: "Broader traps, taped wrists, zero skipped leg days.",
+    minLevel: 3,
+    auraLabel: "Ember Aura",
+    auraHex: "#F97316",
+  },
+  {
+    stage: 3,
+    id: "super_bonobo",
+    name: "Super Bonobo",
+    badgeTitle: "Stage 3 • Super Form",
+    tagline: "Spiked golden fur triggered strictly by strict-form PRs.",
+    minLevel: 5,
+    auraLabel: "Golden Ki",
+    auraHex: "#FACC15",
+  },
+  {
+    stage: 4,
+    id: "apex_bonobo",
+    name: "Apex Bonobo",
+    badgeTitle: "Stage 4 • Final Form",
+    tagline: "Calm silver-white mastery. Gravity respects your deadlift.",
+    minLevel: 7,
+    auraLabel: "Ultra Aura",
+    auraHex: "#E2E8F0",
+  },
+];
+
+export function getEvolutionStage(level: number): EvolutionStageInfo {
+  for (let i = EVOLUTION_STAGES.length - 1; i >= 0; i--) {
+    if (level >= EVOLUTION_STAGES[i].minLevel) {
+      return EVOLUTION_STAGES[i];
+    }
+  }
+  return EVOLUTION_STAGES[0];
+}
+
+export function getNextEvolutionStage(level: number): EvolutionStageInfo | null {
+  return EVOLUTION_STAGES.find((s) => s.minLevel > level) ?? null;
+}
 
 export interface CompanionState {
   name: string;
@@ -32,12 +100,19 @@ export interface CompanionState {
   equippedProp: CompanionProp;
   unlockedHeadwear: CompanionHeadwear[];
   unlockedProps: CompanionProp[];
+  selectedForm?: EvolutionStageNumber | "auto";
   bananaInventory: number;
   totalBananasEarned: number;
   snacksFedToday: number;
   lastFedDate: string;
   waterStreakDays: number;
   hasHydratedToday: boolean;
+}
+
+export function resolveDisplayStage(state: Pick<CompanionState, "level" | "selectedForm">): EvolutionStageNumber {
+  const maxStage = getEvolutionStage(state.level).stage;
+  if (!state.selectedForm || state.selectedForm === "auto") return maxStage;
+  return state.selectedForm <= maxStage ? state.selectedForm : maxStage;
 }
 
 const DEFAULT_COMPANION_STATE: CompanionState = {
@@ -53,6 +128,7 @@ const DEFAULT_COMPANION_STATE: CompanionState = {
   equippedProp: "tiny_dumbbell",
   unlockedHeadwear: ["none", "red_headband"],
   unlockedProps: ["none", "banana", "tiny_dumbbell"],
+  selectedForm: "auto",
   bananaInventory: 2,
   totalBananasEarned: 2,
   snacksFedToday: 0,
@@ -101,6 +177,9 @@ export interface FeedResult {
   leveledUp: boolean;
   newLevel: number;
   xpAdded: number;
+  evolved?: boolean;
+  previousStage?: EvolutionStageNumber;
+  newStage?: EvolutionStageNumber;
 }
 
 export function awardEarnedBananas(count: number, reason: string): CompanionState {
@@ -188,6 +267,7 @@ export function addCompanionXp(amount: number, reason: string): FeedResult {
   let level = current.level;
   let xpToNext = current.xpToNextLevel;
   let leveledUp = false;
+  const previousStage = getEvolutionStage(current.level).stage;
 
   while (xp >= xpToNext) {
     xp -= xpToNext;
@@ -195,6 +275,10 @@ export function addCompanionXp(amount: number, reason: string): FeedResult {
     xpToNext = Math.round(xpToNext * 1.25);
     leveledUp = true;
   }
+
+  const newStageInfo = getEvolutionStage(level);
+  const newStage = newStageInfo.stage;
+  const evolved = newStage > previousStage;
 
   // Auto-unlock cosmetics based on level milestones
   const unlockedHeadwear = [...current.unlockedHeadwear];
@@ -206,8 +290,14 @@ export function addCompanionXp(amount: number, reason: string): FeedResult {
   if (level >= 3 && !unlockedProps.includes("iced_coffee")) {
     unlockedProps.push("iced_coffee");
   }
+  if (level >= 4 && !unlockedHeadwear.includes("scouter")) {
+    unlockedHeadwear.push("scouter");
+  }
   if (level >= 5 && !unlockedHeadwear.includes("gold_crown")) {
     unlockedHeadwear.push("gold_crown");
+  }
+  if (level >= 7 && !unlockedProps.includes("golden_banana")) {
+    unlockedProps.push("golden_banana");
   }
 
   const updated: CompanionState = {
@@ -216,21 +306,38 @@ export function addCompanionXp(amount: number, reason: string): FeedResult {
     xp,
     xpToNextLevel: xpToNext,
     totalXp: current.totalXp + amount,
-    mood: "pumped",
+    mood: evolved ? "celebrating" : "pumped",
     unlockedHeadwear,
     unlockedProps,
   };
 
   saveCompanionState(updated);
 
-  // Dispatch feed animation event
+  // Dispatch feed & evolution animation event
   if (typeof window !== "undefined") {
     window.dispatchEvent(
       new CustomEvent("coachpro_bonobo_feed_animation", {
-        detail: { reason, amount, leveledUp, level }
+        detail: {
+          reason,
+          amount,
+          leveledUp,
+          level,
+          evolved,
+          previousStage,
+          newStage,
+          stageName: newStageInfo.name,
+        },
       })
     );
   }
 
-  return { state: updated, leveledUp, newLevel: level, xpAdded: amount };
+  return {
+    state: updated,
+    leveledUp,
+    newLevel: level,
+    xpAdded: amount,
+    evolved,
+    previousStage,
+    newStage,
+  };
 }

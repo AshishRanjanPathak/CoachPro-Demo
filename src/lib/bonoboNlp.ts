@@ -370,23 +370,26 @@ function extractWorkoutExercises(
 }
 
 /**
- * Helper: Contextual friendly chat replies
+ * Helper: Contextual funny & simple chat replies
  */
 function generateChatResponse(lower: string): string {
   if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey")) {
-    return "Hey there! 👋 Ready to crush today's workout, or do you have updates on your recovery?";
+    return "Yo! Ready to move heavy metal or pretend stretching was the hard part today? 🦍";
   }
   if (lower.includes("how are you") || lower.includes("feeling")) {
-    return "Feeling energized and focused! Ready whenever you are to review your sets or log recovery.";
+    return "Operating on 100% potassium and pure gym hype! Remember to log your sets after your workout!";
   }
   if (lower.includes("water") || lower.includes("hydrate")) {
-    return "Hydration is key! Drink a tall glass of water before heavy lifting to maintain cellular hydration.";
+    return "Go chug a glass of water! If your muscles are dehydrated, cramps get invited to the party.";
   }
-  if (lower.includes("eat") || lower.includes("food") || lower.includes("protein")) {
-    return "Aim for quality protein (chicken, eggs, tofu, fish) and clean carbs to refuel glycogen stores after training!";
+  if (lower.includes("eat") || lower.includes("food") || lower.includes("protein") || lower.includes("banana")) {
+    return "Real athletes eat protein + carbs after training. Bonobos accept earned bananas for Evolution XP 🍌";
+  }
+  if (lower.includes("evolve") || lower.includes("evolution") || lower.includes("saiyan") || lower.includes("level")) {
+    return "Log workouts and daily check-ins to stack XP! Wait till you see my Super Bonobo form at Level 5 ⚡";
   }
   if (lower.includes("motivation") || lower.includes("motivate") || lower.includes("tired")) {
-    return "Consistency beats intensity every single time. Even showing up and doing 2 solid sets moves the needle!";
+    return "Even showing up half-awake beats the couch by 100%. Two honest sets and you can brag about it all day!";
   }
-  return "I'm listening! Tell me what exercises you completed (e.g. '4 sets squats 140kg x 5 reps') or report how your body feels today.";
+  return "Tell me what you lifted (like '4 sets squats 140kg x 5 reps') after your session, or tell me how your body feels!";
 }

@@ -289,6 +289,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       messages: [...prev.messages, newMsg]
     }));
+
+    // Friendly instant Coach Sarah reply when athlete sends a quick chat in demo mode
+    if (currentUser.role === "athlete" && recipientId === "usr-coach-1") {
+      const lower = content.toLowerCase();
+      let coachReply = "Love the update! Don't forget to log your sets after your workout — Bonobo is keeping score 🍌";
+
+      if (lower.includes("jelly") || lower.includes("leg") || lower.includes("squat")) {
+        coachReply = "If stairs feel slightly suspicious tomorrow, you did leg day right 😅 Drink some water and kick your feet up!";
+      } else if (lower.includes("pr") || lower.includes("pumped") || lower.includes("survived")) {
+        coachReply = "Let's gooo! Smash 'Log After Workout' while the pump is still fresh 🔥";
+      } else if (lower.includes("swap") || lower.includes("hurt") || lower.includes("pain") || lower.includes("sore")) {
+        coachReply = "Good call asking early! Tap Recovery to log what's bothering you and I'll swap the lift right away.";
+      } else if (lower.includes("warmup") || lower.includes("question")) {
+        coachReply = "Warmups count as bonus charisma — just log your working sets right after the session!";
+      }
+
+      const senderId = currentUser.id;
+      setTimeout(() => {
+        const replyMsg: Message = {
+          id: `msg-reply-${Date.now()}`,
+          conversationId: `conv-${senderId}-usr-coach-1`,
+          senderId: "usr-coach-1",
+          senderName: "Sarah Jenkins, CSCS",
+          senderRole: "coach",
+          recipientId: senderId,
+          content: coachReply,
+          timestamp: new Date().toISOString().replace("T", " ").substring(0, 16),
+          isRead: false
+        };
+        setState(prev => ({
+          ...prev,
+          messages: [...prev.messages, replyMsg]
+        }));
+      }, 650);
+    }
   };
 
   const adjustPrescription = (

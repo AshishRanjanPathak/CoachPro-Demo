@@ -22,7 +22,17 @@ import { localBackendAdapter } from "../services/localBackendAdapter";
 import { checkRateLimit } from "../lib/rateLimit";
 import { dbManager } from "../lib/db";
 import { parseBonoboNaturalLanguage } from "../lib/bonoboNlp";
-import { addCompanionXp, saveCompanionState, loadCompanionState, awardEarnedBananas, feedBananaToCompanion } from "../lib/companion";
+import {
+  addCompanionXp,
+  saveCompanionState,
+  loadCompanionState,
+  awardEarnedBananas,
+  feedBananaToCompanion,
+  getEvolutionStage,
+  getNextEvolutionStage,
+  resolveDisplayStage,
+} from "../lib/companion";
+import { getAthleteReminders } from "../lib/athleteReminders";
 import { offlineSyncManager } from "../lib/offlineSync";
 
 export async function runTests(): Promise<{ passed: number; failed: number; results: string[] }> {
@@ -642,6 +652,76 @@ export async function runTests(): Promise<{ passed: number; failed: number; resu
   assert(
     resolvedAthleteFallback?.id === "usr-athlete-1",
     "resolveActiveAthlete falls back cleanly to default athlete when id missing"
+  );
+
+  // Test K: Bonobo Evolution Stages (DBZ/Pokémon Progression) & Wearable Unlocks
+  assert(
+    getEvolutionStage(1).id === "baby_bonobo" &&
+      getEvolutionStage(3).id === "iron_ape" &&
+      getEvolutionStage(5).id === "super_bonobo" &&
+      getEvolutionStage(7).id === "apex_bonobo" &&
+      getNextEvolutionStage(1)?.minLevel === 3 &&
+      getNextEvolutionStage(7) === null,
+    "Evolution stages progress smoothly from Baby Bonobo -> Iron Ape -> Super Bonobo -> Apex Bonobo"
+  );
+
+  saveCompanionState({
+    ...loadCompanionState(),
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 100,
+    unlockedHeadwear: ["none", "red_headband"],
+    unlockedProps: ["none", "banana", "tiny_dumbbell"],
+    selectedForm: "auto",
+  });
+
+  const evolveToIron = addCompanionXp(225, "Completed Workouts for Stage 2");
+  assert(
+    evolveToIron.newLevel === 3 &&
+      evolveToIron.evolved === true &&
+      evolveToIron.newStage === 2 &&
+      evolveToIron.state.unlockedHeadwear.includes("beanie") &&
+      evolveToIron.state.unlockedProps.includes("iced_coffee"),
+    "Leveling to Lv 3 evolves Bonobo to Iron Ape and unlocks beanie + iced_coffee"
+  );
+
+  const evolveToApex = addCompanionXp(920, "Completed Block for Final Evolution");
+  assert(
+    evolveToApex.newLevel >= 7 &&
+      evolveToApex.newStage === 4 &&
+      evolveToApex.state.unlockedHeadwear.includes("scouter") &&
+      evolveToApex.state.unlockedHeadwear.includes("gold_crown") &&
+      evolveToApex.state.unlockedProps.includes("golden_banana") &&
+      resolveDisplayStage({ level: 7, selectedForm: 2 }) === 2 &&
+      resolveDisplayStage({ level: 7, selectedForm: "auto" }) === 4,
+    "Leveling to Lv 7 evolves Bonobo to Apex Bonobo and unlocks scouter, crown, and golden banana"
+  );
+
+  // Test L: Athlete Post-Workout Unlogged Reminders
+  const unloggedReminders = getAthleteReminders({
+    completedSets: 0,
+    plannedSets: 10,
+    sessionStatus: "not_started",
+    hasCheckedInToday: false,
+    bananaInventory: 0,
+  });
+  assert(
+    unloggedReminders.some((r) => r.id === "workout_unlogged") &&
+      unloggedReminders.some((r) => r.id === "checkin_unlogged"),
+    "Athlete reminders alert when workout and daily check-in have not been logged yet"
+  );
+
+  const completedReminders = getAthleteReminders({
+    completedSets: 10,
+    plannedSets: 10,
+    sessionStatus: "completed",
+    hasCheckedInToday: true,
+    bananaInventory: 2,
+  });
+  assert(
+    !completedReminders.some((r) => r.id === "workout_unlogged" || r.id === "workout_unfinished") &&
+      completedReminders.some((r) => r.id === "bananas_ready"),
+    "Completed workouts clear unlogged reminders and show waiting banana reward reminder"
   );
 
   return { passed, failed, results };

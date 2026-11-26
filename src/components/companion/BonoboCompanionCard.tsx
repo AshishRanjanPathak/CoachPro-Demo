@@ -10,6 +10,11 @@ import {
   CompanionHeadwear,
   CompanionProp,
   CompanionTheme,
+  EvolutionStageNumber,
+  EVOLUTION_STAGES,
+  getEvolutionStage,
+  getNextEvolutionStage,
+  resolveDisplayStage,
 } from "@/lib/companion";
 import { BonoboAvatar } from "./BonoboAvatar";
 import { UnlockTrackModal } from "./UnlockTrackModal";
@@ -28,52 +33,52 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 const COMPANION_QUOTES: Record<string, string[]> = {
   happy: [
-    "Ready whenever you are! 🍌",
-    "Did you remember to drink some water today?",
-    "Every single set counts. Even small wins!",
-    "Looking forward to today's session."
+    "If you didn't log the set, did the barbell even move? Science says no.",
+    "Remember water! Half your gym stamina is literally just not being a raisin.",
+    "One solid workout = +2 bananas. Yes, I take bribes in potassium.",
+    "Ready whenever you are — just hit Log after your last rep!"
   ],
   focused: [
-    "Form first, load second. Lock in! 🎯",
-    "Eyes on the target, breathe into the brace.",
-    "Let's make these reps look effortless.",
-    "Coach prescribed it, we execute."
+    "Brace hard, move weights, don't forget to hit save after the set.",
+    "Form so clean the gym mirror is taking notes.",
+    "My headband gives +5 moral support per rep.",
+    "Coach wrote it down, now we make gravity regret it."
   ],
   caring: [
-    "Listen to your body. Recovery is where you grow! 💚",
-    "I flagged that for your coach to review.",
-    "Rest hard today so you can lift heavy tomorrow.",
-    "Ice, hydrate, and get some good sleep!"
+    "Sore days matter too — recovery is when the muscles actually level up.",
+    "Logged for Coach Sarah! Go drink water and spare the knees today.",
+    "Rest like a champ today so tomorrow's weights feel weightless.",
+    "Listen to your joints, not your ego!"
   ],
   celebrating: [
-    "NEW PERSONAL RECORD! Let's go! 🎉🍌",
-    "Hard work pays off! That was incredible!",
-    "You're getting stronger every single week!",
+    "POWER LEVEL RISING!! New PR + Bonobo energy overload! ⚡🍌",
+    "Look at those numbers go up! Even Frieza couldn't guard that squat.",
+    "Gains successfully recorded! Treat yourself and me to a banana.",
     "High fives all around! ✋"
   ],
   pumped: [
-    "Let's get this pump! 🍌💪",
-    "Coach wrote the prescription, we crush it!",
-    "Light weight, baby! Feeling strong!",
-    "I'm wearing my lucky headband today!"
+    "Post-workout pump + logged sets = fastest road to Super Bonobo! ⚡",
+    "My hair spikes every time you hit depth on squats.",
+    "Light weight, baby! (Well, heavy weight, crisp reps!)",
+    "Keep logging — next evolution form is watching!"
   ],
   content: [
-    "Ready whenever you are!",
-    "Did you remember to drink some water today?",
-    "Every single set counts. Even small wins!",
-    "Looking forward to today's session."
+    "Ready whenever you are! Log sets right after your session.",
+    "Hydration check: Bonobo has consumed 3 imaginary espressos.",
+    "Small sets today turn into new evolution stages tomorrow.",
+    "Tap me anytime you need a pep talk or a banana break."
   ],
   sleepy: [
-    "Rest hard, recover harder. 🛌",
-    "Muscles grow when you're sleeping!",
-    "Quiet recovery day. Bonobo is recharging.",
-    "Zzz... dreaming about protein shakes."
+    "Zzz... muscles grow while you sleep, not while doomscrolling.",
+    "Rest day protocol: carbs, water, zero barbell guilt.",
+    "Recharging ki energy for tomorrow's lifts... 🛌",
+    "Quiet recovery day. Even Goku takes a nap."
   ],
   hungry: [
-    "Smells like workout time! Feed me a set! 🍌",
-    "I'm eyeing that dumbbell in the corner...",
-    "One quick set and I'll do a backflip!",
-    "Ready for fuel!"
+    "Smells like workout time! Log your sets and earn a banana! 🍌",
+    "Empty banana stash detected. This is a fitness emergency.",
+    "One completed workout and I'll do an anime power-up!",
+    "Waiting patiently for post-workout fuel..."
   ]
 };
 
@@ -84,13 +89,14 @@ interface BonoboCompanionCardProps {
 export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProps = {}) {
   const [companion, setCompanion] = useState<CompanionState>(loadCompanionState);
   const [isEating, setIsEating] = useState(false);
+  const [evolvedNotice, setEvolvedNotice] = useState<string | null>(null);
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [closetOpen, setClosetOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
   const [trackOpen, setTrackOpen] = useState(false);
   const [muted, setMuted] = useState(() => soundController.getMuted());
 
-  // Listen for companion updates and external feed events
+  // Listen for companion updates and external feed/evolution events
   useEffect(() => {
     const handleUpdated = (e: Event) => {
       const custom = e as CustomEvent<CompanionState>;
@@ -98,17 +104,29 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
     };
 
     const handleFeedAnimation = (e: Event) => {
-      const custom = e as CustomEvent<{ reason: string; amount: number; leveledUp: boolean; level: number }>;
+      const custom = e as CustomEvent<{
+        reason: string;
+        amount: number;
+        leveledUp: boolean;
+        level: number;
+        evolved?: boolean;
+        stageName?: string;
+      }>;
       setIsEating(true);
       soundController.playChime();
 
       if (custom.detail?.leveledUp) {
         soundController.playLevelUp();
         triggerOptimizedConfetti({
-          particleCount: 35,
-          spread: 55,
+          particleCount: custom.detail?.evolved ? 55 : 35,
+          spread: custom.detail?.evolved ? 70 : 55,
           origin: { y: 0.7 }
         });
+      }
+
+      if (custom.detail?.evolved && custom.detail?.stageName) {
+        setEvolvedNotice(`Evolved into ${custom.detail.stageName}!`);
+        setTimeout(() => setEvolvedNotice(null), 4000);
       }
 
       setTimeout(() => setIsEating(false), 1600);
@@ -174,6 +192,18 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
     soundController.playPop();
   };
 
+  const selectForm = (form: EvolutionStageNumber | "auto") => {
+    const updated = { ...companion, selectedForm: form };
+    setCompanion(updated);
+    saveCompanionState(updated);
+    soundController.playPop();
+  };
+
+  const currentStage = getEvolutionStage(companion.level);
+  const nextStage = getNextEvolutionStage(companion.level);
+  const displayedStageNumber = resolveDisplayStage(companion);
+  const displayedStage = EVOLUTION_STAGES.find((s) => s.stage === displayedStageNumber) || currentStage;
+
   const quotes = COMPANION_QUOTES[companion.mood] || COMPANION_QUOTES.content;
   const currentQuote = quotes[currentQuoteIndex % quotes.length];
   const xpPercent = Math.min(100, Math.round((companion.xp / companion.xpToNextLevel) * 100));
@@ -215,19 +245,22 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
       className={`rounded-2xl border border-border bg-card p-4 sm:p-5 ${themeStyle.cardBg}`}
     >
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-        {/* Avatar with dynamic mood & accessory layers */}
+        {/* Avatar with dynamic 2D stage evolution & attached gear */}
         <div className="relative shrink-0 flex flex-col items-center">
           <BonoboAvatar
-            size={96}
+            size={104}
+            stage={displayedStageNumber}
+            level={companion.level}
             mood={companion.mood}
             headwear={companion.equippedHeadwear}
             prop={companion.equippedProp}
             isEating={isEating}
+            evolveBurst={Boolean(evolvedNotice)}
             onClick={handleTapAvatar}
           />
           <span className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold border border-border bg-secondary text-muted-foreground tabular-nums">
             <Sparkles className="h-3 w-3 text-warning" aria-hidden="true" />
-            <span>Lv. {companion.level}</span>
+            <span>Lv. {companion.level} • {displayedStage.name}</span>
           </span>
         </div>
 
@@ -239,7 +272,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                 {companion.name}
               </h3>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold border shrink-0 ${themeStyle.accentColor}`}>
-                {companion.mood === "pumped" ? "⚡ Pumped" : companion.mood === "sleepy" ? "🛌 Rested" : "🍌 Ready"}
+                {displayedStage.stage >= 3 ? `⚡ ${displayedStage.name}` : companion.mood === "sleepy" ? "🛌 Rested" : displayedStage.badgeTitle}
               </span>
             </div>
 
@@ -286,19 +319,32 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
             <p className="leading-snug font-medium">&ldquo;{currentQuote}&rdquo;</p>
           </button>
 
-          {/* XP Progress Bar */}
+          {/* Evolution Flash Notice */}
+          {evolvedNotice && (
+            <div className="mt-2 px-3 py-1.5 rounded-lg bg-warning/15 border border-warning/35 text-warning text-xs font-bold flex items-center justify-center sm:justify-start gap-1.5 animate-in fade-in duration-150">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+              <span>{evolvedNotice}</span>
+            </div>
+          )}
+
+          {/* XP & Next Evolution Progress Bar */}
           <div className="mt-3 space-y-1">
             <div className="flex items-center justify-between text-xs font-medium">
-              <span className="font-mono text-muted-foreground tabular-nums text-[11px] flex items-center gap-1">
+              <span className="font-mono text-muted-foreground tabular-nums text-[11px] flex items-center gap-1.5">
                 <Zap className="h-3 w-3 text-warning" aria-hidden="true" />
                 <span>{companion.xp} / {companion.xpToNextLevel} XP</span>
+                {nextStage && (
+                  <span className="text-[10px] text-muted-foreground/80 hidden sm:inline">
+                    • {nextStage.name} at Lv.{nextStage.minLevel}
+                  </span>
+                )}
               </span>
               <button
                 type="button"
                 onClick={() => setTrackOpen(true)}
                 className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
               >
-                Rewards →
+                Evolutions &amp; Gear →
               </button>
             </div>
             <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
@@ -361,13 +407,15 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
           {/* Live Closet Preview */}
           <div className="mt-3 flex flex-col items-center justify-center rounded-xl border border-border bg-secondary/30 py-3 px-4">
             <BonoboAvatar
-              size={112}
+              size={120}
+              stage={displayedStageNumber}
+              level={companion.level}
               mood={companion.mood}
               headwear={companion.equippedHeadwear}
               prop={companion.equippedProp}
             />
             <span className="mt-2 text-[11px] font-mono text-muted-foreground">
-              {companion.name} • Live Gear Preview
+              {companion.name} • {displayedStage.name}
             </span>
           </div>
 
@@ -381,6 +429,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                 { id: "none", label: "No Hat", levelReq: 1 },
                 { id: "red_headband", label: "🔴 Retro Headband", levelReq: 1 },
                 { id: "beanie", label: "🧶 Cozy Beanie", levelReq: 2 },
+                { id: "scouter", label: "🟢 Power Scouter", levelReq: 4 },
                 { id: "gold_crown", label: "👑 Champion Crown", levelReq: 5 }
               ].map((item) => {
                 const isUnlocked = companion.unlockedHeadwear.includes(item.id as CompanionHeadwear);
@@ -403,7 +452,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                     {isEquipped ? (
                       <Check className="h-3.5 w-3.5 text-brand shrink-0" />
                     ) : !isUnlocked ? (
-                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">Lvl {item.levelReq}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">Lv.{item.levelReq}</span>
                     ) : null}
                   </button>
                 );
@@ -421,7 +470,8 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                 { id: "none", label: "Empty Hands", levelReq: 1 },
                 { id: "banana", label: "🍌 Fresh Banana", levelReq: 1 },
                 { id: "tiny_dumbbell", label: "🏋️ Mini Dumbbell", levelReq: 1 },
-                { id: "iced_coffee", label: "🥤 Iced Latte", levelReq: 3 }
+                { id: "iced_coffee", label: "🥤 Iced Latte", levelReq: 3 },
+                { id: "golden_banana", label: "✨ Golden Banana", levelReq: 7 }
               ].map((item) => {
                 const isUnlocked = companion.unlockedProps.includes(item.id as CompanionProp);
                 const isEquipped = companion.equippedProp === item.id;
@@ -443,7 +493,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                     {isEquipped ? (
                       <Check className="h-3.5 w-3.5 text-brand shrink-0" />
                     ) : !isUnlocked ? (
-                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">Lvl {item.levelReq}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">Lv.{item.levelReq}</span>
                     ) : null}
                   </button>
                 );
@@ -497,13 +547,17 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
         </DialogContent>
       </Dialog>
 
-      {/* --- REWARDS ROAD MODAL --- */}
+      {/* --- EVOLUTION & REWARDS ROAD MODAL --- */}
       <UnlockTrackModal
         open={trackOpen}
         onOpenChange={setTrackOpen}
         currentLevel={companion.level}
         currentXp={companion.xp}
         xpToNext={companion.xpToNextLevel}
+        equippedHeadwear={companion.equippedHeadwear}
+        equippedProp={companion.equippedProp}
+        activeForm={companion.selectedForm || "auto"}
+        onSelectForm={selectForm}
       />
     </div>
   );

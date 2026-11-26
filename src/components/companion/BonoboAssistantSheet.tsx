@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { parseBonoboNaturalLanguage, BonoboNlpResult, ParsedWorkoutExercise, ParsedInjuryTriage } from "@/lib/bonoboNlp";
-import { loadCompanionState, saveCompanionState, addCompanionXp, CompanionState, CompanionMode } from "@/lib/companion";
+import { loadCompanionState, saveCompanionState, addCompanionXp, resolveDisplayStage, CompanionState, CompanionMode } from "@/lib/companion";
 import { soundController } from "@/lib/audio";
 import { speechController } from "@/lib/speech";
 import {
@@ -64,7 +64,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
     {
       id: "welcome",
       sender: "bonobo",
-      text: "Hey! Ask me to log workouts, track soreness, or help with recovery.",
+      text: "Yo! I'm Bonobo 🦍 Drop what you lifted after your workout, report anything sore, or just say hey.",
       timestamp: "Just now"
     }
   ]);
@@ -369,6 +369,8 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
               isSpeaking ? "ring-2 ring-brand ring-offset-1" : ""
             }`}>
               <BonoboAvatar
+                stage={resolveDisplayStage(companion)}
+                level={companion.level}
                 mood={companion.mood}
                 headwear={companion.equippedHeadwear}
                 prop={companion.equippedProp}
@@ -551,7 +553,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
 
                     <p className="text-[11px] text-muted-foreground flex items-center gap-1 pt-1">
                       <Info className="w-3 h-3 text-brand" />
-                      Two-step safeguard: Confirming will append to your workout log.
+                      Check the sets above, then tap Confirm to save them.
                     </p>
                   </CardContent>
 
