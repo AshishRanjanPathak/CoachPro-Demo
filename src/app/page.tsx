@@ -188,6 +188,7 @@ function AppContent() {
                     setActiveTab("messages");
                   }}
                   onNavigateToBuilder={() => setActiveTab("builder")}
+                  onOpenQueue={() => setActiveTab("queue")}
                 />
               )}
               {activeTab === "queue" && (
@@ -233,7 +234,13 @@ function AppContent() {
       </main>
 
       {/* Accessible Mobile Bottom Navigation */}
-      <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <MobileNav
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          setTargetedAthlete(null);
+        }}
+      />
     </div>
   );
 }

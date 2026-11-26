@@ -7,33 +7,27 @@ import { CoachTriageQueue } from "@/components/coach/stitch/CoachTriageQueue";
 import { CoachSleepTable } from "@/components/coach/stitch/CoachSleepTable";
 import { CoachActivityFeed } from "@/components/coach/stitch/CoachActivityFeed";
 import { CoachProgressionCurve } from "@/components/coach/stitch/CoachProgressionCurve";
-import { AthleteRoster } from "@/components/coach/AthleteRoster";
 import {
   ArrowDown,
   PlusCircle,
   Megaphone,
-  Bell,
-  Gauge,
-  HeartPulse,
-  Users,
-  Dumbbell,
-  LineChart,
-  MessageSquare
+  Bell
 } from "lucide-react";
 
 interface CoachDashboardProps {
   onSelectAthlete: (athlete: AthleteProfile) => void;
   onOpenMessages: (athleteId: string) => void;
   onNavigateToBuilder: () => void;
+  onOpenQueue?: () => void;
 }
 
 export function CoachDashboard({
   onSelectAthlete,
   onOpenMessages,
   onNavigateToBuilder,
+  onOpenQueue,
 }: CoachDashboardProps) {
   const { state } = useAuth();
-  const [activeSegment, setActiveSegment] = useState<"hub" | "triage" | "roster" | "builder" | "analytics" | "messages">("hub");
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
 
   const athletes = state.athletes;
@@ -91,8 +85,8 @@ export function CoachDashboard({
             </button>
             <button
               type="button"
-              aria-label="View 2 critical alerts in attention queue"
-              onClick={() => setActiveSegment("triage")}
+              aria-label={`View ${injuredCount + highFatigueCount} alerts in attention queue`}
+              onClick={onOpenQueue}
               className="h-10 w-10 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground flex items-center justify-center relative border border-border transition-colors shrink-0 cursor-pointer min-h-[44px] min-w-[44px]"
             >
               <Bell className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
@@ -110,83 +104,6 @@ export function CoachDashboard({
             <span>{broadcastNotice}</span>
           </div>
         )}
-
-        {/* Filter / Segment Rail Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <button
-            type="button"
-            onClick={() => setActiveSegment("hub")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
-              activeSegment === "hub"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
-            }`}
-          >
-            <Gauge className="w-3.5 h-3.5" />
-            <span>Overview</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveSegment("triage")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
-              activeSegment === "triage"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
-            }`}
-          >
-            <HeartPulse className="w-3.5 h-3.5 text-destructive" />
-            <span>Triage</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-destructive"></span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveSegment("roster")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
-              activeSegment === "roster"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Roster</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveSegment("builder")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
-              activeSegment === "builder"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
-            }`}
-          >
-            <Dumbbell className="w-3.5 h-3.5" />
-            <span>Programs</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveSegment("analytics")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
-              activeSegment === "analytics"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
-            }`}
-          >
-            <LineChart className="w-3.5 h-3.5" />
-            <span>Analytics</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveSegment("messages")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold flex items-center gap-1.5 shrink-0 transition-[background-color,color,border-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] cursor-pointer ${
-              activeSegment === "messages"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
-            }`}
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Messages</span>
-          </button>
-        </div>
       </section>
 
       {/* Section: Top Telemetry KPI Cards (4 Cards) */}
@@ -272,76 +189,22 @@ export function CoachDashboard({
         </div>
       </section>
 
-      {/* Dynamic Content Views based on Selected Segment Pill */}
-      {activeSegment === "hub" && (
-        <div className="space-y-6">
-          <CoachTriageQueue
-            onSelectAthlete={onSelectAthlete}
-            onOpenMessages={onOpenMessages}
-          />
-          <CoachSleepTable
-            onSelectAthlete={(athId) => {
-              const ath = athletes.find((a) => a.id === athId);
-              if (ath) onSelectAthlete(ath);
-            }}
-            onOpenMessages={onOpenMessages}
-          />
-          <CoachActivityFeed />
-          <CoachProgressionCurve />
-        </div>
-      )}
-
-      {activeSegment === "triage" && (
+      {/* Coach Overview Sections */}
+      <div className="space-y-6">
         <CoachTriageQueue
           onSelectAthlete={onSelectAthlete}
           onOpenMessages={onOpenMessages}
         />
-      )}
-
-      {activeSegment === "roster" && (
-        <AthleteRoster />
-      )}
-
-      {activeSegment === "builder" && (
-        <div className="p-8 text-center bg-card rounded-2xl border border-border space-y-3">
-          <Dumbbell className="w-10 h-10 text-brand mx-auto" />
-          <h3 className="text-base font-bold text-foreground">Program Builder Workspace</h3>
-          <p className="text-xs text-muted-foreground max-w-md mx-auto">
-            Design multi-week periodized training blocks, configure compound lift percentages, and sequence rest days.
-          </p>
-          <button
-            type="button"
-            onClick={onNavigateToBuilder}
-            className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
-          >
-            Open Full Program Generator
-          </button>
-        </div>
-      )}
-
-      {activeSegment === "analytics" && <CoachProgressionCurve />}
-
-      {activeSegment === "messages" && (
-        <div className="p-8 text-center bg-card rounded-2xl border border-border space-y-3">
-          <MessageSquare className="w-10 h-10 text-brand mx-auto" />
-          <h3 className="text-base font-bold text-foreground">Athlete Direct Messaging</h3>
-          <p className="text-xs text-muted-foreground max-w-md mx-auto">
-            Direct two-way encrypted chat channels with your roster athletes.
-          </p>
-          <div className="flex justify-center gap-2 pt-2">
-            {athletes.map((ath) => (
-              <button
-                key={ath.id}
-                type="button"
-                onClick={() => onOpenMessages(ath.id)}
-                className="px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold border border-border"
-              >
-                Chat with {ath.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+        <CoachSleepTable
+          onSelectAthlete={(athId) => {
+            const ath = athletes.find((a) => a.id === athId);
+            if (ath) onSelectAthlete(ath);
+          }}
+          onOpenMessages={onOpenMessages}
+        />
+        <CoachActivityFeed />
+        <CoachProgressionCurve />
+      </div>
     </div>
   );
 }
