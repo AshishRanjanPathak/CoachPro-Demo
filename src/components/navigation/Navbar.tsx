@@ -39,7 +39,6 @@ import {
   loadAccountPreferences,
 } from "@/lib/accountSecurity";
 import { useLanguage } from "@/lib/i18n";
-import { LanguageSwitch } from "@/components/shared/LanguageSwitch";
 
 interface NavbarProps {
   activeTab?: string;
@@ -231,9 +230,8 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
           </div>
         </div>
 
-        {/* Language Switch, Reminders Bell, Theme Toggle, Profile Menu & Sign Out */}
-        <div className="flex items-center gap-2 shrink-0">
-          <LanguageSwitch compact className="hidden sm:inline-flex" />
+        {/* Reminders Bell, Theme Toggle, Profile Menu & Sign Out */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
 
           {currentRole === "athlete" && (
             <div className="relative" ref={bellRef}>
@@ -447,13 +445,6 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                       )}
                     </div>
                   </div>
-                </div>
-
-                <div className="px-3 py-2 border-b border-border flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-muted-foreground">
-                    {tx("Language", "Idioma")}
-                  </span>
-                  <LanguageSwitch compact />
                 </div>
 
                 <div className="p-1.5 space-y-0.5">

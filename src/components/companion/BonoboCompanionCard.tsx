@@ -27,9 +27,16 @@ import {
   Shirt,
   Palette,
   Check,
-  Zap,
+  Trophy,
   ChevronRight,
+  MessageCircle,
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const COMPANION_QUOTES: Record<string, string[]> = {
@@ -152,7 +159,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
   const [evolvedNotice, setEvolvedNotice] = useState<string | null>(null);
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [closetOpen, setClosetOpen] = useState(false);
-  const [themeOpen, setThemeOpen] = useState(false);
+  const [customizeTab, setCustomizeTab] = useState<"outfits" | "color">("outfits");
   const [trackOpen, setTrackOpen] = useState(false);
   const [muted, setMuted] = useState(() => soundController.getMuted());
 
@@ -264,7 +271,6 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
   const displayedStageNumber = resolveDisplayStage(companion);
   const displayedStage = EVOLUTION_STAGES.find((s) => s.stage === displayedStageNumber) || currentStage;
   const displayedStageName = isEs ? STAGE_NAMES_ES[displayedStageNumber]?.name || displayedStage.name : displayedStage.name;
-  const displayedStageBadge = isEs ? STAGE_NAMES_ES[displayedStageNumber]?.badge || displayedStage.badgeTitle : displayedStage.badgeTitle;
   const nextStageName = nextStage && isEs ? STAGE_NAMES_ES[nextStage.stage]?.name || nextStage.name : nextStage?.name;
 
   const quoteBank = isEs ? COMPANION_QUOTES_ES : COMPANION_QUOTES;
@@ -303,322 +309,342 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
   };
 
   const themeStyle = getThemeStyles();
+  const bananaCount = companion.bananaInventory || 0;
 
   return (
-    <div
-      className={`rounded-2xl border border-border bg-card p-4 sm:p-5 ${themeStyle.cardBg}`}
-    >
-      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-        {/* Avatar with dynamic 2D stage evolution & attached gear */}
-        <div className="relative shrink-0 flex flex-col items-center">
-          <BonoboAvatar
-            size={104}
-            stage={displayedStageNumber}
-            level={companion.level}
-            mood={companion.mood}
-            headwear={companion.equippedHeadwear}
-            prop={companion.equippedProp}
-            isEating={isEating}
-            evolveBurst={Boolean(evolvedNotice)}
-            onClick={handleTapAvatar}
-          />
-          <span className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold border border-border bg-secondary text-muted-foreground tabular-nums">
-            <Sparkles className="h-3 w-3 text-warning" aria-hidden="true" />
-            <span>{tx("Lv.", "Nv.")} {companion.level} • {displayedStageName}</span>
-          </span>
-        </div>
-
-        {/* Info & Interactivity Column */}
-        <div className="flex-1 w-full text-center sm:text-left min-w-0">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center justify-center sm:justify-start gap-2 min-w-0">
-              <h3 className="text-base font-bold text-foreground heading-tight truncate">
-                {companion.name}
-              </h3>
-              <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold border shrink-0 ${themeStyle.accentColor}`}>
-                {displayedStage.stage >= 3
-                  ? `⚡ ${displayedStageName}`
-                  : companion.mood === "sleepy"
-                  ? tx("🛌 Rested", "🛌 Descansado")
-                  : displayedStageBadge}
-              </span>
-            </div>
-
-            {/* Micro Controls (Audio, Closet, Theme) */}
-            <div className="flex items-center justify-center gap-1">
-              <button
-                type="button"
-                onClick={toggleSound}
-                title={muted ? tx("Unmute sounds", "Activar sonido") : tx("Mute sounds", "Silenciar sonido")}
-                className="p-2 rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors duration-150 active:scale-[0.97] min-h-[36px] min-w-[36px] flex items-center justify-center"
-                aria-label={tx("Toggle audio effects", "Alternar efectos de sonido")}
-              >
-                {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4 text-success" />}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setClosetOpen(true)}
-                title={tx("Customize Outfits", "Personalizar Equipo")}
-                className="p-2 rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors duration-150 active:scale-[0.97] min-h-[36px] min-w-[36px] flex items-center justify-center"
-                aria-label={tx("Open cosmetic closet", "Abrir armario")}
-              >
-                <Shirt className="h-4 w-4 text-warning" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setThemeOpen(true)}
-                title={tx("Switch Theme Vibe", "Cambiar Color")}
-                className="p-2 rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors duration-150 active:scale-[0.97] min-h-[36px] min-w-[36px] flex items-center justify-center"
-                aria-label={tx("Switch aesthetic theme", "Cambiar tema de tarjeta")}
-              >
-                <Palette className="h-4 w-4 text-brand" />
-              </button>
-            </div>
-          </div>
-
-          {/* Speech Line (tap to cycle) */}
-          <button
-            type="button"
-            onClick={handleTapAvatar}
-            className="mt-2.5 w-full text-left rounded-xl bg-secondary/40 border border-border px-3.5 py-2 text-xs text-foreground hover:bg-secondary/70 transition-colors duration-150 cursor-pointer"
-          >
-            <p className="leading-snug font-medium">&ldquo;{currentQuote}&rdquo;</p>
-          </button>
-
-          {/* Evolution Flash Notice */}
-          {evolvedNotice && (
-            <div className="mt-2 px-3 py-1.5 rounded-lg bg-warning/15 border border-warning/35 text-warning text-xs font-bold flex items-center justify-center sm:justify-start gap-1.5 animate-in fade-in duration-150">
-              <Sparkles className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-              <span>{evolvedNotice}</span>
-            </div>
-          )}
-
-          {/* XP & Next Evolution Progress Bar */}
-          <div className="mt-3 space-y-1">
-            <div className="flex items-center justify-between text-xs font-medium">
-              <span className="font-mono text-muted-foreground tabular-nums text-[11px] flex items-center gap-1.5">
-                <Zap className="h-3 w-3 text-warning" aria-hidden="true" />
-                <span>{companion.xp} / {companion.xpToNextLevel} XP</span>
-                {nextStage && (
-                  <span className="text-[10px] text-muted-foreground/80 hidden sm:inline">
-                    • {nextStageName} {tx(`at Lv.${nextStage.minLevel}`, `al Nv.${nextStage.minLevel}`)}
-                  </span>
-                )}
-              </span>
-              <button
-                type="button"
-                onClick={() => setTrackOpen(true)}
-                className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
-              >
-                {tx("Evolutions & Gear →", "Evoluciones y Equipo →")}
-              </button>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
-              <div
-                className={`h-full rounded-full ${themeStyle.barColor} transition-[width] duration-200 ease-[var(--ease-out)]`}
-                style={{ width: `${xpPercent}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Footer Action Row: Earned Banana Stash + Voice Copilot */}
-          <div className="mt-3 pt-3 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-            <div className="flex items-center justify-between sm:justify-start gap-2">
-              <span className="text-xs font-mono text-muted-foreground tabular-nums">
-                🍌 {companion.bananaInventory || 0} {tx("stash", "en mochila")}
-              </span>
-              <button
-                type="button"
-                onClick={handleFeedManualSnack}
-                disabled={isEating || (companion.bananaInventory || 0) <= 0}
-                className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-[transform,background-color,border-color,color] duration-150 ease-[var(--ease-out)] active:scale-[0.97] min-h-[36px] ${
-                  (companion.bananaInventory || 0) > 0
-                    ? "bg-warning/15 border-warning/30 text-warning hover:bg-warning/20 cursor-pointer"
-                    : "bg-secondary/40 border-border text-muted-foreground cursor-not-allowed opacity-60"
-                }`}
-                title={
-                  (companion.bananaInventory || 0) > 0
-                    ? tx("Feed 1 earned banana to Bonobo", "Dar 1 plátano a Bonobo")
-                    : tx("Complete workouts or daily check-ins to earn bananas", "Completa entrenos o chequeos para ganar plátanos")
-                }
-              >
-                <span>{(companion.bananaInventory || 0) > 0 ? tx("Feed 1 🍌", "Dar 1 🍌") : tx("0 Bananas", "0 Plátanos")}</span>
-              </button>
-            </div>
-
-            {onOpenAssistant && (
-              <button
-                type="button"
-                onClick={onOpenAssistant}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand/10 border border-brand/25 text-brand text-xs font-semibold hover:bg-brand/15 transition-[transform,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.97] min-h-[36px] cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{tx("Talk to Bonobo AI", "Hablar con Bonobo IA")}</span>
-                <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* --- CLOSET MODAL --- */}
-      <Dialog open={closetOpen} onOpenChange={setClosetOpen}>
-        <DialogContent className="sm:max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">
-              <Shirt className="h-4 w-4 text-warning" />
-              {tx("Bonobo's Closet & Gear", "Armario y Equipo de Bonobo")}
-            </DialogTitle>
-            <DialogDescription className="sr-only">
-              {tx("Select headwear and handheld props unlocked by leveling up.", "Elige gorros y objetos desbloqueados al subir de nivel.")}
-            </DialogDescription>
-          </DialogHeader>
-
-          {/* Live Closet Preview */}
-          <div className="mt-3 flex flex-col items-center justify-center rounded-xl border border-border bg-secondary/30 py-3 px-4">
+    <Card className={`rounded-2xl border-border bg-card shadow-xs ${themeStyle.cardBg}`}>
+      <CardContent className="p-4 sm:p-6 space-y-4">
+        {/* 1. Identity & Clear Stage Header */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+          <div className="relative shrink-0 flex flex-col items-center">
             <BonoboAvatar
-              size={120}
+              size={100}
               stage={displayedStageNumber}
               level={companion.level}
               mood={companion.mood}
               headwear={companion.equippedHeadwear}
               prop={companion.equippedProp}
+              isEating={isEating}
+              evolveBurst={Boolean(evolvedNotice)}
+              onClick={handleTapAvatar}
             />
-            <span className="mt-2 text-[11px] font-mono text-muted-foreground">
-              {companion.name} • {displayedStageName}
-            </span>
+            <Badge
+              variant="secondary"
+              className="mt-2 px-3 py-0.5 text-xs font-medium tabular-nums"
+            >
+              {tx("Level", "Nivel")} {companion.level} • {displayedStageName}
+            </Badge>
           </div>
 
-          {/* Headwear Selector */}
-          <div className="space-y-2 mt-3">
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              {tx("Headwear", "Cabeza")}
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { id: "none", label: tx("No Hat", "Sin Gorro"), levelReq: 1 },
-                { id: "red_headband", label: tx("🔴 Retro Headband", "🔴 Cinta Retro"), levelReq: 1 },
-                { id: "beanie", label: tx("🧶 Cozy Beanie", "🧶 Gorro Tejido"), levelReq: 2 },
-                { id: "scouter", label: tx("🟢 Power Scouter", "🟢 Escáuter"), levelReq: 4 },
-                { id: "gold_crown", label: tx("👑 Champion Crown", "👑 Corona Campeón"), levelReq: 5 }
-              ].map((item) => {
-                const isUnlocked = companion.unlockedHeadwear.includes(item.id as CompanionHeadwear);
-                const isEquipped = companion.equippedHeadwear === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    disabled={!isUnlocked}
-                    onClick={() => equipHeadwear(item.id as CompanionHeadwear)}
-                    className={`flex items-center justify-between p-3 rounded-xl border text-xs font-semibold transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
-                      isEquipped
-                        ? "border-brand bg-brand/10 text-foreground"
-                        : isUnlocked
-                        ? "border-border bg-secondary/40 hover:bg-secondary text-foreground"
-                        : "border-border bg-secondary/20 text-muted-foreground cursor-not-allowed opacity-60"
-                    }`}
-                  >
-                    <span className="truncate">{item.label}</span>
-                    {isEquipped ? (
-                      <Check className="h-3.5 w-3.5 text-brand shrink-0" />
-                    ) : !isUnlocked ? (
-                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">{tx("Lv.", "Nv.")}{item.levelReq}</span>
-                    ) : null}
-                  </button>
-                );
-              })}
+          <div className="flex-1 w-full text-center sm:text-left space-y-3 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                  {companion.name}
+                </h3>
+                <Badge variant="outline" className="text-xs font-medium">
+                  {isEs
+                    ? `Etapa ${displayedStage.stage} de 4`
+                    : `Stage ${displayedStage.stage} of 4`}
+                </Badge>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {tx("Tap Bonobo for a tip", "Toca a Bonobo para un consejo")}
+              </span>
+            </div>
+
+            {/* Readable Speech Bubble */}
+            <button
+              type="button"
+              onClick={handleTapAvatar}
+              className="w-full text-left rounded-xl bg-secondary/50 border border-border px-4 py-3 text-sm text-foreground hover:bg-secondary/80 transition-colors cursor-pointer"
+            >
+              <p className="leading-relaxed">&ldquo;{currentQuote}&rdquo;</p>
+            </button>
+
+            {/* Evolution Flash Notice */}
+            {evolvedNotice && (
+              <div className="px-3.5 py-2 rounded-xl bg-warning/15 border border-warning/35 text-warning text-sm font-semibold flex items-center justify-center sm:justify-start gap-2 animate-in fade-in duration-150">
+                <Sparkles className="w-4 h-4 shrink-0" aria-hidden="true" />
+                <span>{evolvedNotice}</span>
+              </div>
+            )}
+
+            {/* Clear Progress Bar */}
+            <div className="space-y-1.5 pt-0.5">
+              <div className="flex items-center justify-between gap-2 text-xs sm:text-sm">
+                <span className="font-medium text-foreground truncate">
+                  {nextStage
+                    ? tx(`Next Form: ${nextStageName}`, `Siguiente Forma: ${nextStageName}`)
+                    : tx("Max Evolution Reached", "Evolución Máxima Alcanzada")}
+                </span>
+                <span className="font-mono text-muted-foreground tabular-nums shrink-0">
+                  {companion.xp} / {companion.xpToNextLevel} {tx("pts", "pts")}
+                </span>
+              </div>
+              <Progress value={xpPercent} className="h-2.5" />
             </div>
           </div>
+        </div>
 
-          {/* Props Selector */}
-          <div className="space-y-2 mt-4">
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              {tx("Handheld Items", "En Mano")}
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { id: "none", label: tx("Empty Hands", "Manos Libres"), levelReq: 1 },
-                { id: "banana", label: tx("🍌 Fresh Banana", "🍌 Plátano"), levelReq: 1 },
-                { id: "tiny_dumbbell", label: tx("🏋️ Mini Dumbbell", "🏋️ Mancuerna"), levelReq: 1 },
-                { id: "iced_coffee", label: tx("🥤 Iced Latte", "🥤 Café Helado"), levelReq: 3 },
-                { id: "golden_banana", label: tx("✨ Golden Banana", "✨ Plátano Dorado"), levelReq: 7 }
-              ].map((item) => {
-                const isUnlocked = companion.unlockedProps.includes(item.id as CompanionProp);
-                const isEquipped = companion.equippedProp === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    disabled={!isUnlocked}
-                    onClick={() => equipProp(item.id as CompanionProp)}
-                    className={`flex items-center justify-between p-3 rounded-xl border text-xs font-semibold transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
-                      isEquipped
-                        ? "border-brand bg-brand/10 text-foreground"
-                        : isUnlocked
-                        ? "border-border bg-secondary/40 hover:bg-secondary text-foreground"
-                        : "border-border bg-secondary/20 text-muted-foreground cursor-not-allowed opacity-60"
-                    }`}
-                  >
-                    <span className="truncate">{item.label}</span>
-                    {isEquipped ? (
-                      <Check className="h-3.5 w-3.5 text-brand shrink-0" />
-                    ) : !isUnlocked ? (
-                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">{tx("Lv.", "Nv.")}{item.levelReq}</span>
-                    ) : null}
-                  </button>
-                );
-              })}
-            </div>
+        <Separator />
+
+        {/* 2. Large, Plain-Text Actions (Easy to read & tap for everyone) */}
+        <div className="space-y-2.5">
+          {onOpenAssistant && (
+            <Button
+              type="button"
+              variant="default"
+              size="lg"
+              onClick={onOpenAssistant}
+              className="w-full h-12 rounded-xl text-sm sm:text-base font-semibold justify-between px-4 cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" aria-hidden="true" />
+                <span>{tx("Ask Bonobo Assistant", "Hablar con Bonobo IA")}</span>
+              </span>
+              <ChevronRight className="w-4 h-4 opacity-75" aria-hidden="true" />
+            </Button>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {/* Give Banana Treat */}
+            <Button
+              type="button"
+              variant={bananaCount > 0 ? "secondary" : "outline"}
+              size="lg"
+              onClick={handleFeedManualSnack}
+              disabled={isEating || bananaCount <= 0}
+              className={`h-12 rounded-xl text-sm font-semibold justify-start px-3.5 gap-2.5 ${
+                bananaCount > 0
+                  ? "border border-warning/40 bg-warning/10 text-foreground hover:bg-warning/20 cursor-pointer"
+                  : "text-muted-foreground cursor-not-allowed"
+              }`}
+              title={
+                bananaCount > 0
+                  ? tx("Give 1 earned banana treat to Bonobo", "Dar 1 plátano ganado a Bonobo")
+                  : tx("Complete workouts to earn banana treats", "Completa entrenos para ganar plátanos")
+              }
+            >
+              <span className="text-base leading-none" aria-hidden="true">🍌</span>
+              <span className="truncate">
+                {bananaCount > 0
+                  ? isEs
+                    ? `Dar Premio (${bananaCount})`
+                    : `Give Treat (${bananaCount})`
+                  : tx("0 Treats (Log Workout)", "0 Premios (Registra Entreno)")}
+              </span>
+            </Button>
+
+            {/* View 4-Stage Evolutions */}
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => setTrackOpen(true)}
+              className="h-12 rounded-xl text-sm font-semibold justify-start px-3.5 gap-2.5 cursor-pointer"
+            >
+              <Trophy className="w-4 h-4 text-warning shrink-0" aria-hidden="true" />
+              <span className="truncate">{tx("View Evolutions", "Ver Evoluciones")}</span>
+            </Button>
+
+            {/* Outfits & Card Colors (Combined for fewer buttons) */}
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                setCustomizeTab("outfits");
+                setClosetOpen(true);
+              }}
+              className="h-12 rounded-xl text-sm font-semibold justify-start px-3.5 gap-2.5 cursor-pointer"
+            >
+              <Shirt className="w-4 h-4 text-foreground shrink-0" aria-hidden="true" />
+              <span className="truncate">{tx("Outfits & Colors", "Ropa y Colores")}</span>
+            </Button>
+
+            {/* Explicit Sound State Toggle */}
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={toggleSound}
+              aria-pressed={!muted}
+              className="h-12 rounded-xl text-sm font-semibold justify-start px-3.5 gap-2.5 cursor-pointer"
+            >
+              {muted ? (
+                <VolumeX className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden="true" />
+              ) : (
+                <Volume2 className="w-4 h-4 text-success shrink-0" aria-hidden="true" />
+              )}
+              <span className="truncate">
+                {muted ? tx("Sound: Off", "Sonido: Apagado") : tx("Sound: On", "Sonido: Encendido")}
+              </span>
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </CardContent>
 
-      {/* --- THEME MODAL --- */}
-      <Dialog open={themeOpen} onOpenChange={setThemeOpen}>
+      {/* --- COMBINED OUTFITS & COLORS MODAL (Clean shadcn Tabs) --- */}
+      <Dialog open={closetOpen} onOpenChange={setClosetOpen}>
         <DialogContent className="sm:max-w-md bg-card border-border text-foreground rounded-2xl p-5 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">
-              <Palette className="h-4 w-4 text-brand" />
-              {tx("Accent Vibe", "Color de Tarjeta")}
+            <DialogTitle className="text-lg font-bold flex items-center gap-2 heading-tight">
+              <Shirt className="h-4 w-4 text-warning" aria-hidden="true" />
+              {tx("Outfits & Card Color", "Ropa y Color de Tarjeta")}
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
               {tx(
-                "Choose a subtle accent stripe and progress color for your companion card.",
-                "Elige un acento sutil para la tarjeta de tu compañero."
+                "Choose what Bonobo wears or pick your card highlight color.",
+                "Elige la ropa de Bonobo o el color de acento de tu tarjeta."
               )}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-2 gap-2.5 mt-3">
-            {[
-              { id: "jungle", label: tx("🌿 Jungle", "🌿 Jungla"), desc: tx("Clean emerald accent", "Acento esmeralda") },
-              { id: "cyber", label: tx("⚡ Graphite", "⚡ Grafito"), desc: tx("Crisp contrast accent", "Contraste nítido") },
-              { id: "cafe", label: tx("☕ Amber", "☕ Ámbar"), desc: tx("Warm espresso amber", "Ámbar cálido") },
-              { id: "obsidian", label: tx("◽ Classic", "◽ Clásico"), desc: tx("Minimal monochrome", "Monocromo mínimo") }
-            ].map((th) => {
-              const isSelected = companion.theme === th.id;
-              return (
-                <button
-                  key={th.id}
-                  type="button"
-                  onClick={() => selectTheme(th.id as CompanionTheme)}
-                  className={`p-3 rounded-xl border text-left transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.98] ${
-                    isSelected
-                      ? "border-brand bg-brand/10 text-foreground"
-                      : "border-border bg-secondary/40 hover:bg-secondary text-foreground"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold">{th.label}</span>
-                    {isSelected && <Check className="h-3.5 w-3.5 text-brand" />}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-snug">{th.desc}</p>
-                </button>
-              );
-            })}
-          </div>
+          <Tabs
+            value={customizeTab}
+            onValueChange={(v) => setCustomizeTab(v as "outfits" | "color")}
+            className="mt-2"
+          >
+            <TabsList className="grid grid-cols-2 w-full h-11">
+              <TabsTrigger value="outfits" className="text-sm font-semibold gap-1.5">
+                <Shirt className="w-4 h-4" aria-hidden="true" />
+                {tx("Outfits", "Ropa")}
+              </TabsTrigger>
+              <TabsTrigger value="color" className="text-sm font-semibold gap-1.5">
+                <Palette className="w-4 h-4" aria-hidden="true" />
+                {tx("Card Color", "Color")}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="outfits" className="space-y-4 pt-2">
+              {/* Live Closet Preview */}
+              <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-secondary/30 py-3 px-4">
+                <BonoboAvatar
+                  size={112}
+                  stage={displayedStageNumber}
+                  level={companion.level}
+                  mood={companion.mood}
+                  headwear={companion.equippedHeadwear}
+                  prop={companion.equippedProp}
+                />
+                <span className="mt-2 text-xs font-medium text-muted-foreground">
+                  {companion.name} • {displayedStageName}
+                </span>
+              </div>
+
+              {/* Headwear Selector */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {tx("Headwear", "Cabeza")}
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {[
+                    { id: "none", label: tx("No Hat", "Sin Gorro"), levelReq: 1 },
+                    { id: "red_headband", label: tx("🔴 Retro Headband", "🔴 Cinta Retro"), levelReq: 1 },
+                    { id: "beanie", label: tx("🧶 Cozy Beanie", "🧶 Gorro Tejido"), levelReq: 2 },
+                    { id: "scouter", label: tx("🟢 Power Scouter", "🟢 Escáuter"), levelReq: 4 },
+                    { id: "gold_crown", label: tx("👑 Champion Crown", "👑 Corona Campeón"), levelReq: 5 }
+                  ].map((item) => {
+                    const isUnlocked = companion.unlockedHeadwear.includes(item.id as CompanionHeadwear);
+                    const isEquipped = companion.equippedHeadwear === item.id;
+                    return (
+                      <Button
+                        key={item.id}
+                        type="button"
+                        variant={isEquipped ? "secondary" : "outline"}
+                        disabled={!isUnlocked}
+                        onClick={() => equipHeadwear(item.id as CompanionHeadwear)}
+                        className={`h-11 justify-between px-3 text-sm font-medium rounded-xl ${
+                          isEquipped ? "border-brand bg-brand/10" : ""
+                        }`}
+                      >
+                        <span className="truncate">{item.label}</span>
+                        {isEquipped ? (
+                          <Check className="h-4 w-4 text-brand shrink-0" />
+                        ) : !isUnlocked ? (
+                          <span className="text-xs text-muted-foreground font-mono shrink-0">
+                            {tx("Lv.", "Nv.")}{item.levelReq}
+                          </span>
+                        ) : null}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Props Selector */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {tx("Held Item", "En Mano")}
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {[
+                    { id: "none", label: tx("Empty Hands", "Manos Libres"), levelReq: 1 },
+                    { id: "banana", label: tx("🍌 Fresh Banana", "🍌 Plátano"), levelReq: 1 },
+                    { id: "tiny_dumbbell", label: tx("🏋️ Mini Dumbbell", "🏋️ Mancuerna"), levelReq: 1 },
+                    { id: "iced_coffee", label: tx("🥤 Iced Latte", "🥤 Café Helado"), levelReq: 3 },
+                    { id: "golden_banana", label: tx("✨ Golden Banana", "✨ Plátano Dorado"), levelReq: 7 }
+                  ].map((item) => {
+                    const isUnlocked = companion.unlockedProps.includes(item.id as CompanionProp);
+                    const isEquipped = companion.equippedProp === item.id;
+                    return (
+                      <Button
+                        key={item.id}
+                        type="button"
+                        variant={isEquipped ? "secondary" : "outline"}
+                        disabled={!isUnlocked}
+                        onClick={() => equipProp(item.id as CompanionProp)}
+                        className={`h-11 justify-between px-3 text-sm font-medium rounded-xl ${
+                          isEquipped ? "border-brand bg-brand/10" : ""
+                        }`}
+                      >
+                        <span className="truncate">{item.label}</span>
+                        {isEquipped ? (
+                          <Check className="h-4 w-4 text-brand shrink-0" />
+                        ) : !isUnlocked ? (
+                          <span className="text-xs text-muted-foreground font-mono shrink-0">
+                            {tx("Lv.", "Nv.")}{item.levelReq}
+                          </span>
+                        ) : null}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="color" className="pt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {[
+                  { id: "obsidian", label: tx("◽ Classic", "◽ Clásico"), desc: tx("Minimal monochrome", "Monocromo mínimo") },
+                  { id: "jungle", label: tx("🌿 Jungle Green", "🌿 Verde Jungla"), desc: tx("Clean emerald accent", "Acento esmeralda") },
+                  { id: "cyber", label: tx("⚡ High Contrast", "⚡ Alto Contraste"), desc: tx("Crisp monochrome stripe", "Borde nítido") },
+                  { id: "cafe", label: tx("☕ Warm Amber", "☕ Ámbar Cálido"), desc: tx("Warm amber accent", "Acento cálido") },
+                ].map((th) => {
+                  const isSelected = companion.theme === th.id;
+                  return (
+                    <button
+                      key={th.id}
+                      type="button"
+                      onClick={() => selectTheme(th.id as CompanionTheme)}
+                      className={`p-3.5 rounded-xl border text-left transition-colors min-h-[64px] cursor-pointer ${
+                        isSelected
+                          ? "border-brand bg-brand/10 text-foreground"
+                          : "border-border bg-secondary/40 hover:bg-secondary text-foreground"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-semibold">{th.label}</span>
+                        {isSelected && <Check className="h-4 w-4 text-brand" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-snug">{th.desc}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
@@ -634,6 +660,6 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
         activeForm={companion.selectedForm || "auto"}
         onSelectForm={selectForm}
       />
-    </div>
+    </Card>
   );
 }
