@@ -19,7 +19,6 @@ import { ExerciseLibraryView } from "@/components/coach/ExerciseLibraryView";
 import { MessagingView } from "@/components/shared/MessagingView";
 import { OrgOverview } from "@/components/admin/OrgOverview";
 import { PlatformOverview } from "@/components/admin/PlatformOverview";
-import { PricingView } from "@/components/public/PricingView";
 import { BonoboAssistantSheet } from "@/components/companion/BonoboAssistantSheet";
 import { AthleteProfile } from "@/types";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
@@ -33,7 +32,6 @@ import {
   BookOpen,
   Layers,
   ShieldCheck,
-  CreditCard,
   MessageSquare,
   AlertTriangle,
   Activity,
@@ -71,8 +69,7 @@ function AppContent() {
             )
           },
           { id: "progress", label: tx("Progress", "Progreso"), icon: <TrendingUp className="w-4 h-4" /> },
-          { id: "messages", label: tx("Coach Chat", "Chat Coach"), icon: <MessageSquare className="w-4 h-4" /> },
-          { id: "pricing", label: tx("Subscription", "Suscripción"), icon: <CreditCard className="w-4 h-4" /> }
+          { id: "messages", label: tx("Coach Chat", "Chat Coach"), icon: <MessageSquare className="w-4 h-4" /> }
         ];
       case "coach":
         return [
@@ -82,18 +79,15 @@ function AppContent() {
           { id: "telemetry", label: tx("Strength", "Fuerza"), icon: <TrendingUp className="w-4 h-4" /> },
           { id: "builder", label: tx("Program Builder", "Programas"), icon: <Layers className="w-4 h-4" /> },
           { id: "exercises", label: tx("Exercise Library", "Ejercicios"), icon: <BookOpen className="w-4 h-4" /> },
-          { id: "messages", label: tx("Athlete Messages", "Mensajes"), icon: <MessageSquare className="w-4 h-4" /> },
-          { id: "pricing", label: tx("Plans & Pricing", "Planes y Precios"), icon: <CreditCard className="w-4 h-4" /> }
+          { id: "messages", label: tx("Athlete Messages", "Mensajes"), icon: <MessageSquare className="w-4 h-4" /> }
         ];
       case "org_admin":
         return [
-          { id: "overview", label: tx("Team Seats & Billing", "Equipo y Facturación"), icon: <Users className="w-4 h-4" /> },
-          { id: "pricing", label: tx("Plans & Pricing", "Planes y Precios"), icon: <CreditCard className="w-4 h-4" /> }
+          { id: "overview", label: tx("Team Seats & Billing", "Equipo y Facturación"), icon: <Users className="w-4 h-4" /> }
         ];
       case "platform_admin":
         return [
-          { id: "overview", label: tx("SaaS Metrics & Audit", "Métricas y Auditoría"), icon: <ShieldCheck className="w-4 h-4" /> },
-          { id: "pricing", label: tx("Plans & Pricing", "Planes y Precios"), icon: <CreditCard className="w-4 h-4" /> }
+          { id: "overview", label: tx("SaaS Metrics & Audit", "Métricas y Auditoría"), icon: <ShieldCheck className="w-4 h-4" /> }
         ];
       default:
         return [];
@@ -174,7 +168,6 @@ function AppContent() {
               )}
               {activeTab === "progress" && <AthleteProgressView />}
               {activeTab === "messages" && <MessagingView initialRecipientId="usr-coach-1" />}
-              {activeTab === "pricing" && <PricingView />}
             </>
           )}
 
@@ -216,7 +209,6 @@ function AppContent() {
               {activeTab === "builder" && <ProgramBuilder />}
               {activeTab === "exercises" && <ExerciseLibraryView />}
               {activeTab === "messages" && <MessagingView initialRecipientId={targetedRecipientId} />}
-              {activeTab === "pricing" && <PricingView />}
             </>
           )}
 
@@ -224,7 +216,6 @@ function AppContent() {
           {currentRole === "org_admin" && (
             <>
               {activeTab === "overview" && <OrgOverview />}
-              {activeTab === "pricing" && <PricingView />}
             </>
           )}
 
@@ -232,7 +223,6 @@ function AppContent() {
           {currentRole === "platform_admin" && (
             <>
               {activeTab === "overview" && <PlatformOverview />}
-              {activeTab === "pricing" && <PricingView />}
             </>
           )}
         </ErrorBoundary>
