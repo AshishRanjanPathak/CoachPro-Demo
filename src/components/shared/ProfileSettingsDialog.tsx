@@ -21,6 +21,8 @@ import {
   resizeProfileImageToDataUrl,
   saveAccountPreferences,
 } from "@/lib/accountSecurity";
+import { useLanguage } from "@/lib/i18n";
+import { LanguageSwitch } from "@/components/shared/LanguageSwitch";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +44,7 @@ import {
   Download,
   Eye,
   EyeOff,
+  Globe,
   KeyRound,
   Lock,
   ShieldCheck,
@@ -73,6 +76,7 @@ export function ProfileSettingsDialog({
     updateAthleteProfile,
     recordSecurityAudit,
   } = useAuth();
+  const { tx, isEs } = useLanguage();
 
   const athlete = currentRole === "athlete" ? resolveActiveAthlete(state, currentUser.id) : undefined;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -107,7 +111,6 @@ export function ProfileSettingsDialog({
   const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [remindersResetDone, setRemindersResetDone] = useState(false);
 
-  // Re-sync cleanly whenever modal opens or active user changes
   useEffect(() => {
     if (!open) return;
     setTab(initialTab);
@@ -135,7 +138,6 @@ export function ProfileSettingsDialog({
     setIsDarkTheme(localStorage.getItem("coachpro_theme") !== "light");
   }, [open, initialTab, currentUser.id, currentUser.name, currentUser.avatarUrl, athlete?.trainingGoal]);
 
-  // Countdown timer when temporarily locked after repeated incorrect attempts
   useEffect(() => {
     if (lockSeconds <= 0) return;
     const t = setInterval(() => {
@@ -145,6 +147,14 @@ export function ProfileSettingsDialog({
   }, [lockSeconds, currentUser.id]);
 
   const strength = evaluatePasswordStrength(newPassword);
+  const strengthLabelLocalized =
+    strength.label === "Strong"
+      ? tx("Strong", "Fuerte")
+      : strength.label === "Good"
+      ? tx("Good", "Buena")
+      : strength.label === "Fair"
+      ? tx("Fair", "Regular")
+      : tx("Too weak", "Muy débil");
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -154,7 +164,11 @@ export function ProfileSettingsDialog({
       const processedDataUrl = await resizeProfileImageToDataUrl(file);
       setDraftAvatarUrl(processedDataUrl);
     } catch (err) {
-      setPhotoError(err instanceof Error ? err.message : "Could not process image.");
+      setPhotoError(
+        err instanceof Error
+          ? err.message
+          : tx("Could not process image.", "No se pudo procesar la imagen.")
+      );
     } finally {
       e.target.value = "";
     }
@@ -199,7 +213,16 @@ export function ProfileSettingsDialog({
       });
 
       if (!res.success) {
-        setPwError(res.error || "Unable to update password.");
+        let translatedErr = res.error || tx("Unable to update password.", "No se pudo actualizar la contraseña.");
+        if (isEs && res.error) {
+          if (res.error.includes("Please enter your current")) translatedErr = "Ingresa tu contraseña actual.";
+          else if (res.error.includes("Current password is incorrect")) translatedErr = "La contraseña actual es incorrecta.";
+          else if (res.error.includes("Too many incorrect")) translatedErr = "Demasiados intentos incorrectos. Espera unos segundos.";
+          else if (res.error.includes("at least 8")) translatedErr = "Mínimo 8 caracteres incluyendo letras y número o símbolo.";
+          else if (res.error.includes("must be different")) translatedErr = "La nueva contraseña debe ser distinta de la actual.";
+          else if (res.error.includes("do not match")) translatedErr = "La nueva contraseña y la confirmación no coinciden.";
+        }
+        setPwError(translatedErr);
         if (res.lockedSecondsRemaining) {
           setLockSeconds(res.lockedSecondsRemaining);
         }
@@ -212,11 +235,11 @@ export function ProfileSettingsDialog({
       setConfirmPassword("");
       setPwSuccess(
         signOutOtherSessions
-          ? "Password updated securely and other sessions signed out."
-          : "Password updated securely. Use your new password on next sign-in."
+          ? tx("Password updated securely and other sessions signed out.", "Contraseña actualizada y demás sesiones cerradas.")
+          : tx("Password updated securely. Use your new password on next sign-in.", "Contraseña actualizada. Úsala en tu próximo inicio de sesión.")
       );
       recordSecurityAudit(
-        "Updated account password cleanly",
+        tx("Updated account password cleanly", "Actualizó su contraseña de forma segura"),
         `Account ${currentUser.email}`
       );
     } finally {
@@ -275,6 +298,7 @@ export function ProfileSettingsDialog({
       (log) =>
         log.actorName.includes(currentUser.name) ||
         log.action.toLowerCase().includes("password") ||
+        log.action.toLowerCase().includes("contraseña") ||
         log.action.toLowerCase().includes("session") ||
         log.action.toLowerCase().includes("profile")
     )
@@ -282,12 +306,12 @@ export function ProfileSettingsDialog({
 
   const roleBadgeLabel =
     currentRole === "platform_admin"
-      ? "Platform Admin"
+      ? tx("Platform Admin", "Admin Plataforma")
       : currentRole === "org_admin"
-      ? "Org Admin"
+      ? tx("Org Admin", "Admin Org")
       : currentRole === "coach"
-      ? "Strength Coach"
-      : "Athlete";
+      ? tx("Strength Coach", "Coach de Fuerza")
+      : tx("Athlete", "Atleta");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -296,14 +320,17 @@ export function ProfileSettingsDialog({
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-base sm:text-lg font-bold tracking-tight flex items-center gap-2">
               <UserIcon className="w-4 h-4 text-brand" aria-hidden="true" />
-              <span>Account &amp; Security Settings</span>
+              <span>{tx("Account & Security Settings", "Configuración y Seguridad")}</span>
             </DialogTitle>
             <Badge variant="outline" className="text-[10px] font-semibold">
               {roleBadgeLabel}
             </Badge>
           </div>
           <DialogDescription className="text-xs text-muted-foreground">
-            Manage your profile photo, protected password credentials, and {roleBadgeLabel.toLowerCase()} workspace preferences.
+            {tx(
+              `Manage your profile photo, protected password credentials, and ${roleBadgeLabel.toLowerCase()} workspace preferences.`,
+              `Gestiona tu foto de perfil, contraseña protegida y preferencias de ${roleBadgeLabel.toLowerCase()}.`
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -311,15 +338,15 @@ export function ProfileSettingsDialog({
           <TabsList className="grid grid-cols-3 w-full h-9">
             <TabsTrigger value="profile" className="text-xs gap-1.5 cursor-pointer">
               <Camera className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Profile</span>
+              <span>{tx("Profile", "Perfil")}</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="text-xs gap-1.5 cursor-pointer">
               <Lock className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Security</span>
+              <span>{tx("Security", "Seguridad")}</span>
             </TabsTrigger>
             <TabsTrigger value="preferences" className="text-xs gap-1.5 cursor-pointer">
               <Sliders className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Preferences</span>
+              <span>{tx("Preferences", "Preferencias")}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -327,7 +354,6 @@ export function ProfileSettingsDialog({
             {/* TAB 1: PROFILE & PHOTO */}
             <TabsContent value="profile" className="space-y-4">
               <form onSubmit={handleSaveProfile} className="space-y-4">
-                {/* Avatar Upload + Preview */}
                 <div className="p-3.5 rounded-xl border border-border bg-secondary/30 space-y-3">
                   <div className="flex items-center gap-3.5">
                     <div className="relative shrink-0">
@@ -339,7 +365,7 @@ export function ProfileSettingsDialog({
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        aria-label="Upload new profile picture"
+                        aria-label={tx("Upload new profile picture", "Subir nueva foto de perfil")}
                         className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-card shadow-xs hover:opacity-90 active:scale-95 transition-transform cursor-pointer"
                       >
                         <Camera className="w-3.5 h-3.5" aria-hidden="true" />
@@ -355,7 +381,7 @@ export function ProfileSettingsDialog({
                           onClick={() => fileInputRef.current?.click()}
                           className="h-8 text-xs font-semibold"
                         >
-                          Upload Photo
+                          {tx("Upload Photo", "Subir Foto")}
                         </Button>
                         <Button
                           type="button"
@@ -364,11 +390,11 @@ export function ProfileSettingsDialog({
                           onClick={() => setDraftAvatarUrl(createInitialsAvatarDataUrl(draftName || currentUser.name))}
                           className="h-8 text-xs text-muted-foreground hover:text-foreground"
                         >
-                          Use Initials
+                          {tx("Use Initials", "Usar Iniciales")}
                         </Button>
                       </div>
                       <p className="text-[11px] text-muted-foreground">
-                        Auto-cropped to 256×256px (PNG, JPG, WebP).
+                        {tx("Auto-cropped to 256×256px (PNG, JPG, WebP).", "Recorte automático a 256×256px (PNG, JPG, WebP).")}
                       </p>
                     </div>
                   </div>
@@ -388,10 +414,9 @@ export function ProfileSettingsDialog({
                     </p>
                   )}
 
-                  {/* Quick Avatar Presets */}
                   <div className="space-y-1.5 pt-1">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                      Quick Studio Avatars
+                      {tx("Quick Studio Avatars", "Avatares Rápidos")}
                     </span>
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
                       {CURATED_AVATAR_PRESETS.map((preset) => {
@@ -414,11 +439,10 @@ export function ProfileSettingsDialog({
                   </div>
                 </div>
 
-                {/* Identity Fields */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label htmlFor="profile-name" className="text-xs font-semibold text-foreground">
-                      Display Name
+                      {tx("Display Name", "Nombre Visible")}
                     </label>
                     <Input
                       id="profile-name"
@@ -432,7 +456,7 @@ export function ProfileSettingsDialog({
 
                   <div className="space-y-1.5">
                     <label htmlFor="profile-email" className="text-xs font-semibold text-foreground">
-                      Account Email
+                      {tx("Account Email", "Correo de Cuenta")}
                     </label>
                     <Input
                       id="profile-email"
@@ -444,18 +468,17 @@ export function ProfileSettingsDialog({
                   </div>
                 </div>
 
-                {/* Role-aware profile highlight */}
                 {currentRole === "athlete" && athlete && (
                   <div className="space-y-1.5">
                     <label htmlFor="athlete-goal" className="text-xs font-semibold text-foreground">
-                      Training Goal
+                      {tx("Training Goal", "Objetivo de Entreno")}
                     </label>
                     <Input
                       id="athlete-goal"
                       type="text"
                       value={draftGoal}
                       onChange={(e) => setDraftGoal(e.target.value)}
-                      placeholder="e.g. Build squat strength & stay consistent"
+                      placeholder={tx("e.g. Build squat strength & stay consistent", "Ej. Mejorar sentadilla y mantener constancia")}
                       className="h-10 text-sm bg-background"
                     />
                   </div>
@@ -464,10 +487,10 @@ export function ProfileSettingsDialog({
                 <div className="space-y-1.5">
                   <label htmlFor="profile-bio" className="text-xs font-semibold text-foreground">
                     {currentRole === "coach"
-                      ? "Coaching Specialty / Hours"
+                      ? tx("Coaching Specialty / Hours", "Especialidad / Horario")
                       : currentRole.includes("admin")
-                      ? "Admin Team & Scope"
-                      : "Status Note"}
+                      ? tx("Admin Team & Scope", "Equipo y Alcance Admin")
+                      : tx("Status Note", "Estado Actual")}
                   </label>
                   <Input
                     id="profile-bio"
@@ -476,10 +499,10 @@ export function ProfileSettingsDialog({
                     onChange={(e) => setDraftBio(e.target.value)}
                     placeholder={
                       currentRole === "coach"
-                        ? "e.g. Powerlifting & Hypertrophy • Replies 7am–7pm"
+                        ? tx("e.g. Powerlifting & Hypertrophy • Replies 7am–7pm", "Ej. Fuerza e Hipertrofia • Respondo 7am–7pm")
                         : currentRole.includes("admin")
-                        ? `${currentUser.organizationName} • Full Organization Oversight`
-                        : "e.g. Training 4x/week — morning sessions"
+                        ? `${currentUser.organizationName} • ${tx("Full Oversight", "Control Total")}`
+                        : tx("e.g. Training 4x/week — morning sessions", "Ej. Entrenando 4 días/semana por la mañana")
                     }
                     className="h-10 text-sm bg-background"
                   />
@@ -487,16 +510,16 @@ export function ProfileSettingsDialog({
 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-[11px] text-muted-foreground">
-                    Organization: <strong className="text-foreground">{currentUser.organizationName}</strong>
+                    {tx("Organization:", "Organización:")} <strong className="text-foreground">{currentUser.organizationName}</strong>
                   </span>
                   <Button type="submit" size="sm" className="h-9 px-4 text-xs font-semibold gap-1.5">
                     {profileSaved ? (
                       <>
                         <Check className="w-3.5 h-3.5" />
-                        <span>Saved</span>
+                        <span>{tx("Saved", "Guardado")}</span>
                       </>
                     ) : (
-                      <span>Save Profile</span>
+                      <span>{tx("Save Profile", "Guardar Perfil")}</span>
                     )}
                   </Button>
                 </div>
@@ -512,16 +535,18 @@ export function ProfileSettingsDialog({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <KeyRound className="w-4 h-4 text-brand" aria-hidden="true" />
-                    <h4 className="text-xs font-bold text-foreground">Protected Password Change</h4>
+                    <h4 className="text-xs font-bold text-foreground">
+                      {tx("Protected Password Change", "Cambio de Contraseña Protegido")}
+                    </h4>
                   </div>
                   <Badge variant="secondary" className="text-[10px] font-mono">
-                    Salted SHA-256
+                    {tx("Salted SHA-256", "SHA-256 con Sal")}
                   </Badge>
                 </div>
 
                 <div className="space-y-1.5">
                   <label htmlFor="cur-pw" className="text-xs font-semibold text-foreground">
-                    Current Password
+                    {tx("Current Password", "Contraseña Actual")}
                   </label>
                   <div className="relative">
                     <Input
@@ -533,13 +558,13 @@ export function ProfileSettingsDialog({
                         setCurrentPassword(e.target.value);
                         setPwError(null);
                       }}
-                      placeholder="Verify your current password…"
+                      placeholder={tx("Verify your current password…", "Verifica tu contraseña actual…")}
                       className="h-10 pr-10 text-sm bg-background"
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPw((v) => !v)}
-                      aria-label={showCurrentPw ? "Hide current password" : "Show current password"}
+                      aria-label={showCurrentPw ? tx("Hide current password", "Ocultar contraseña") : tx("Show current password", "Mostrar contraseña")}
                       className="absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
                     >
                       {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -549,7 +574,7 @@ export function ProfileSettingsDialog({
 
                 <div className="space-y-1.5">
                   <label htmlFor="new-pw" className="text-xs font-semibold text-foreground">
-                    New Password
+                    {tx("New Password", "Nueva Contraseña")}
                   </label>
                   <div className="relative">
                     <Input
@@ -561,20 +586,19 @@ export function ProfileSettingsDialog({
                         setNewPassword(e.target.value);
                         setPwError(null);
                       }}
-                      placeholder="At least 8 chars with numbers/symbols…"
+                      placeholder={tx("At least 8 chars with numbers/symbols…", "Mínimo 8 caracteres con números/símbolos…")}
                       className="h-10 pr-10 text-sm bg-background"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPw((v) => !v)}
-                      aria-label={showNewPw ? "Hide new password" : "Show new password"}
+                      aria-label={showNewPw ? tx("Hide new password", "Ocultar nueva contraseña") : tx("Show new password", "Mostrar nueva contraseña")}
                       className="absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
                     >
                       {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
 
-                  {/* Live Password Strength Meter */}
                   {newPassword.length > 0 && (
                     <div className="space-y-1.5 pt-1">
                       <div className="grid grid-cols-4 gap-1">
@@ -597,11 +621,11 @@ export function ProfileSettingsDialog({
                       </div>
                       <div className="flex flex-wrap items-center justify-between gap-2 text-[10px]">
                         <span className="font-semibold text-muted-foreground">
-                          Strength: <strong className="text-foreground">{strength.label}</strong>
+                          {tx("Strength:", "Seguridad:")} <strong className="text-foreground">{strengthLabelLocalized}</strong>
                         </span>
                         <div className="flex flex-wrap gap-1.5">
                           <span className={strength.hasMinLength ? "text-success font-semibold" : "text-muted-foreground"}>
-                            {strength.hasMinLength ? "✓" : "○"} 8+ chars
+                            {strength.hasMinLength ? "✓" : "○"} 8+ {tx("chars", "caract.")}
                           </span>
                           <span className={strength.hasMixedCase ? "text-success font-semibold" : "text-muted-foreground"}>
                             {strength.hasMixedCase ? "✓" : "○"} A/a
@@ -610,7 +634,7 @@ export function ProfileSettingsDialog({
                             {strength.hasNumber ? "✓" : "○"} 0-9
                           </span>
                           <span className={strength.hasSymbol ? "text-success font-semibold" : "text-muted-foreground"}>
-                            {strength.hasSymbol ? "✓" : "○"} Symbol
+                            {strength.hasSymbol ? "✓" : "○"} {tx("Symbol", "Símbolo")}
                           </span>
                         </div>
                       </div>
@@ -620,7 +644,7 @@ export function ProfileSettingsDialog({
 
                 <div className="space-y-1.5">
                   <label htmlFor="conf-pw" className="text-xs font-semibold text-foreground">
-                    Confirm New Password
+                    {tx("Confirm New Password", "Confirmar Nueva Contraseña")}
                   </label>
                   <Input
                     id="conf-pw"
@@ -631,7 +655,7 @@ export function ProfileSettingsDialog({
                       setConfirmPassword(e.target.value);
                       setPwError(null);
                     }}
-                    placeholder="Re-enter new password…"
+                    placeholder={tx("Re-enter new password…", "Repite la nueva contraseña…")}
                     className="h-10 text-sm bg-background"
                   />
                 </div>
@@ -639,16 +663,16 @@ export function ProfileSettingsDialog({
                 <div className="flex items-center justify-between py-1">
                   <div className="space-y-0.5">
                     <span className="text-xs font-medium text-foreground block">
-                      Sign out other devices after change
+                      {tx("Sign out other devices after change", "Cerrar sesión en otros dispositivos")}
                     </span>
                     <span className="text-[10px] text-muted-foreground block">
-                      Recommended when rotating credentials
+                      {tx("Recommended when rotating credentials", "Recomendado al actualizar credenciales")}
                     </span>
                   </div>
                   <Switch
                     checked={signOutOtherSessions}
                     onCheckedChange={setSignOutOtherSessions}
-                    aria-label="Sign out other devices after password change"
+                    aria-label={tx("Sign out other devices after password change", "Cerrar otras sesiones tras cambio")}
                   />
                 </div>
 
@@ -669,8 +693,8 @@ export function ProfileSettingsDialog({
                 <div className="flex items-center justify-between pt-1">
                   <span className="text-[10px] text-muted-foreground">
                     {pwUpdatedAt
-                      ? `Updated ${new Date(pwUpdatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-                      : "Default demo password active"}
+                      ? `${tx("Updated", "Actualizada")} ${new Date(pwUpdatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                      : tx("Default demo password active", "Contraseña demo por defecto activa")}
                   </span>
                   <Button
                     type="submit"
@@ -678,20 +702,23 @@ export function ProfileSettingsDialog({
                     disabled={pwSubmitting || lockSeconds > 0}
                     className="h-9 px-4 text-xs font-semibold"
                   >
-                    {lockSeconds > 0 ? `Locked (${lockSeconds}s)` : "Update Password"}
+                    {lockSeconds > 0
+                      ? tx(`Locked (${lockSeconds}s)`, `Bloqueado (${lockSeconds}s)`)
+                      : tx("Update Password", "Actualizar Contraseña")}
                   </Button>
                 </div>
               </form>
 
-              {/* 2FA & Active Session Management */}
               <div className="p-3.5 rounded-xl border border-border bg-card space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0">
                     <ShieldCheck className="w-4 h-4 text-success shrink-0" aria-hidden="true" />
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-foreground">Two-Factor Protection (2FA)</p>
+                      <p className="text-xs font-bold text-foreground">
+                        {tx("Two-Factor Protection (2FA)", "Verificación en Dos Pasos (2FA)")}
+                      </p>
                       <p className="text-[11px] text-muted-foreground">
-                        Add an extra verification step for sensitive logins
+                        {tx("Add an extra verification step for sensitive logins", "Añade una capa extra para inicios de sesión")}
                       </p>
                     </div>
                   </div>
@@ -700,11 +727,13 @@ export function ProfileSettingsDialog({
                     onCheckedChange={(checked) => {
                       updatePref("twoFactorEnabled", checked);
                       recordSecurityAudit(
-                        checked ? "Enabled Two-Factor Protection (2FA)" : "Disabled Two-Factor Protection (2FA)",
+                        checked
+                          ? tx("Enabled Two-Factor Protection (2FA)", "Activó Verificación en Dos Pasos (2FA)")
+                          : tx("Disabled Two-Factor Protection (2FA)", "Desactivó Verificación en Dos Pasos (2FA)"),
                         `Account ${currentUser.email}`
                       );
                     }}
-                    aria-label="Toggle Two-Factor Protection"
+                    aria-label={tx("Toggle Two-Factor Protection", "Activar o desactivar 2FA")}
                   />
                 </div>
 
@@ -712,9 +741,9 @@ export function ProfileSettingsDialog({
 
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <p className="text-xs font-semibold text-foreground">Current Session</p>
+                    <p className="text-xs font-semibold text-foreground">{tx("Current Session", "Sesión Actual")}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      This browser • Signed in as {currentUser.role.replace("_", " ")}
+                      {tx("This browser • Signed in as", "Este navegador • Conectado como")} {roleBadgeLabel}
                     </p>
                   </div>
                   <Button
@@ -722,13 +751,18 @@ export function ProfileSettingsDialog({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      recordSecurityAudit("Revoked other active sessions", currentUser.email);
+                      recordSecurityAudit(
+                        tx("Revoked other active sessions", "Cerró otras sesiones activas"),
+                        currentUser.email
+                      );
                       setSessionResetNotice(true);
                       setTimeout(() => setSessionResetNotice(false), 2500);
                     }}
                     className="h-8 text-[11px]"
                   >
-                    {sessionResetNotice ? "Sessions Cleared ✓" : "Revoke Other Sessions"}
+                    {sessionResetNotice
+                      ? tx("Sessions Cleared ✓", "Sesiones Cerradas ✓")
+                      : tx("Revoke Other Sessions", "Cerrar Otras Sesiones")}
                   </Button>
                 </div>
 
@@ -737,7 +771,7 @@ export function ProfileSettingsDialog({
                     <Separator />
                     <div className="space-y-1.5">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        Recent Account Activity
+                        {tx("Recent Account Activity", "Actividad Reciente")}
                       </span>
                       {securityLogs.map((log) => (
                         <div key={log.id} className="flex items-center justify-between text-[11px]">
@@ -755,16 +789,28 @@ export function ProfileSettingsDialog({
 
             {/* TAB 3: WORKSPACE & ROLE PREFERENCES */}
             <TabsContent value="preferences" className="space-y-3.5">
-              {/* Shared Theme & Weight Units */}
               <div className="p-3.5 rounded-xl border border-border bg-secondary/20 space-y-3">
-                <h4 className="text-xs font-bold text-foreground">Display &amp; Units</h4>
+                <h4 className="text-xs font-bold text-foreground">{tx("Display, Language & Units", "Idioma, Apariencia y Unidades")}</h4>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{tx("App Language", "Idioma de la App")}</p>
+                      <p className="text-[11px] text-muted-foreground">{tx("English (EN) or Español (ES)", "Inglés (EN) o Español (ES)")}</p>
+                    </div>
+                  </div>
+                  <LanguageSwitch compact />
+                </div>
+
+                <Separator />
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {isDarkTheme ? <Moon className="w-4 h-4 text-muted-foreground" /> : <Sun className="w-4 h-4 text-warning" />}
                     <div>
-                      <p className="text-xs font-semibold text-foreground">Appearance</p>
-                      <p className="text-[11px] text-muted-foreground">Minimal #101010 dark or bright daylight</p>
+                      <p className="text-xs font-semibold text-foreground">{tx("Appearance", "Apariencia")}</p>
+                      <p className="text-[11px] text-muted-foreground">{tx("Minimal #101010 dark or bright daylight", "Oscuro #101010 o modo claro")}</p>
                     </div>
                   </div>
                   <div className="inline-flex rounded-lg border border-border bg-background p-0.5">
@@ -775,7 +821,7 @@ export function ProfileSettingsDialog({
                         isDarkTheme ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      Dark
+                      {tx("Dark", "Oscuro")}
                     </button>
                     <button
                       type="button"
@@ -784,7 +830,7 @@ export function ProfileSettingsDialog({
                         !isDarkTheme ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      Light
+                      {tx("Light", "Claro")}
                     </button>
                   </div>
                 </div>
@@ -793,8 +839,8 @@ export function ProfileSettingsDialog({
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-foreground">Preferred Weight Unit</p>
-                    <p className="text-[11px] text-muted-foreground">Shown across workouts and strength charts</p>
+                    <p className="text-xs font-semibold text-foreground">{tx("Preferred Weight Unit", "Unidad de Peso")}</p>
+                    <p className="text-[11px] text-muted-foreground">{tx("Shown across workouts and strength charts", "Usada en entrenos y gráficas de fuerza")}</p>
                   </div>
                   <div className="inline-flex rounded-lg border border-border bg-background p-0.5">
                     {(["kg", "lbs"] as const).map((unit) => (
@@ -815,71 +861,69 @@ export function ProfileSettingsDialog({
                 </div>
               </div>
 
-              {/* Shared Notification Toggles */}
               <div className="p-3.5 rounded-xl border border-border bg-card space-y-3">
-                <h4 className="text-xs font-bold text-foreground">Notifications</h4>
+                <h4 className="text-xs font-bold text-foreground">{tx("Notifications", "Notificaciones")}</h4>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-foreground">In-App Workout &amp; Chat Alerts</p>
-                    <p className="text-[11px] text-muted-foreground">Remind you about unlogged sessions &amp; coach replies</p>
+                    <p className="text-xs font-semibold text-foreground">{tx("In-App Workout & Chat Alerts", "Avisos de Entreno y Chat")}</p>
+                    <p className="text-[11px] text-muted-foreground">{tx("Remind you about unlogged sessions & coach replies", "Recuerda sesiones pendientes y mensajes")}</p>
                   </div>
                   <Switch
                     checked={prefs.pushNotifications}
                     onCheckedChange={(v) => updatePref("pushNotifications", v)}
-                    aria-label="Toggle in-app notifications"
+                    aria-label={tx("Toggle in-app notifications", "Activar avisos en app")}
                   />
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-foreground">Weekly Progress Summary Email</p>
-                    <p className="text-[11px] text-muted-foreground">Receive a clean recap every Sunday</p>
+                    <p className="text-xs font-semibold text-foreground">{tx("Weekly Progress Summary Email", "Resumen Semanal por Correo")}</p>
+                    <p className="text-[11px] text-muted-foreground">{tx("Receive a clean recap every Sunday", "Recibe un resumen cada domingo")}</p>
                   </div>
                   <Switch
                     checked={prefs.emailNotifications}
                     onCheckedChange={(v) => updatePref("emailNotifications", v)}
-                    aria-label="Toggle email summaries"
+                    aria-label={tx("Toggle email summaries", "Activar resúmenes por correo")}
                   />
                 </div>
               </div>
 
-              {/* Role-Specific Controls: Athlete vs Coach vs Admin */}
               <div className="p-3.5 rounded-xl border border-border bg-card space-y-3">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-brand" aria-hidden="true" />
-                  <h4 className="text-xs font-bold text-foreground">{roleBadgeLabel} Controls</h4>
+                  <h4 className="text-xs font-bold text-foreground">{tx(`${roleBadgeLabel} Controls`, `Opciones de ${roleBadgeLabel}`)}</h4>
                 </div>
 
                 {currentRole === "athlete" && (
                   <>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-foreground">Bonobo Evolution Companion</p>
-                        <p className="text-[11px] text-muted-foreground">Toggle between 2D Companion &amp; Pro View</p>
+                        <p className="text-xs font-semibold text-foreground">{tx("Bonobo Evolution Companion", "Compañero Bonobo")}</p>
+                        <p className="text-[11px] text-muted-foreground">{tx("Toggle between 2D Companion & Pro View", "Cambia entre Vista Compañero y Vista Pro")}</p>
                       </div>
                       <Switch
                         checked={companionMode === "gamified"}
                         onCheckedChange={handleToggleCompanionMode}
-                        aria-label="Toggle Bonobo companion display"
+                        aria-label={tx("Toggle Bonobo companion display", "Activar compañero Bonobo")}
                       />
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-foreground">Share Soreness Notes with Coach</p>
-                        <p className="text-[11px] text-muted-foreground">Let Coach Sarah see daily check-in notes</p>
+                        <p className="text-xs font-semibold text-foreground">{tx("Share Soreness Notes with Coach", "Compartir Notas de Molestias")}</p>
+                        <p className="text-[11px] text-muted-foreground">{tx("Let Coach Sarah see daily check-in notes", "Permite que Sarah vea tus notas diarias")}</p>
                       </div>
                       <Switch
                         checked={prefs.shareRecoveryWithCoach}
                         onCheckedChange={(v) => updatePref("shareRecoveryWithCoach", v)}
-                        aria-label="Share recovery notes with coach"
+                        aria-label={tx("Share recovery notes with coach", "Compartir notas con coach")}
                       />
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-foreground">Today&apos;s Reminders</p>
-                        <p className="text-[11px] text-muted-foreground">Restore hidden workout logging banners</p>
+                        <p className="text-xs font-semibold text-foreground">{tx("Today's Reminders", "Recordatorios de Hoy")}</p>
+                        <p className="text-[11px] text-muted-foreground">{tx("Restore hidden workout logging banners", "Restaura avisos de entreno ocultos")}</p>
                       </div>
                       <Button
                         type="button"
@@ -892,7 +936,7 @@ export function ProfileSettingsDialog({
                         }}
                         className="h-8 text-[11px]"
                       >
-                        {remindersResetDone ? "Restored ✓" : "Reset Reminders"}
+                        {remindersResetDone ? tx("Restored ✓", "Restaurados ✓") : tx("Reset Reminders", "Restaurar")}
                       </Button>
                     </div>
                   </>
@@ -902,8 +946,8 @@ export function ProfileSettingsDialog({
                   <>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-foreground">Attention Queue Readiness Cutoff</p>
-                        <p className="text-[11px] text-muted-foreground">Flag athletes at or below this readiness score</p>
+                        <p className="text-xs font-semibold text-foreground">{tx("Attention Queue Readiness Cutoff", "Umbral de Avisos Prioritarios")}</p>
+                        <p className="text-[11px] text-muted-foreground">{tx("Flag athletes at or below this readiness score", "Marca atletas igual o debajo de esta energía")}</p>
                       </div>
                       <div className="inline-flex rounded-lg border border-border bg-background p-0.5">
                         {([5, 6] as const).map((cutoff) => (
@@ -925,13 +969,13 @@ export function ProfileSettingsDialog({
                     <Separator />
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-foreground">Pain Report Sound Alert</p>
-                        <p className="text-[11px] text-muted-foreground">Chime when an athlete flags pain in check-in</p>
+                        <p className="text-xs font-semibold text-foreground">{tx("Pain Report Sound Alert", "Alerta Sonora por Dolor")}</p>
+                        <p className="text-[11px] text-muted-foreground">{tx("Chime when an athlete flags pain in check-in", "Suena cuando un atleta reporta molestias")}</p>
                       </div>
                       <Switch
                         checked={prefs.coachSoundAlerts}
                         onCheckedChange={(v) => updatePref("coachSoundAlerts", v)}
-                        aria-label="Toggle coach pain alert sounds"
+                        aria-label={tx("Toggle coach pain alert sounds", "Activar sonido de alertas")}
                       />
                     </div>
                   </>
@@ -941,20 +985,20 @@ export function ProfileSettingsDialog({
                   <>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-foreground">Enforce Strong Team Passwords</p>
-                        <p className="text-[11px] text-muted-foreground">Require 8+ chars and symbols for all seats</p>
+                        <p className="text-xs font-semibold text-foreground">{tx("Enforce Strong Team Passwords", "Exigir Contraseñas Seguras")}</p>
+                        <p className="text-[11px] text-muted-foreground">{tx("Require 8+ chars and symbols for all seats", "Exige 8+ caracteres y símbolos al equipo")}</p>
                       </div>
                       <Switch
                         checked={prefs.adminStrictPasswordPolicy}
                         onCheckedChange={(v) => updatePref("adminStrictPasswordPolicy", v)}
-                        aria-label="Enforce strong team passwords"
+                        aria-label={tx("Enforce strong team passwords", "Exigir contraseñas seguras")}
                       />
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-foreground">Idle Session Timeout</p>
-                        <p className="text-[11px] text-muted-foreground">Auto-lock inactive admin sessions</p>
+                        <p className="text-xs font-semibold text-foreground">{tx("Idle Session Timeout", "Cierre por Inactividad")}</p>
+                        <p className="text-[11px] text-muted-foreground">{tx("Auto-lock inactive admin sessions", "Bloquea sesiones admin sin actividad")}</p>
                       </div>
                       <div className="inline-flex rounded-lg border border-border bg-background p-0.5">
                         {([30, 60, 240] as const).map((mins) => (
@@ -973,47 +1017,26 @@ export function ProfileSettingsDialog({
                         ))}
                       </div>
                     </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs font-semibold text-foreground">Export Account Snapshot</p>
-                        <p className="text-[11px] text-muted-foreground">Download profile &amp; recent audit log JSON</p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleExportActivity}
-                        className="h-8 text-[11px] gap-1.5"
-                      >
-                        <Download className="w-3.5 h-3.5" aria-hidden="true" />
-                        <span>Export JSON</span>
-                      </Button>
-                    </div>
                   </>
                 )}
 
-                {currentRole !== "org_admin" && currentRole !== "platform_admin" && (
-                  <>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs font-semibold text-foreground">Export My Account Data</p>
-                        <p className="text-[11px] text-muted-foreground">Download a JSON copy of your profile &amp; prefs</p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleExportActivity}
-                        className="h-8 text-[11px] gap-1.5"
-                      >
-                        <Download className="w-3.5 h-3.5" aria-hidden="true" />
-                        <span>Export</span>
-                      </Button>
-                    </div>
-                  </>
-                )}
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">{tx("Export My Account Data", "Exportar Mis Datos")}</p>
+                    <p className="text-[11px] text-muted-foreground">{tx("Download a JSON copy of your profile & prefs", "Descarga copia JSON de tu perfil y ajustes")}</p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleExportActivity}
+                    className="h-8 text-[11px] gap-1.5"
+                  >
+                    <Download className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span>{tx("Export", "Exportar")}</span>
+                  </Button>
+                </div>
               </div>
             </TabsContent>
           </div>

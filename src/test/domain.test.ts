@@ -796,6 +796,44 @@ export async function runTests(): Promise<{ passed: number; failed: number; resu
 
   clearCredentialsForTest();
 
+  // Test N: Bilingual EN/ES Reminders & Spanish Bonobo NLP
+  const esReminders = getAthleteReminders({
+    completedSets: 0,
+    plannedSets: 12,
+    sessionStatus: "not_started",
+    hasCheckedInToday: false,
+    bananaInventory: 2,
+    locale: "es",
+  });
+  const esWorkoutRem = esReminders.find((r) => r.id === "workout_unlogged");
+  assert(
+    Boolean(esWorkoutRem) &&
+      esWorkoutRem!.title.includes("entreno") &&
+      esWorkoutRem!.actionLabel === "Registrar al Terminar",
+    "getAthleteReminders returns Spanish titles and CTAs when locale is 'es'"
+  );
+
+  const esWorkoutParse = parseBonoboNaturalLanguage(
+    "Hice 4 series sentadillas 140kg x 5 reps",
+    undefined,
+    "es"
+  );
+  assert(
+    esWorkoutParse.intent === "workout_log" &&
+      esWorkoutParse.workoutData?.exercises[0]?.exerciseName === "Barbell Back Squat" &&
+      esWorkoutParse.workoutData?.exercises[0]?.sets === 4 &&
+      esWorkoutParse.workoutData?.exercises[0]?.weightKg === 140,
+    "Spanish NLP workout parser extracts sets, weight, and barbell squat in 'es' mode"
+  );
+
+  const esChatParse = parseBonoboNaturalLanguage("hola", undefined, "es");
+  assert(
+    esChatParse.intent === "chat" &&
+      Boolean(esChatParse.chatResponse) &&
+      !esChatParse.chatResponse!.includes("Hey! Ready to log"),
+    "Spanish Bonobo chat greeting responds in Español when locale is 'es'"
+  );
+
   return { passed, failed, results };
 }
 

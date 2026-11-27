@@ -8,26 +8,37 @@ import {
   EvolutionStageNumber,
   getEvolutionStage,
 } from "@/lib/companion";
+import { useLanguage } from "@/lib/i18n";
 import { BonoboAvatar } from "./BonoboAvatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Check, Lock, Sparkles, Trophy } from "lucide-react";
 
 interface Milestone {
   level: number;
-  title: string;
-  type: "Form" | "Hat" | "Prop";
+  titleEn: string;
+  titleEs: string;
+  typeEn: "Form" | "Hat" | "Prop";
+  typeEs: "Forma" | "Gorro" | "Objeto";
   icon: string;
-  desc: string;
+  descEn: string;
+  descEs: string;
 }
 
 const MILESTONES: Milestone[] = [
-  { level: 1, title: "Retro Headband", type: "Hat", icon: "🔴", desc: "Tied varsity band with flowing tails" },
-  { level: 2, title: "Cozy Beanie", type: "Hat", icon: "🧶", desc: "Snug gym-to-street knit cap" },
-  { level: 3, title: "Iron Ape + Iced Latte", type: "Form", icon: "🥤", desc: "Stage 2 Evolution & oat latte prop" },
-  { level: 4, title: "Power Scouter", type: "Hat", icon: "🟢", desc: "Classic green power-level visor" },
-  { level: 5, title: "Super Bonobo + Crown", type: "Form", icon: "⚡", desc: "Stage 3 Golden Ki form & Crown" },
-  { level: 7, title: "Apex Bonobo + Gold Banana", type: "Form", icon: "👑", desc: "Final Ultra Form & Golden Banana" },
+  { level: 1, titleEn: "Retro Headband", titleEs: "Cinta Retro", typeEn: "Hat", typeEs: "Gorro", icon: "🔴", descEn: "Tied varsity band with flowing tails", descEs: "Cinta clásica con lazos al viento" },
+  { level: 2, titleEn: "Cozy Beanie", titleEs: "Gorro Tejido", typeEn: "Hat", typeEs: "Gorro", icon: "🧶", descEn: "Snug gym-to-street knit cap", descEs: "Gorro cómodo del gym a la calle" },
+  { level: 3, titleEn: "Iron Ape + Iced Latte", titleEs: "Mono de Hierro + Latte", typeEn: "Form", typeEs: "Forma", icon: "🥤", descEn: "Stage 2 Evolution & oat latte prop", descEs: "Evolución Fase 2 y café helado" },
+  { level: 4, titleEn: "Power Scouter", titleEs: "Escáuter de Poder", typeEn: "Hat", typeEs: "Gorro", icon: "🟢", descEn: "Classic green power-level visor", descEs: "Visor clásico medidor de ki" },
+  { level: 5, titleEn: "Super Bonobo + Crown", titleEs: "Súper Bonobo + Corona", typeEn: "Form", typeEs: "Forma", icon: "⚡", descEn: "Stage 3 Golden Ki form & Crown", descEs: "Fase 3 Ki Dorado y Corona" },
+  { level: 7, titleEn: "Apex Bonobo + Gold Banana", titleEs: "Bonobo Ápex + Plátano Dorado", typeEn: "Form", typeEs: "Forma", icon: "👑", descEn: "Final Ultra Form & Golden Banana", descEs: "Forma Ultra Final y Plátano Dorado" },
 ];
+
+const STAGE_NAMES_ES: Record<number, string> = {
+  1: "Baby Bonobo",
+  2: "Mono de Hierro",
+  3: "Súper Bonobo",
+  4: "Bonobo Ápex",
+};
 
 interface UnlockTrackModalProps {
   open: boolean;
@@ -50,6 +61,7 @@ export function UnlockTrackModal({
   activeForm = "auto",
   onSelectForm,
 }: UnlockTrackModalProps) {
+  const { isEs, tx } = useLanguage();
   const highestStage = getEvolutionStage(currentLevel).stage;
 
   return (
@@ -59,23 +71,25 @@ export function UnlockTrackModal({
           <div className="flex items-center justify-between">
             <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">
               <Trophy className="h-4 w-4 text-warning" />
-              <span>Evolutions &amp; Gear Track</span>
+              <span>{tx("Evolutions & Gear Track", "Evoluciones y Equipo")}</span>
             </DialogTitle>
             <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-warning/10 border border-warning/20 text-warning font-bold tabular-nums">
-              Lv. {currentLevel}
+              {tx(`Lv. ${currentLevel}`, `Nv. ${currentLevel}`)}
             </span>
           </div>
           <DialogDescription className="text-xs text-muted-foreground">
-            Log workouts, feed bananas, and check in to evolve your Bonobo and unlock wearable gear.
+            {tx(
+              "Log workouts, feed bananas, and check in to evolve your Bonobo and unlock wearable gear.",
+              "Registra entrenos, da plátanos y haz tu chequeo para evolucionar a Bonobo y desbloquear equipo."
+            )}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-2 max-h-[68dvh] overflow-y-auto overscroll-contain pr-1">
-          {/* 1. Pokémon / DBZ Evolution Stage Gallery */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Evolution Stages
+                {tx("Evolution Stages", "Fases de Evolución")}
               </h4>
               {onSelectForm && activeForm !== "auto" && (
                 <button
@@ -83,7 +97,7 @@ export function UnlockTrackModal({
                   onClick={() => onSelectForm("auto")}
                   className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
                 >
-                  Use Highest Form
+                  {tx("Use Highest Form", "Usar Forma Máxima")}
                 </button>
               )}
             </div>
@@ -95,6 +109,7 @@ export function UnlockTrackModal({
                   activeForm === "auto"
                     ? highestStage === evo.stage
                     : activeForm === evo.stage;
+                const displayName = isEs ? STAGE_NAMES_ES[evo.stage] || evo.name : evo.name;
 
                 return (
                   <button
@@ -119,10 +134,14 @@ export function UnlockTrackModal({
                       lockedSilhouette={!isUnlocked}
                     />
                     <span className="mt-1.5 text-[11px] font-bold text-foreground leading-tight">
-                      {isUnlocked ? evo.name : "???"}
+                      {isUnlocked ? displayName : "???"}
                     </span>
                     <span className="text-[10px] font-mono text-muted-foreground mt-0.5 tabular-nums">
-                      {isDisplayed ? "Active Form" : isUnlocked ? `Stage ${evo.stage}` : `Lv. ${evo.minLevel}`}
+                      {isDisplayed
+                        ? tx("Active Form", "Forma Activa")
+                        : isUnlocked
+                        ? tx(`Stage ${evo.stage}`, `Fase ${evo.stage}`)
+                        : tx(`Lv. ${evo.minLevel}`, `Nv. ${evo.minLevel}`)}
                     </span>
                   </button>
                 );
@@ -130,14 +149,15 @@ export function UnlockTrackModal({
             </div>
           </div>
 
-          {/* 2. Level-by-Level Gear Milestones */}
           <div className="space-y-2">
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              Unlocks Roadmap
+              {tx("Unlocks Roadmap", "Ruta de Recompensas")}
             </h4>
             {MILESTONES.map((m) => {
               const isUnlocked = currentLevel >= m.level;
-              const isNext = currentLevel + 1 === m.level || (currentLevel < m.level && MILESTONES.find((x) => x.level > currentLevel)?.level === m.level);
+              const isNext =
+                currentLevel + 1 === m.level ||
+                (currentLevel < m.level && MILESTONES.find((x) => x.level > currentLevel)?.level === m.level);
 
               return (
                 <div
@@ -154,27 +174,31 @@ export function UnlockTrackModal({
                     <span className="text-xl select-none shrink-0">{m.icon}</span>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-xs font-bold text-foreground leading-tight truncate">{m.title}</p>
+                        <p className="text-xs font-bold text-foreground leading-tight truncate">
+                          {isEs ? m.titleEs : m.titleEn}
+                        </p>
                         <span className="text-[10px] text-muted-foreground font-medium font-mono uppercase shrink-0">
-                          {m.type}
+                          {isEs ? m.typeEs : m.typeEn}
                         </span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{m.desc}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                        {isEs ? m.descEs : m.descEn}
+                      </p>
                     </div>
                   </div>
 
                   <div className="shrink-0 text-right ml-2">
                     {isUnlocked ? (
                       <span className="inline-flex items-center gap-1 text-[11px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-md border border-success/20">
-                        <Check className="h-3 w-3" /> Unlocked
+                        <Check className="h-3 w-3" /> {tx("Unlocked", "Desbloqueado")}
                       </span>
                     ) : isNext ? (
                       <span className="inline-flex items-center gap-1 text-[11px] font-bold text-warning bg-warning/15 px-2 py-0.5 rounded-md border border-warning/30">
-                        <Sparkles className="h-3 w-3" /> Lv. {m.level}
+                        <Sparkles className="h-3 w-3" /> {tx(`Lv. ${m.level}`, `Nv. ${m.level}`)}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground tabular-nums">
-                        <Lock className="h-3 w-3" /> Lv. {m.level}
+                        <Lock className="h-3 w-3" /> {tx(`Lv. ${m.level}`, `Nv. ${m.level}`)}
                       </span>
                     )}
                   </div>

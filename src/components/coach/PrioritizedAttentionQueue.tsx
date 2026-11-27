@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { AlertTriangle, ShieldAlert, HeartPulse, MessageSquare, Wrench, ChevronRight, CheckCircle2 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface PrioritizedAttentionQueueProps {
   onSelectAthlete: (athlete: AthleteProfile) => void;
@@ -17,6 +18,7 @@ interface PrioritizedAttentionQueueProps {
 
 export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: PrioritizedAttentionQueueProps) {
   const { state, adjustPrescription } = useAuth();
+  const { tx } = useLanguage();
 
   // Sorting athletes: Injured first (priorityRank 1), then high fatigue (priorityRank 2), then normal
   const sortedQueue = [...state.athletes].sort((a, b) => a.priorityRank - b.priorityRank);
@@ -69,15 +71,18 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
         <div>
           <div className="flex items-center gap-2">
             <Badge variant="destructive" className="font-semibold text-xs py-0.5">
-              Live Triage
+              {tx("Live Triage", "Triaje en Vivo")}
             </Badge>
-            <span className="text-xs text-muted-foreground">Updated in real-time</span>
+            <span className="text-xs text-muted-foreground">{tx("Updated in real-time", "Actualizado en tiempo real")}</span>
           </div>
           <h2 className="text-xl font-bold tracking-tight text-foreground mt-1">
-            Prioritized Coach Attention Queue
+            {tx("Prioritized Coach Attention Queue", "Cola de Atención Priorizada")}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Athletes needing quick program adjustments, deloads, or pain check-ins ranked first.
+            {tx(
+              "Athletes needing quick program adjustments, deloads, or pain check-ins ranked first.",
+              "Atletas que requieren ajustes rápidos, descargas o revisión de dolor aparecen primero."
+            )}
           </p>
         </div>
       </div>
@@ -131,15 +136,15 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                       </h3>
                       {isInjured ? (
                         <Badge variant="destructive" className="text-[10px] py-0 font-bold flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> Flagged Injury: {ath.injuryStatus?.injuryLocation}
+                          <AlertTriangle className="w-3 h-3" /> {tx("Flagged Injury:", "Lesión Reportada:")} {ath.injuryStatus?.injuryLocation}
                         </Badge>
                       ) : isHighFatigue ? (
                         <Badge variant="outline" className="text-[10px] py-0 font-bold flex items-center gap-1 border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                          <HeartPulse className="w-3 h-3" /> Elevated Fatigue ({ath.fatigueLevel})
+                          <HeartPulse className="w-3 h-3" /> {tx("Elevated Fatigue", "Fatiga Elevada")} ({ath.fatigueLevel})
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-[10px] py-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                          Optimal Readiness
+                          {tx("Optimal Readiness", "Preparación Óptima")}
                         </Badge>
                       )}
                     </div>
@@ -147,16 +152,16 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                     {/* Injury / Fatigue specifics */}
                     {isInjured && (
                       <p className="text-xs font-semibold text-destructive mt-1">
-                        Alert: “{ath.injuryStatus?.details}”
+                        {tx("Alert:", "Alerta:")} “{ath.injuryStatus?.details}”
                       </p>
                     )}
 
                     <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-1.5">
-                      <span>Readiness: <strong className="text-foreground">{ath.readinessScore}/10</strong></span>
+                      <span>{tx("Readiness:", "Preparación:")} <strong className="text-foreground">{ath.readinessScore}/10</strong></span>
                       <span>•</span>
-                      <span>Adherence: <strong className="text-foreground">{ath.adherencePercentage}%</strong></span>
+                      <span>{tx("Adherence:", "Adherencia:")} <strong className="text-foreground">{ath.adherencePercentage}%</strong></span>
                       <span>•</span>
-                      <span>Last Workout: {ath.lastWorkoutDate}</span>
+                      <span>{tx("Last Workout:", "Último Entreno:")} {ath.lastWorkoutDate}</span>
                     </div>
                   </div>
                 </div>
@@ -170,7 +175,7 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                     className="gap-1.5 text-xs min-h-[38px] font-semibold hover:border-brand"
                   >
                     <Wrench className="w-3.5 h-3.5 text-brand" />
-                    <span>Adjust Program</span>
+                    <span>{tx("Adjust Program", "Ajustar Plan")}</span>
                   </Button>
 
                   <Button
@@ -180,7 +185,7 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                     className="gap-1.5 text-xs min-h-[38px]"
                   >
                     <MessageSquare className="w-3.5 h-3.5 text-brand" />
-                    <span>Message</span>
+                    <span>{tx("Message", "Mensaje")}</span>
                   </Button>
 
                   <Button
@@ -204,26 +209,29 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
         <DialogContent className="sm:max-w-lg p-5 sm:p-6 rounded-2xl">
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary">Coach Adjustment</Badge>
-              <span className="text-xs text-muted-foreground">Program Update</span>
+              <Badge variant="secondary">{tx("Coach Adjustment", "Ajuste del Entrenador")}</Badge>
+              <span className="text-xs text-muted-foreground">{tx("Program Update", "Actualización de Plan")}</span>
             </div>
             <DialogTitle className="mt-1">
-              Adjust Program for {selectedAthleteForAdjust?.name}
+              {tx("Adjust Program for", "Ajustar Plan para")} {selectedAthleteForAdjust?.name}
             </DialogTitle>
             <DialogDescription>
-              Immediately modify exercise prescriptions or loads in response to reported pain or fatigue.
+              {tx(
+                "Immediately modify exercise prescriptions or loads in response to reported pain or fatigue.",
+                "Modifica cargas o ejercicios al instante ante reportes de dolor o fatiga."
+              )}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSaveAdjustment} className="space-y-4">
             {selectedAthleteForAdjust?.injuryStatus?.hasInjury && (
               <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">
-                <strong>Reported Pain:</strong> {selectedAthleteForAdjust.injuryStatus.injuryLocation} ({selectedAthleteForAdjust.injuryStatus.severity}) — “{selectedAthleteForAdjust.injuryStatus.details}”
+                <strong>{tx("Reported Pain:", "Dolor Reportado:")}</strong> {selectedAthleteForAdjust.injuryStatus.injuryLocation} ({selectedAthleteForAdjust.injuryStatus.severity}) — “{selectedAthleteForAdjust.injuryStatus.details}”
               </div>
             )}
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Select Movement Prescription</label>
+              <label className="text-xs font-semibold text-muted-foreground">{tx("Select Movement Prescription", "Seleccionar Ejercicio Prescrito")}</label>
               <select
                 value={selectedRxId}
                 onChange={(e) => {
@@ -234,11 +242,11 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
                 className="w-full text-xs bg-card border border-border rounded-md px-3 py-2 text-foreground font-semibold h-10"
               >
                 {defaultPrescriptions.length === 0 ? (
-                  <option value="" disabled>No prescribed movements available</option>
+                  <option value="" disabled>{tx("No prescribed movements available", "No hay ejercicios prescritos disponibles")}</option>
                 ) : (
                   defaultPrescriptions.map((rx) => (
                     <option key={rx.id} value={rx.id}>
-                      {rx.exerciseName} (Current: {rx.targetLoadKg}kg × {rx.repTarget})
+                      {rx.exerciseName} ({tx("Current:", "Actual:")} {rx.targetLoadKg}kg × {rx.repTarget})
                     </option>
                   ))
                 )}
@@ -247,7 +255,7 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Adjusted Load (kg)</label>
+                <label className="text-xs font-semibold text-muted-foreground">{tx("Adjusted Load (kg)", "Carga Ajustada (kg)")}</label>
                 <Input
                   type="number"
                   step="2.5"
@@ -258,7 +266,7 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Rep Target</label>
+                <label className="text-xs font-semibold text-muted-foreground">{tx("Rep Target", "Repeticiones")}</label>
                 <Input
                   type="text"
                   value={newReps}
@@ -269,10 +277,10 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Adjustment Note for Athlete</label>
+              <label className="text-xs font-semibold text-muted-foreground">{tx("Adjustment Note for Athlete", "Nota de Ajuste para el Atleta")}</label>
               <Input
                 type="text"
-                placeholder="e.g. Deloading squats by 30% due to knee symptoms..."
+                placeholder={tx("e.g. Deloading squats by 30% due to knee symptoms...", "ej. Bajando 30% en sentadilla por molestias...")}
                 value={adjustmentNotes}
                 onChange={(e) => setAdjustmentNotes(e.target.value)}
                 className="text-xs h-10"
@@ -281,15 +289,15 @@ export function PrioritizedAttentionQueue({ onSelectAthlete, onOpenMessages }: P
 
             <DialogFooter className="mx-0 mb-0 rounded-none bg-transparent border-t border-border pt-3 px-0 pb-0 sm:justify-between">
               <Button type="button" variant="ghost" onClick={() => setAdjustModalOpen(false)}>
-                Cancel
+                {tx("Cancel", "Cancelar")}
               </Button>
               <Button type="submit" variant="default" disabled={adjustedNotice} className="font-semibold text-xs min-h-[44px]">
                 {adjustedNotice ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 mr-1.5" /> Prescription Updated!
+                    <CheckCircle2 className="w-4 h-4 mr-1.5" /> {tx("Prescription Updated!", "¡Plan Actualizado!")}
                   </>
                 ) : (
-                  "Commit Prescription Adjustment"
+                  tx("Commit Prescription Adjustment", "Guardar Ajuste del Plan")
                 )}
               </Button>
             </DialogFooter>

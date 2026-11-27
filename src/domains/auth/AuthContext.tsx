@@ -5,6 +5,7 @@ import { UserRole, User, WorkoutSet, CoachNote, CheckIn, Program, Message, Athle
 import { loadSavedState, saveState, CoachProState } from "@/lib/store";
 import { addCompanionXp, awardEarnedBananas } from "@/lib/companion";
 import { offlineSyncManager } from "@/lib/offlineSync";
+import { getSavedLocale } from "@/lib/i18n";
 
 interface AuthContextType {
   state: CoachProState;
@@ -295,16 +296,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Friendly instant Coach Sarah reply when athlete sends a quick chat in demo mode
     if (currentUser.role === "athlete" && recipientId === "usr-coach-1") {
       const lower = content.toLowerCase();
-      let coachReply = "Love the update! Don't forget to log your sets after your workout — Bonobo is keeping score 🍌";
+      const isEs = getSavedLocale() === "es";
+      let coachReply = isEs
+        ? "¡Buen reporte! No olvides registrar tus series después del entreno — Bonobo lleva la cuenta 🍌"
+        : "Love the update! Don't forget to log your sets after your workout — Bonobo is keeping score 🍌";
 
-      if (lower.includes("jelly") || lower.includes("leg") || lower.includes("squat")) {
-        coachReply = "If stairs feel slightly suspicious tomorrow, you did leg day right 😅 Drink some water and kick your feet up!";
-      } else if (lower.includes("pr") || lower.includes("pumped") || lower.includes("survived")) {
-        coachReply = "Let's gooo! Smash 'Log After Workout' while the pump is still fresh 🔥";
-      } else if (lower.includes("swap") || lower.includes("hurt") || lower.includes("pain") || lower.includes("sore")) {
-        coachReply = "Good call asking early! Tap Recovery to log what's bothering you and I'll swap the lift right away.";
-      } else if (lower.includes("warmup") || lower.includes("question")) {
-        coachReply = "Warmups count as bonus charisma — just log your working sets right after the session!";
+      if (lower.includes("jelly") || lower.includes("gelatina") || lower.includes("pierna") || lower.includes("leg") || lower.includes("squat")) {
+        coachReply = isEs
+          ? "Si mañana las escaleras dan respeto, entrenaste bien pierna 😅 Bebe agua y descansa."
+          : "If stairs feel slightly suspicious tomorrow, you did leg day right 😅 Drink some water and kick your feet up!";
+      } else if (lower.includes("pr") || lower.includes("pumped") || lower.includes("survived") || lower.includes("sobreviví")) {
+        coachReply = isEs
+          ? "¡Vamosss!! Registra esos kilos ahora que sigues con el pump 🔥"
+          : "Let's gooo! Smash 'Log After Workout' while the pump is still fresh 🔥";
+      } else if (lower.includes("swap") || lower.includes("duda") || lower.includes("hurt") || lower.includes("pain") || lower.includes("dolor")) {
+        coachReply = isEs
+          ? "¡Bien hecho al preguntar! Entra en Recuperación y marca cómo se siente para ajustarlo al momento."
+          : "Good call asking early! Tap Recovery to log what's bothering you and I'll swap the lift right away.";
+      } else if (lower.includes("warmup") || lower.includes("calentamiento") || lower.includes("question")) {
+        coachReply = isEs
+          ? "El calentamiento suma carisma gratis — registra tus series efectivas al terminar la sesión 💪"
+          : "Warmups count as bonus charisma — just log your working sets right after the session!";
       }
 
       const senderId = currentUser.id;

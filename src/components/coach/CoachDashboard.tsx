@@ -12,6 +12,7 @@ import {
   Megaphone,
   Bell
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface CoachDashboardProps {
   onSelectAthlete: (athlete: AthleteProfile) => void;
@@ -27,6 +28,7 @@ export function CoachDashboard({
   onOpenQueue,
 }: CoachDashboardProps) {
   const { state } = useAuth();
+  const { tx } = useLanguage();
   const [broadcastNotice, setBroadcastNotice] = useState<string | null>(null);
 
   const athletes = state.athletes;
@@ -57,9 +59,9 @@ export function CoachDashboard({
                 Sarah Jenkins, CSCS
               </span>
               <div className="flex items-center gap-2 text-muted-foreground text-xs mt-0.5">
-                <span className="font-mono">{athletes.length} Athletes</span>
+                <span className="font-mono">{athletes.length} {tx("Athletes", "Atletas")}</span>
                 <span>•</span>
-                <span className="font-mono">3 Programs</span>
+                <span className="font-mono">3 {tx("Programs", "Programas")}</span>
               </div>
             </div>
           </div>
@@ -72,7 +74,7 @@ export function CoachDashboard({
               className="h-10 px-3.5 sm:px-4 rounded-xl bg-primary text-primary-foreground font-semibold text-xs flex items-center gap-1.5 shadow-xs hover:opacity-90 active:scale-[0.98] transition-colors shrink-0 cursor-pointer min-h-[44px]"
             >
               <PlusCircle className="w-4 h-4" aria-hidden="true" />
-              <span>New Program</span>
+              <span>{tx("New Program", "Nuevo Programa")}</span>
             </button>
             <button
               type="button"
@@ -80,7 +82,7 @@ export function CoachDashboard({
               className="h-10 px-3.5 sm:px-4 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-semibold text-xs flex items-center gap-1.5 border border-border transition-colors shrink-0 cursor-pointer min-h-[44px]"
             >
               <Megaphone className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-              <span>Broadcast</span>
+              <span>{tx("Broadcast", "Aviso Global")}</span>
             </button>
             <button
               type="button"
@@ -110,11 +112,11 @@ export function CoachDashboard({
         {/* KPI 1: Active Roster Load */}
         <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border border-border">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-            Active Roster
+            {tx("Active Roster", "Plantilla Activa")}
           </span>
           <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums flex items-baseline gap-1.5">
             <span>{athletes.length}</span>
-            <span className="text-sm font-normal text-muted-foreground">Athletes</span>
+            <span className="text-sm font-normal text-muted-foreground">{tx("Athletes", "Atletas")}</span>
           </div>
           <div className="flex -space-x-2 pt-1">
             {athletes.slice(0, 3).map(ath => (
@@ -130,27 +132,27 @@ export function CoachDashboard({
           </div>
         </div>
 
-        {/* KPI 2: Clinical Triage Alerts */}
+        {/* KPI 2: Attention */}
         <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border border-border border-l-2 border-l-destructive">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-              Attention
+              {tx("Attention", "Atención")}
             </span>
             <span className="w-2 h-2 rounded-full bg-destructive" aria-hidden="true" />
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-destructive tracking-tight flex items-baseline gap-2 tabular-nums">
-              <span>{injuredCount} Urgent</span>
-              <span className="text-sm font-normal text-muted-foreground">/ {highFatigueCount} Fatigue</span>
+              <span>{injuredCount} {tx("Urgent", "Urgentes")}</span>
+              <span className="text-sm font-normal text-muted-foreground">/ {highFatigueCount} {tx("Fatigue", "Fatiga")}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">Maya Patel • Patellar Tendon</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">Maya Patel • {tx("Patellar Tendon", "Tendón Rotuliano")}</p>
           </div>
         </div>
 
-        {/* KPI 3: Sleep Telemetry */}
+        {/* KPI 3: Sleep */}
         <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border border-border">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-            Avg Sleep
+            {tx("Avg Sleep", "Sueño Medio")}
           </span>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight tabular-nums flex items-baseline gap-1">
@@ -159,7 +161,7 @@ export function CoachDashboard({
             </div>
             <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 tabular-nums">
               <ArrowDown className="w-3 h-3 text-destructive" aria-hidden="true" />
-              -0.5h vs 7.5h target
+              {tx("-0.5h vs 7.5h target", "-0.5h vs objetivo 7.5h")}
             </p>
           </div>
           <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden flex">
@@ -169,10 +171,10 @@ export function CoachDashboard({
           </div>
         </div>
 
-        {/* KPI 4: Autonomic Readiness Gauge */}
+        {/* KPI 4: Readiness */}
         <div className="bg-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border border-border">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-            Readiness
+            {tx("Readiness", "Energía")}
           </span>
           <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tracking-tight flex items-baseline gap-1 tabular-nums">
             <span>6.3</span>

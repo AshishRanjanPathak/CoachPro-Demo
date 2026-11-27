@@ -41,6 +41,7 @@ import {
   AthleteReminderId,
 } from "@/lib/athleteReminders";
 import { resolveActiveAthlete, resolveActiveSessionContext } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n";
 
 interface AthleteHomeDashboardProps {
   onGoToTraining: () => void;
@@ -51,6 +52,7 @@ export function AthleteHomeDashboard({
   onGoToTraining,
 }: AthleteHomeDashboardProps) {
   const { state, currentUser, updateAthleteProfile } = useAuth();
+  const { locale, tx } = useLanguage();
 
   // Resolve active athlete and session/program safely
   const athlete = resolveActiveAthlete(state, currentUser?.id);
@@ -129,14 +131,14 @@ export function AthleteHomeDashboard({
       <header className="flex flex-wrap items-center justify-between gap-3 pb-1">
         <div className="min-w-0">
           <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block">
-            {new Date().toLocaleDateString(undefined, {
+            {new Date().toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
               weekday: "long",
               month: "short",
               day: "numeric",
             })}
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground heading-tight mt-0.5 truncate">
-            Hey, {(athlete?.name || currentUser?.name || "Athlete").split(" ")[0]}
+            {tx("Hey", "Hola")}, {(athlete?.name || currentUser?.name || tx("Athlete", "Atleta")).split(" ")[0]}
           </h1>
         </div>
 
@@ -147,10 +149,10 @@ export function AthleteHomeDashboard({
             size="sm"
             onClick={toggleCompanionMode}
             className="h-9 px-3 rounded-lg text-xs text-muted-foreground hover:text-foreground gap-1.5"
-            title="Switch between Companion and Pro Minimalist layout"
+            title={tx("Switch between Companion and Pro Minimalist layout", "Cambiar entre Vista Compañero y Vista Pro")}
           >
             <Sliders className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>{companion.mode === "gamified" ? "Pro View" : "Companion"}</span>
+            <span>{companion.mode === "gamified" ? tx("Pro View", "Vista Pro") : tx("Companion", "Compañero")}</span>
           </Button>
 
           <Button
@@ -161,7 +163,7 @@ export function AthleteHomeDashboard({
             className="h-9 px-3.5 rounded-lg text-xs font-semibold gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Ask Bonobo</span>
+            <span>{tx("Ask Bonobo", "Pregunta a Bonobo")}</span>
           </Button>
         </div>
       </header>
@@ -175,8 +177,14 @@ export function AthleteHomeDashboard({
               <BellRing className="w-4 h-4 text-warning shrink-0" aria-hidden="true" />
               <p className="text-foreground font-medium leading-snug">
                 {completedSets === 0
-                  ? "You haven't logged today's workout yet — log your sets right after your session!"
-                  : `${remainingSets} set${remainingSets === 1 ? "" : "s"} still unlogged — finish logging after your last rep so your streak counts.`}
+                  ? tx(
+                      "You haven't logged today's workout yet — log your sets right after your session!",
+                      "Aún no registraste el entreno de hoy — ¡anota tus series justo al terminar!"
+                    )
+                  : tx(
+                      `${remainingSets} set${remainingSets === 1 ? "" : "s"} still unlogged — finish logging after your last rep so your streak counts.`,
+                      `Faltan ${remainingSets} ${remainingSets === 1 ? "serie" : "series"} por registrar — termínalas después de entrenar para mantener la racha.`
+                    )}
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
@@ -187,11 +195,11 @@ export function AthleteHomeDashboard({
                 onClick={() => setLoggerOpen(true)}
                 className="h-8 px-3 text-[11px] font-semibold rounded-lg"
               >
-                Log After Workout
+                {tx("Log After Workout", "Registrar Entreno")}
               </Button>
               <button
                 type="button"
-                aria-label="Remind me later"
+                aria-label={tx("Remind me later", "Recordar más tarde")}
                 onClick={() =>
                   setDismissedReminders(
                     dismissReminderForToday(
@@ -213,11 +221,11 @@ export function AthleteHomeDashboard({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-[11px] font-mono uppercase tracking-wider text-brand font-semibold">
-                Today&apos;s Session
+                {tx("Today's Session", "Sesión de Hoy")}
               </span>
               <span className="text-border">•</span>
               <span className="text-xs text-muted-foreground truncate">
-                {program?.title || session.programTitle || "Strength Program"}
+                {program?.title || session.programTitle || tx("Strength Program", "Programa de Fuerza")}
               </span>
             </div>
 
@@ -230,21 +238,21 @@ export function AthleteHomeDashboard({
               }
             >
               {isCompleted
-                ? "Completed"
+                ? tx("Completed", "Completado")
                 : isInProgress
-                ? `${remainingSets} sets left`
-                : "Ready to Train"}
+                ? tx(`${remainingSets} sets left`, `Faltan ${remainingSets} series`)
+                : tx("Ready to Train", "Listo para Entrenar")}
             </Badge>
           </div>
 
           <div className="space-y-0.5">
             <h2 className="text-lg sm:text-xl font-bold text-foreground heading-tight">
-              {session.dayName || "Strength & Power Session"}
+              {session.dayName || tx("Strength & Power Session", "Sesión de Fuerza y Potencia")}
             </h2>
             <p className="text-xs text-muted-foreground">
               {prescriptions.length > 0
-                ? `${prescriptions.length} exercises`
-                : "Open session"}
+                ? tx(`${prescriptions.length} exercises`, `${prescriptions.length} ejercicios`)
+                : tx("Open session", "Sesión libre")}
             </p>
           </div>
 
@@ -252,10 +260,10 @@ export function AthleteHomeDashboard({
             <div className="space-y-1.5">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-muted-foreground font-medium">
-                  Session Progress
+                  {tx("Session Progress", "Progreso de Sesión")}
                 </span>
                 <span className="font-mono font-semibold text-foreground tabular-nums">
-                  {completedSets} / {plannedSets} sets
+                  {completedSets} / {plannedSets} {tx("sets", "series")}
                 </span>
               </div>
               <Progress
@@ -274,10 +282,10 @@ export function AthleteHomeDashboard({
             >
               <span>
                 {isCompleted
-                  ? "Review Session"
+                  ? tx("Review Session", "Revisar Sesión")
                   : isInProgress
-                  ? "Continue Workout"
-                  : "Start Workout"}
+                  ? tx("Continue Workout", "Seguir Entreno")
+                  : tx("Start Workout", "Empezar Entreno")}
               </span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Button>
@@ -287,10 +295,10 @@ export function AthleteHomeDashboard({
               variant="outline"
               onClick={() => setLoggerOpen(true)}
               className="h-11 px-4 rounded-xl text-xs font-semibold gap-1.5 shrink-0"
-              aria-label="Quick log workout set"
+              aria-label={tx("Quick log workout set", "Registro rápido de serie")}
             >
               <Plus className="w-4 h-4 text-brand" aria-hidden="true" />
-              <span>Quick Log</span>
+              <span>{tx("Quick Log", "Registro Rápido")}</span>
             </Button>
           </div>
         </CardContent>
@@ -300,27 +308,27 @@ export function AthleteHomeDashboard({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <div className="p-3.5 rounded-2xl border border-border bg-card flex flex-col justify-between">
           <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Readiness
+            {tx("Readiness", "Energía")}
           </span>
           <div className="text-xl font-bold text-foreground tabular-nums mt-1">
             {readiness}
             <span className="text-xs font-normal text-muted-foreground">/10</span>
           </div>
           <span className="text-[11px] text-success font-medium mt-0.5 truncate tabular-nums">
-            {athlete?.sleepHours || 7.5}h sleep
+            {athlete?.sleepHours || 7.5}h {tx("sleep", "sueño")}
           </span>
         </div>
 
         <div className="p-3.5 rounded-2xl border border-border bg-card flex flex-col justify-between">
           <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Streak
+            {tx("Streak", "Racha")}
           </span>
           <div className="text-xl font-bold text-foreground tabular-nums mt-1">
             {streak}
-            <span className="text-xs font-normal text-muted-foreground ml-1">days</span>
+            <span className="text-xs font-normal text-muted-foreground ml-1">{tx("days", "días")}</span>
           </div>
           <span className="text-[11px] text-muted-foreground mt-0.5 truncate tabular-nums">
-            {totalWorkouts} sessions
+            {totalWorkouts} {tx("sessions", "sesiones")}
           </span>
         </div>
 
@@ -328,10 +336,10 @@ export function AthleteHomeDashboard({
           type="button"
           onClick={() => setEditOpen(true)}
           className="p-3.5 rounded-2xl border border-border bg-card hover:bg-secondary/40 text-left flex flex-col justify-between transition-colors duration-150 active:scale-[0.98] cursor-pointer"
-          aria-label="Update body measurements"
+          aria-label={tx("Update body measurements", "Actualizar medidas corporales")}
         >
           <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground flex items-center justify-between w-full">
-            <span>Weight</span>
+            <span>{tx("Weight", "Peso")}</span>
             <Edit3 className="w-3 h-3 text-muted-foreground" aria-hidden="true" />
           </span>
           <div className="text-xl font-bold text-foreground tabular-nums mt-1">
@@ -345,7 +353,7 @@ export function AthleteHomeDashboard({
 
         <div className="p-3.5 rounded-2xl border border-border bg-card flex flex-col justify-between">
           <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Adherence
+            {tx("Adherence", "Constancia")}
           </span>
           <div className="text-xl font-bold text-foreground tabular-nums mt-1">
             {adherence}
@@ -366,7 +374,7 @@ export function AthleteHomeDashboard({
       ) : (
         <div className="rounded-2xl border border-border bg-card px-4 py-3 flex items-center justify-between gap-3">
           <span className="text-xs font-medium text-muted-foreground">
-            Pro View
+            {tx("Pro View", "Vista Pro")}
           </span>
           <Button
             type="button"
@@ -376,7 +384,7 @@ export function AthleteHomeDashboard({
             className="h-9 px-3 text-xs shrink-0 gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5 text-brand" />
-            <span>Ask Bonobo</span>
+            <span>{tx("Ask Bonobo", "Pregunta a Bonobo")}</span>
           </Button>
         </div>
       )}
@@ -386,10 +394,10 @@ export function AthleteHomeDashboard({
         <DialogContent className="sm:max-w-lg rounded-2xl p-5 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold heading-tight">
-              Update Body Measurements
+              {tx("Update Body Measurements", "Actualizar Medidas")}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Keep your current weight and height synchronized with your coach.
+              {tx("Keep your current weight and height synchronized with your coach.", "Mantén tu peso y altura actualizados con tu entrenador.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -399,7 +407,7 @@ export function AthleteHomeDashboard({
                 htmlFor="weight-input"
                 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex justify-between"
               >
-                <span>Body Weight (kg)</span>
+                <span>{tx("Body Weight (kg)", "Peso Corporal (kg)")}</span>
                 <span className="font-mono text-foreground tabular-nums">
                   {Math.round(tempWeight * 2.20462)} lbs
                 </span>
@@ -444,43 +452,43 @@ export function AthleteHomeDashboard({
             </div>
 
             <div className="space-y-2">
-              <label
-                htmlFor="height-input"
-                className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
-              >
-                Height (cm)
-              </label>
-              <Input
-                id="height-input"
-                type="number"
-                inputMode="numeric"
-                value={tempHeight}
-                onChange={(e) => setTempHeight(parseInt(e.target.value) || 0)}
-                className="text-center font-bold text-lg h-11 bg-card tabular-nums"
-              />
-            </div>
-
-            <DialogFooter className="mx-0 mb-0 rounded-none bg-transparent border-t border-border pt-3 px-0 pb-0">
-              <div className="flex items-center justify-end gap-2 w-full">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditOpen(false)}
-                  className="h-10 text-xs"
+                <label
+                  htmlFor="height-input"
+                  className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
                 >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="default"
-                  size="sm"
-                  className="h-10 text-xs font-semibold px-5"
-                >
-                  {savedSuccess ? "Saved!" : "Save Measurements"}
-                </Button>
+                  {tx("Height (cm)", "Altura (cm)")}
+                </label>
+                <Input
+                  id="height-input"
+                  type="number"
+                  inputMode="numeric"
+                  value={tempHeight}
+                  onChange={(e) => setTempHeight(parseInt(e.target.value) || 0)}
+                  className="text-center font-bold text-lg h-11 bg-card tabular-nums"
+                />
               </div>
-            </DialogFooter>
+
+              <DialogFooter className="mx-0 mb-0 rounded-none bg-transparent border-t border-border pt-3 px-0 pb-0">
+                <div className="flex items-center justify-end gap-2 w-full">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditOpen(false)}
+                    className="h-10 text-xs"
+                  >
+                    {tx("Cancel", "Cancelar")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="default"
+                    size="sm"
+                    className="h-10 text-xs font-semibold px-5"
+                  >
+                    {savedSuccess ? tx("Saved!", "¡Guardado!") : tx("Save Measurements", "Guardar Medidas")}
+                  </Button>
+                </div>
+              </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

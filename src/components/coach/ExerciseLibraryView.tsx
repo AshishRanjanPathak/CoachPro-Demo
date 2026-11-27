@@ -23,8 +23,10 @@ import {
   X,
   RotateCcw
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export function ExerciseLibraryView() {
+  const { isEs, tx } = useLanguage();
   const [search, setSearch] = useState("");
   const [muscle, setMuscle] = useState("all");
   const [category, setCategory] = useState("all");
@@ -90,14 +92,17 @@ export function ExerciseLibraryView() {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Exercise Library & Demonstrations
+              {tx("Exercise Library & Demonstrations", "Biblioteca de Ejercicios y Demostraciones")}
             </h2>
             <Badge variant="secondary" className="text-xs font-mono font-bold px-2 py-0.5">
-              {result.total} Movements
+              {result.total} {tx("Movements", "Movimientos")}
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Exercise catalog with two-pose illustrations, target muscles, and clear form cues.
+            {tx(
+              "Exercise catalog with two-pose illustrations, target muscles, and clear form cues.",
+              "Catálogo de ejercicios con ilustraciones en dos fases, músculos objetivo e indicaciones técnicas claras."
+            )}
           </p>
         </div>
 
@@ -132,7 +137,10 @@ export function ExerciseLibraryView() {
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
               type="search"
-              placeholder="Search 700+ exercises by English, German, or Spanish name, equipment, or muscle..."
+              placeholder={tx(
+                "Search 700+ exercises by English, German, or Spanish name, equipment, or muscle...",
+                "Busca entre 700+ ejercicios por nombre (ES/EN/DE), equipo o músculo..."
+              )}
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-10 pr-9 h-12 text-sm bg-secondary/40 border-border rounded-xl"
@@ -157,7 +165,7 @@ export function ExerciseLibraryView() {
             aria-label="Execute exercise search"
           >
             <Search className="w-4 h-4" />
-            <span>Search Movements</span>
+            <span>{tx("Search Movements", "Buscar Ejercicios")}</span>
           </Button>
 
           {(search || muscle !== "all" || category !== "all" || difficulty !== "all") && (
@@ -175,7 +183,7 @@ export function ExerciseLibraryView() {
               title="Reset all filters"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset</span>
+              <span>{tx("Reset", "Reiniciar")}</span>
             </Button>
           )}
         </form>
@@ -216,10 +224,10 @@ export function ExerciseLibraryView() {
             className="text-xs bg-secondary/50 border border-border rounded-xl px-3 py-2 text-foreground font-medium h-11 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Filter by difficulty"
           >
-            <option value="all">All Difficulties</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
+            <option value="all">{tx("All Difficulties", "Todas las Dificultades")}</option>
+            <option value="beginner">{tx("Beginner", "Principiante")}</option>
+            <option value="intermediate">{tx("Intermediate", "Intermedio")}</option>
+            <option value="advanced">{tx("Advanced", "Avanzado")}</option>
           </select>
         </div>
       </div>
@@ -270,7 +278,7 @@ export function ExerciseLibraryView() {
                   onClick={() => handleOpenDetail(ex.id)}
                   className="font-bold text-foreground text-sm sm:text-base leading-snug cursor-pointer hover:text-brand transition-colors text-pretty"
                 >
-                  {ex.name}
+                  {isEs && ex.nameEs ? ex.nameEs : ex.name}
                 </h4>
 
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
@@ -297,7 +305,7 @@ export function ExerciseLibraryView() {
                 className="text-xs h-9 px-2.5 text-muted-foreground hover:text-foreground cursor-pointer min-h-[40px] flex items-center gap-1"
               >
                 <Eye className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Details & Poses</span>
+                <span>{tx("Details & Poses", "Detalles y Fases")}</span>
               </Button>
 
               <Button
@@ -308,7 +316,7 @@ export function ExerciseLibraryView() {
                 className="text-xs font-semibold h-9 px-3 rounded-xl cursor-pointer min-h-[40px] shadow-xs flex items-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Log Set</span>
+                <span>{tx("Log Set", "Registrar Serie")}</span>
               </Button>
             </div>
           </Card>
@@ -317,8 +325,8 @@ export function ExerciseLibraryView() {
 
       {result.items.length === 0 && (
         <div className="py-16 text-center text-muted-foreground space-y-2 bg-card rounded-2xl border border-border">
-          <p className="text-sm font-semibold">No exercises match the selected filters.</p>
-          <p className="text-xs">Try clearing the search query or changing muscle group filters.</p>
+          <p className="text-sm font-semibold">{tx("No exercises match the selected filters.", "Ningún ejercicio coincide con los filtros.")}</p>
+          <p className="text-xs">{tx("Try clearing the search query or changing muscle group filters.", "Intenta limpiar la búsqueda o cambiar el grupo muscular.")}</p>
         </div>
       )}
 
@@ -326,7 +334,9 @@ export function ExerciseLibraryView() {
       {result.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-border">
           <span className="text-xs text-muted-foreground font-mono">
-            Showing page {result.page} of {result.totalPages} ({result.total} total movements)
+            {isEs
+              ? `Mostrando página ${result.page} de ${result.totalPages} (${result.total} movimientos)`
+              : `Showing page ${result.page} of ${result.totalPages} (${result.total} total movements)`}
           </span>
 
           <div className="flex items-center gap-2">
@@ -339,7 +349,7 @@ export function ExerciseLibraryView() {
               className="text-xs h-10 px-3.5 rounded-xl cursor-pointer min-h-[44px] flex items-center gap-1"
             >
               <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-              <span>Previous</span>
+              <span>{tx("Previous", "Anterior")}</span>
             </Button>
 
             <span className="text-xs font-bold text-foreground px-2 tabular-nums">
@@ -354,7 +364,7 @@ export function ExerciseLibraryView() {
               onClick={() => setPage((p) => Math.min(result.totalPages, p + 1))}
               className="text-xs h-10 px-3.5 rounded-xl cursor-pointer min-h-[44px] flex items-center gap-1"
             >
-              <span>Next</span>
+              <span>{tx("Next", "Siguiente")}</span>
               <ChevronRight className="w-4 h-4" aria-hidden="true" />
             </Button>
           </div>

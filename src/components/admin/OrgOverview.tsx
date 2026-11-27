@@ -6,9 +6,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Building, Users, CreditCard } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export function OrgOverview() {
   const { state, currentUser } = useAuth();
+  const { tx } = useLanguage();
 
   return (
     <div className="space-y-6">
@@ -21,7 +23,7 @@ export function OrgOverview() {
             </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Organization
+                {tx("Organization", "Organización")}
               </div>
               <div className="text-lg font-bold text-foreground mt-0.5">
                 {currentUser.organizationName}
@@ -37,10 +39,10 @@ export function OrgOverview() {
             </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Active Roster Size
+                {tx("Active Roster Size", "Tamaño del Equipo")}
               </div>
               <div className="text-lg font-bold text-foreground tabular-nums mt-0.5">
-                {state.athletes.length} Athletes / 2 Coaches
+                {state.athletes.length} {tx("Athletes / 2 Coaches", "Atletas / 2 Coaches")}
               </div>
             </div>
           </div>
@@ -53,10 +55,10 @@ export function OrgOverview() {
             </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Subscription Plan
+                {tx("Subscription Plan", "Plan Activo")}
               </div>
               <div className="text-lg font-bold text-brand mt-0.5">
-                Pro Tier ($199/mo)
+                {tx("Pro Tier ($199/mo)", "Plan Pro ($199/mes)")}
               </div>
             </div>
           </div>
@@ -66,19 +68,22 @@ export function OrgOverview() {
       {/* Team Members Table */}
       <Card className="border-border shadow-xs">
         <CardHeader>
-          <CardTitle>Team Roster & Seat Allocation</CardTitle>
+          <CardTitle>{tx("Team Roster & Seat Allocation", "Equipo y Licencias")}</CardTitle>
           <CardDescription>
-            Authorized coaches and athletes within the Apex High Performance tenant boundary
+            {tx(
+              "Authorized coaches and athletes within the Apex High Performance tenant boundary",
+              "Entrenadores y atletas autorizados en esta organización"
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{tx("Member", "Miembro")}</TableHead>
+                <TableHead>{tx("Role", "Rol")}</TableHead>
+                <TableHead>{tx("Email", "Correo")}</TableHead>
+                <TableHead>{tx("Status", "Estado")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -100,7 +105,7 @@ export function OrgOverview() {
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs">{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-xs py-0 border-success/30 bg-success/10 text-success">Active Seat</Badge>
+                    <Badge variant="outline" className="text-xs py-0 border-success/30 bg-success/10 text-success">{tx("Active Seat", "Activo")}</Badge>
                   </TableCell>
                 </TableRow>
               ))}
@@ -112,20 +117,20 @@ export function OrgOverview() {
       {/* Invoices */}
       <Card className="border-border shadow-xs">
         <CardHeader>
-          <CardTitle>Invoicing & Billing History</CardTitle>
+          <CardTitle>{tx("Invoicing & Billing History", "Historial de Facturación")}</CardTitle>
           <CardDescription>
-            Official tax invoices and payment receipts for this coaching organization
+            {tx("Official tax invoices and payment receipts for this coaching organization", "Facturas oficiales y recibos de pago de la organización")}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Invoice #</TableHead>
-                <TableHead>Billing Date</TableHead>
-                <TableHead>Plan</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{tx("Invoice #", "Factura #")}</TableHead>
+                <TableHead>{tx("Billing Date", "Fecha")}</TableHead>
+                <TableHead>{tx("Plan", "Plan")}</TableHead>
+                <TableHead>{tx("Amount", "Importe")}</TableHead>
+                <TableHead>{tx("Status", "Estado")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

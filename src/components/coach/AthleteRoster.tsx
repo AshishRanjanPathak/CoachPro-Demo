@@ -22,9 +22,11 @@ import {
   CheckSquare,
   Square
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export function AthleteRoster() {
   const { state } = useAuth();
+  const { isEs, tx } = useLanguage();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [squadFilter, setSquadFilter] = useState<string>("all");
@@ -124,22 +126,24 @@ export function AthleteRoster() {
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-brand" aria-hidden="true" />
               <h3 className="text-sm sm:text-base font-bold text-foreground tracking-tight">
-                Roster Status Distribution
+                {tx("Roster Status Distribution", "Distribución del Estado del Plantel")}
               </h3>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Live readiness and training status across all {totalCount} assigned athletes
+              {isEs
+                ? `Preparación y estado de entrenamiento en vivo para tus ${totalCount} atletas asignados`
+                : `Live readiness and training status across all ${totalCount} assigned athletes`}
             </p>
           </div>
 
           <div className="flex items-center gap-3 text-xs font-mono">
             <span className="flex items-center gap-1.5 text-success">
               <span className="w-2 h-2 rounded-full bg-success"></span>
-              Optimal: {optimalCount} ({optimalPct}%)
+              {tx("Optimal", "Óptimo")}: {optimalCount} ({optimalPct}%)
             </span>
             <span className="flex items-center gap-1.5 text-destructive font-semibold">
               <span className="w-2 h-2 rounded-full bg-destructive"></span>
-              Needs Attention: {urgentCount} ({urgentPct}%)
+              {tx("Needs Attention", "Requiere Atención")}: {urgentCount} ({urgentPct}%)
             </span>
           </div>
         </div>
@@ -173,7 +177,7 @@ export function AthleteRoster() {
                 : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
-            All Squads ({totalCount})
+            {tx("All Squads", "Todos los Grupos")} ({totalCount})
           </button>
           {squads.map((sq) => {
             const count = state.athletes.filter(a => a.squad === sq).length;
@@ -205,8 +209,8 @@ export function AthleteRoster() {
               type="text"
               name="athleteSearch"
               autoComplete="off"
-              aria-label="Search athletes by name, email, or goal"
-              placeholder="Search athletes by name, email, or goal…"
+              aria-label={tx("Search athletes by name, email, or goal", "Buscar atletas por nombre, correo u objetivo")}
+              placeholder={tx("Search athletes by name, email, or goal…", "Buscar atletas por nombre, correo u objetivo…")}
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               className="pl-9 h-11 text-xs"
@@ -215,9 +219,9 @@ export function AthleteRoster() {
 
           <div className="flex items-center gap-1.5 bg-secondary p-1 rounded-lg border border-border overflow-x-auto" role="group" aria-label="Status filter">
             {[
-              { id: "all", label: `All (${totalCount})` },
-              { id: "active", label: `Active (${optimalCount})` },
-              { id: "needs_attention", label: `Needs Review (${urgentCount})` },
+              { id: "all", label: `${tx("All", "Todos")} (${totalCount})` },
+              { id: "active", label: `${tx("Active", "Activos")} (${optimalCount})` },
+              { id: "needs_attention", label: `${tx("Needs Review", "Por Revisar")} (${urgentCount})` },
             ].map((f) => (
               <button
                 key={f.id}
@@ -241,22 +245,22 @@ export function AthleteRoster() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
         <div className="flex items-center gap-2 text-xs">
           <Sliders className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden="true" />
-          <span className="text-muted-foreground font-mono">Sort:</span>
+          <span className="text-muted-foreground font-mono">{tx("Sort:", "Ordenar:")}</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            aria-label="Sort athletes list"
+            aria-label={tx("Sort athletes list", "Ordenar lista de atletas")}
             className="text-xs bg-secondary border border-border rounded-lg px-2.5 py-1.5 text-foreground font-semibold h-9 focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none cursor-pointer"
           >
-            <option value="priority">Attention Priority (Urgent First)</option>
-            <option value="cns">Readiness (Lowest First)</option>
-            <option value="adherence">Program Adherence (Lowest First)</option>
-            <option value="name">Athlete Name (A–Z)</option>
+            <option value="priority">{tx("Attention Priority (Urgent First)", "Prioridad de Atención (Urgente Primero)")}</option>
+            <option value="cns">{tx("Readiness (Lowest First)", "Preparación (Menor Primero)")}</option>
+            <option value="adherence">{tx("Program Adherence (Lowest First)", "Adherencia al Programa (Menor Primero)")}</option>
+            <option value="name">{tx("Athlete Name (A–Z)", "Nombre del Atleta (A–Z)")}</option>
           </select>
         </div>
 
         {/* Density Toggle (Compact Table vs Cards) */}
-        <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border self-start sm:self-auto" role="tablist" aria-label="View density toggle">
+        <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border self-start sm:self-auto" role="tablist" aria-label={tx("View density toggle", "Cambiar densidad de vista")}>
           <button
             type="button"
             role="tab"
@@ -269,7 +273,7 @@ export function AthleteRoster() {
             }`}
           >
             <LayoutList className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Compact Table</span>
+            <span>{tx("Compact Table", "Tabla Compacta")}</span>
           </button>
           <button
             type="button"
@@ -283,7 +287,7 @@ export function AthleteRoster() {
             }`}
           >
             <LayoutGrid className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Cards</span>
+            <span>{tx("Cards", "Tarjetas")}</span>
           </button>
         </div>
       </div>
@@ -299,7 +303,7 @@ export function AthleteRoster() {
                   <th className="py-2.5 px-3 w-8 text-center">
                     <button
                       type="button"
-                      aria-label="Select all athletes on this page"
+                      aria-label={tx("Select all athletes on this page", "Seleccionar todos los atletas de esta página")}
                       onClick={handleSelectAllOnPage}
                       className="cursor-pointer text-muted-foreground hover:text-foreground flex items-center justify-center"
                     >
@@ -310,13 +314,13 @@ export function AthleteRoster() {
                       )}
                     </button>
                   </th>
-                  <th className="py-2.5 px-3">Athlete</th>
-                  <th className="py-2.5 px-3">Squad</th>
-                  <th className="py-2.5 px-3">Readiness</th>
-                  <th className="py-2.5 px-3">Sleep</th>
-                  <th className="py-2.5 px-3">Adherence</th>
-                  <th className="py-2.5 px-3">Status</th>
-                  <th className="py-2.5 px-3 text-right">Action</th>
+                  <th className="py-2.5 px-3">{tx("Athlete", "Atleta")}</th>
+                  <th className="py-2.5 px-3">{tx("Squad", "Grupo")}</th>
+                  <th className="py-2.5 px-3">{tx("Readiness", "Preparación")}</th>
+                  <th className="py-2.5 px-3">{tx("Sleep", "Sueño")}</th>
+                  <th className="py-2.5 px-3">{tx("Adherence", "Adherencia")}</th>
+                  <th className="py-2.5 px-3">{tx("Status", "Estado")}</th>
+                  <th className="py-2.5 px-3 text-right">{tx("Action", "Acción")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-foreground">
@@ -394,17 +398,17 @@ export function AthleteRoster() {
                       <td className="py-2 px-3">
                         {isAttention ? (
                           <Badge variant="destructive" className="text-[10px] py-0 px-1.5 font-mono">
-                            {athlete.injuryStatus?.injuryLocation || "Attention"}
+                            {athlete.injuryStatus?.injuryLocation || tx("Attention", "Atención")}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-mono border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                            Optimal
+                            {tx("Optimal", "Óptimo")}
                           </Badge>
                         )}
                       </td>
                       <td className="py-2 px-3 text-right">
                         <span className="text-xs text-brand hover:underline font-semibold flex items-center justify-end gap-0.5">
-                          Inspect <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                          {tx("Inspect", "Ver")} <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
                         </span>
                       </td>
                     </tr>
@@ -440,10 +444,10 @@ export function AthleteRoster() {
                       <div className="flex items-center gap-1.5">
                         <h4 className="font-semibold text-foreground text-sm">{athlete.name}</h4>
                         <Badge variant={isAttention ? "destructive" : "outline"} className={isAttention ? "text-[10px] py-0" : "text-[10px] py-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"}>
-                          {isAttention ? "Review" : "Optimal"}
+                          {isAttention ? tx("Review", "Revisar") : tx("Optimal", "Óptimo")}
                         </Badge>
                       </div>
-                      <span className="text-xs text-muted-foreground block">{athlete.squad || "General Cohort"}</span>
+                      <span className="text-xs text-muted-foreground block">{athlete.squad || tx("General Cohort", "Grupo General")}</span>
                     </div>
                   </div>
                   <span className="text-xs font-mono font-bold text-brand tabular-nums">
@@ -452,8 +456,8 @@ export function AthleteRoster() {
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-2 font-mono tabular-nums">
-                  <span>Adherence: <strong className="text-foreground">{athlete.adherencePercentage}%</strong></span>
-                  <span>Streak: <strong className="text-warning">{athlete.currentStreakDays}d</strong></span>
+                  <span>{tx("Adherence:", "Adherencia:")} <strong className="text-foreground">{athlete.adherencePercentage}%</strong></span>
+                  <span>{tx("Streak:", "Racha:")} <strong className="text-warning">{athlete.currentStreakDays}d</strong></span>
                   <span>PRs: <strong className="text-brand">{athlete.recentPrCount}</strong></span>
                 </div>
               </div>
@@ -466,9 +470,9 @@ export function AthleteRoster() {
       {filteredAthletes.length === 0 && (
         <div className="bg-card rounded-xl border border-border p-8 text-center space-y-3">
           <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto" aria-hidden="true" />
-          <h4 className="text-sm font-semibold text-foreground">No athletes match your filters</h4>
+          <h4 className="text-sm font-semibold text-foreground">{tx("No athletes match your filters", "Ningún atleta coincide con tus filtros")}</h4>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            Try adjusting your search terms, squad selection, or triage status filters.
+            {tx("Try adjusting your search terms, squad selection, or triage status filters.", "Prueba ajustando la búsqueda, grupo o filtros de estado.")}
           </p>
           <Button
             type="button"
@@ -477,7 +481,7 @@ export function AthleteRoster() {
             onClick={() => { setSearch(""); setStatusFilter("all"); setSquadFilter("all"); setPage(1); }}
             className="text-xs min-h-[36px]"
           >
-            Reset All Filters
+            {tx("Reset All Filters", "Restablecer Filtros")}
           </Button>
         </div>
       )}
@@ -486,15 +490,15 @@ export function AthleteRoster() {
       {filteredAthletes.length > 0 && (
         <div className="bg-card rounded-xl p-3 sm:p-4 border border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
           <div className="text-muted-foreground font-mono tabular-nums">
-            Showing <strong className="text-foreground">{(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredAthletes.length)}</strong> of <strong className="text-foreground">{filteredAthletes.length}</strong> athletes
+            {tx("Showing", "Mostrando")} <strong className="text-foreground">{(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredAthletes.length)}</strong> {tx("of", "de")} <strong className="text-foreground">{filteredAthletes.length}</strong> {tx("athletes", "atletas")}
             {filteredAthletes.length < totalCount && (
-              <span className="text-muted-foreground/80 ml-1">({totalCount}&nbsp;total)</span>
+              <span className="text-muted-foreground/80 ml-1">({totalCount}&nbsp;{tx("total", "en total")})</span>
             )}
           </div>
 
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
-              <span className="text-muted-foreground font-mono mr-1">Per page:</span>
+              <span className="text-muted-foreground font-mono mr-1">{tx("Per page:", "Por pág.:")}</span>
               {[8, 16, 24].map((size) => (
                 <button
                   key={size}

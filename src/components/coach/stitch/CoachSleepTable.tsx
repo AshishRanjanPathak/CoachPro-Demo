@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { Activity, MessageSquare, LineChart } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface CoachSleepTableProps {
   onSelectAthlete: (athleteId: string) => void;
@@ -11,6 +12,7 @@ interface CoachSleepTableProps {
 
 export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepTableProps) {
   const { state } = useAuth();
+  const { tx } = useLanguage();
   const athletes = state.athletes;
   const [showAll, setShowAll] = useState(false);
   const displayedAthletes = showAll ? athletes : athletes.slice(0, 6);
@@ -21,7 +23,7 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
         <div className="flex items-center gap-2">
           <Activity className="w-5 h-5 text-brand" />
           <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-            Sleep &amp; Readiness
+            {tx("Sleep & Readiness", "Sueño y Preparación")}
           </h2>
         </div>
         <button
@@ -29,7 +31,7 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
           onClick={() => setShowAll(!showAll)}
           className="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-secondary hover:bg-secondary/80 text-brand border border-border cursor-pointer transition-colors"
         >
-          {showAll ? "Top 6" : `View All ${athletes.length}`}
+          {showAll ? tx("Top 6", "Primeros 6") : `${tx("View All", "Ver Todos")} ${athletes.length}`}
         </button>
       </div>
 
@@ -38,13 +40,13 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-secondary/60 text-muted-foreground font-mono uppercase text-[10px] tracking-wider border-b border-border">
-                <th className="py-3 px-4">Athlete / Program</th>
-                <th className="py-3 px-4">Sleep (Last Night)</th>
-                <th className="py-3 px-4">Readiness</th>
-                <th className="py-3 px-4">Fatigue</th>
-                <th className="py-3 px-4">Soreness</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3 px-4">{tx("Athlete / Program", "Atleta / Programa")}</th>
+                <th className="py-3 px-4">{tx("Sleep (Last Night)", "Sueño (Última Noche)")}</th>
+                <th className="py-3 px-4">{tx("Readiness", "Preparación")}</th>
+                <th className="py-3 px-4">{tx("Fatigue", "Fatiga")}</th>
+                <th className="py-3 px-4">{tx("Soreness", "Agujetas")}</th>
+                <th className="py-3 px-4">{tx("Status", "Estado")}</th>
+                <th className="py-3 px-4 text-right">{tx("Actions", "Acciones")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border text-foreground">
@@ -79,7 +81,7 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
                         </div>
                       </div>
                       <span className="text-[10px] font-mono text-muted-foreground">
-                        {sleepH < 6.5 ? `Deficit (-${(7.5 - sleepH).toFixed(1)}h)` : "Target met"}
+                        {sleepH < 6.5 ? `${tx("Deficit", "Déficit")} (-${(7.5 - sleepH).toFixed(1)}h)` : tx("Target met", "Meta cumplida")}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
@@ -107,11 +109,11 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
                     <td className="py-3.5 px-4">
                       {isInjured ? (
                         <span className="px-2 py-0.5 rounded bg-destructive/15 text-destructive font-mono text-[11px] font-medium border border-destructive/20">
-                          {ath.injuryStatus?.injuryLocation || "Attention Flag"}
+                          {ath.injuryStatus?.injuryLocation || tx("Attention Flag", "Alerta Activa")}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded bg-success/15 text-success font-mono text-[11px] font-medium border border-success/20">
-                          Optimal (Cleared)
+                          {tx("Optimal (Cleared)", "Óptimo (Apto)")}
                         </span>
                       )}
                     </td>
@@ -119,19 +121,19 @@ export function CoachSleepTable({ onSelectAthlete, onOpenMessages }: CoachSleepT
                       <div className="flex items-center justify-end gap-1">
                         <button
                           type="button"
-                          aria-label={`Direct message ${ath.name}`}
+                          aria-label={`${tx("Direct message", "Mensaje directo a")} ${ath.name}`}
                           onClick={() => onOpenMessages(ath.id)}
                           className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
-                          title="Direct Message"
+                          title={tx("Direct Message", "Mensaje Directo")}
                         >
                           <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                         <button
                           type="button"
-                          aria-label={`Inspect full profile for ${ath.name}`}
+                          aria-label={`${tx("Inspect full profile for", "Ver perfil completo de")} ${ath.name}`}
                           onClick={() => onSelectAthlete(ath.id)}
                           className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center text-brand transition-colors cursor-pointer min-h-[36px] min-w-[36px]"
-                          title="Inspect Full Profile"
+                          title={tx("Inspect Full Profile", "Ver Perfil Completo")}
                         >
                           <LineChart className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>

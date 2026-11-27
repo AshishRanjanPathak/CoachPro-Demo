@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Check
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface AthleteProfileCardProps {
   onOpenMessages?: () => void;
@@ -26,6 +27,7 @@ interface AthleteProfileCardProps {
 
 export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) {
   const { state, currentUser, updateAthleteProfile } = useAuth();
+  const { tx } = useLanguage();
 
   // Find active athlete profile corresponding to current logged in user
   const athlete = resolveActiveAthlete(state, currentUser?.id);
@@ -86,13 +88,13 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
                     {athlete?.name || currentUser?.name || "Athlete"}
                   </h2>
                   <Badge variant="outline" className="text-[11px] font-medium border-brand/30 text-brand bg-brand/5 px-2 py-0">
-                    {athlete?.experienceLevel || "Intermediate Lifter"}
+                    {athlete?.experienceLevel || tx("Intermediate Lifter", "Nivel Intermedio")}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Coach: <span className="font-medium text-foreground">{athlete?.assignedCoachName || "Sarah Jenkins, CSCS"}</span>
+                  {tx("Coach:", "Entrenadora:")} <span className="font-medium text-foreground">{athlete?.assignedCoachName || "Sarah Jenkins, CSCS"}</span>
                   {athlete?.squad && (
-                    <span className="hidden sm:inline"> • Squad: <span className="font-medium text-foreground">{athlete.squad}</span></span>
+                    <span className="hidden sm:inline"> • {tx("Squad:", "Grupo:")} <span className="font-medium text-foreground">{athlete.squad}</span></span>
                   )}
                 </p>
               </div>
@@ -106,10 +108,10 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
                 size="sm"
                 onClick={() => setEditOpen(true)}
                 className="text-xs h-9 px-3 gap-1.5 rounded-lg border-border hover:bg-secondary cursor-pointer focus-visible:ring-2 focus-visible:ring-brand"
-                aria-label="Edit Profile Measurements"
+                aria-label={tx("Edit Profile Measurements", "Editar Medidas del Perfil")}
               >
                 <Edit3 className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
-                <span>Measurements</span>
+                <span>{tx("Measurements", "Medidas")}</span>
               </Button>
 
               {onOpenMessages && (
@@ -119,10 +121,10 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
                   size="sm"
                   onClick={onOpenMessages}
                   className="text-xs h-9 px-3 gap-1.5 rounded-lg font-semibold cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-ring"
-                  aria-label="Message Coach"
+                  aria-label={tx("Message Coach", "Mensaje al Entrenador")}
                 >
                   <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>Ask Coach</span>
+                  <span>{tx("Ask Coach", "Hablar con Coach")}</span>
                 </Button>
               )}
             </div>
@@ -133,22 +135,22 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             {/* Metric 1: Age */}
             <div className="p-2.5 sm:p-3 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between">
               <div className="flex items-center justify-between text-muted-foreground mb-0.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider">Age</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider">{tx("Age", "Edad")}</span>
                 <Calendar className="w-3.5 h-3.5 text-brand" aria-hidden="true" />
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-extrabold text-foreground tabular-nums">
                   {athlete?.age || 26}
                 </span>
-                <span className="text-[11px] text-muted-foreground font-medium">years</span>
+                <span className="text-[11px] text-muted-foreground font-medium">{tx("years", "años")}</span>
               </div>
-              <span className="text-[10px] text-muted-foreground/80 mt-0.5">Active</span>
+              <span className="text-[10px] text-muted-foreground/80 mt-0.5">{tx("Active", "Activo")}</span>
             </div>
 
             {/* Metric 2: Height */}
             <div className="p-2.5 sm:p-3 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between">
               <div className="flex items-center justify-between text-muted-foreground mb-0.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider">Height</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider">{tx("Height", "Estatura")}</span>
                 <Ruler className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
               </div>
               <div className="flex items-baseline gap-1">
@@ -165,7 +167,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             {/* Metric 3: Weight */}
             <div className="p-2.5 sm:p-3 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between">
               <div className="flex items-center justify-between text-muted-foreground mb-0.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider">Weight</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider">{tx("Weight", "Peso")}</span>
                 <Weight className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
               </div>
               <div className="flex items-baseline gap-1">
@@ -182,7 +184,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             {/* Metric 4: Daily Energy / Readiness */}
             <div className="p-2.5 sm:p-3 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between">
               <div className="flex items-center justify-between text-muted-foreground mb-0.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider">Energy</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider">{tx("Energy", "Energía")}</span>
                 <HeartPulse className="w-3.5 h-3.5 text-rose-400" aria-hidden="true" />
               </div>
               <div className="flex items-baseline gap-1">
@@ -192,7 +194,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
                 <span className="text-[11px] text-muted-foreground font-medium">/ 10</span>
               </div>
               <span className="text-[10px] text-emerald-400 font-medium mt-0.5 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 inline" /> Ready
+                <ShieldCheck className="w-3 h-3 inline" /> {tx("Ready", "Listo")}
               </span>
             </div>
           </div>
@@ -202,11 +204,11 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             <div className="flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 text-brand shrink-0" aria-hidden="true" />
               <p className="text-xs text-foreground/90 leading-relaxed">
-                <span className="font-semibold text-brand">Goal:</span> {athlete?.trainingGoal || "Build strength while preserving joint health."}
+                <span className="font-semibold text-brand">{tx("Goal:", "Objetivo:")}</span> {athlete?.trainingGoal || tx("Build strength while preserving joint health.", "Ganar fuerza cuidando la salud articular.")}
               </p>
             </div>
             <span className="text-[11px] text-muted-foreground shrink-0 font-medium">
-              Streak: {athlete?.currentStreakDays ?? 0}d active 🔥
+              {tx("Streak:", "Racha:")} {athlete?.currentStreakDays ?? 0}d {tx("active", "activo")} 🔥
             </span>
           </div>
         </CardContent>
@@ -217,11 +219,14 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
         <DialogContent className="sm:max-w-md p-5 sm:p-6 rounded-2xl">
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs">Personal Metrics</Badge>
+              <Badge variant="outline" className="text-xs">{tx("Personal Metrics", "Medidas Personales")}</Badge>
             </div>
-            <DialogTitle className="text-lg font-bold">Update Your Measurements</DialogTitle>
+            <DialogTitle className="text-lg font-bold">{tx("Update Your Measurements", "Actualizar Tus Medidas")}</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Keep your weight and measurements current so your coach can accurately auto-regulate your weights.
+              {tx(
+                "Keep your weight and measurements current so your coach can accurately auto-regulate your weights.",
+                "Mantén tu peso y medidas al día para que tu entrenador ajuste tus cargas con precisión."
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -229,7 +234,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             {/* Body Weight */}
             <div className="space-y-2">
               <label htmlFor="weight-input" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex justify-between">
-                <span>Body Weight (kg)</span>
+                <span>{tx("Body Weight (kg)", "Peso Corporal (kg)")}</span>
                 <span className="font-mono text-foreground font-normal">{Math.round(tempWeight * 2.20462)} lbs</span>
               </label>
               <div className="flex items-center gap-2">
@@ -268,7 +273,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             {/* Height */}
             <div className="space-y-2">
               <label htmlFor="height-input" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex justify-between">
-                <span>Height (cm)</span>
+                <span>{tx("Height (cm)", "Estatura (cm)")}</span>
                 <span className="font-mono text-foreground font-normal">
                   {Math.floor(Math.round(tempHeight / 2.54) / 12)} ft {Math.round(tempHeight / 2.54) % 12} in
                 </span>
@@ -309,7 +314,7 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             {/* Age */}
             <div className="space-y-2">
               <label htmlFor="age-input" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Age (years)
+                {tx("Age (years)", "Edad (años)")}
               </label>
               <Input
                 id="age-input"
@@ -326,15 +331,15 @@ export function AthleteProfileCard({ onOpenMessages }: AthleteProfileCardProps) 
             <DialogFooter className="mx-0 mb-0 rounded-none bg-transparent border-t border-border pt-3 px-0 pb-0">
               <div className="flex items-center justify-end gap-2 w-full">
                 <Button type="button" variant="ghost" size="sm" onClick={() => setEditOpen(false)} className="h-10 text-xs">
-                  Cancel
+                  {tx("Cancel", "Cancelar")}
                 </Button>
                 <Button type="submit" variant="default" size="sm" className="h-10 text-xs font-semibold px-5 gap-1.5">
                   {savedSuccess ? (
                     <>
-                      <Check className="w-4 h-4 text-success" /> Saved!
+                      <Check className="w-4 h-4 text-success" /> {tx("Saved!", "¡Guardado!")}
                     </>
                   ) : (
-                    "Save Measurements"
+                    tx("Save Measurements", "Guardar Medidas")
                   )}
                 </Button>
               </div>

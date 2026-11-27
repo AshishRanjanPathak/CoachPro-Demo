@@ -3,6 +3,7 @@
 import React from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { useKeyboardViewport } from "@/hooks/useKeyboardViewport";
+import { useLanguage } from "@/lib/i18n";
 import { 
   Home,
   Dumbbell, 
@@ -26,6 +27,7 @@ interface MobileNavProps {
 export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
   const { currentRole, state, currentUser } = useAuth();
   const { isKeyboardVisible } = useKeyboardViewport();
+  const { tx } = useLanguage();
 
   // Subtle 2026 mobile haptic feedback emulation
   const triggerHaptic = () => {
@@ -57,12 +59,12 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
 
   if (currentRole === "athlete") {
     navItems = [
-      { id: "home", label: "Today", icon: <Home className="w-5 h-5" /> },
-      { id: "training", label: "Workout", icon: <Dumbbell className="w-5 h-5" /> },
-      { id: "recovery", label: "Recovery", icon: <HeartPulse className="w-5 h-5" /> },
+      { id: "home", label: tx("Today", "Hoy"), icon: <Home className="w-5 h-5" /> },
+      { id: "training", label: tx("Workout", "Entreno"), icon: <Dumbbell className="w-5 h-5" /> },
+      { id: "recovery", label: tx("Recovery", "Recup."), icon: <HeartPulse className="w-5 h-5" /> },
       {
         id: "bonobo",
-        label: "Bonobo AI",
+        label: tx("Bonobo AI", "Bonobo IA"),
         icon: (
           <img
             src="/icon.png"
@@ -71,26 +73,26 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
           />
         )
       },
-      { id: "messages", label: "Chat", icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
+      { id: "messages", label: tx("Chat", "Chat"), icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
     ];
   } else if (currentRole === "coach") {
     navItems = [
-      { id: "dashboard", label: "Hub", icon: <Activity className="w-5 h-5" /> },
-      { id: "queue", label: "Triage", icon: <AlertTriangle className="w-5 h-5" />, badge: triageCount },
-      { id: "roster", label: "Roster", icon: <Users className="w-5 h-5" /> },
-      { id: "telemetry", label: "Strength", icon: <TrendingUp className="w-5 h-5" /> },
-      { id: "builder", label: "Programs", icon: <Layers className="w-5 h-5" /> },
-      { id: "messages", label: "Chat", icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
+      { id: "dashboard", label: tx("Hub", "Panel"), icon: <Activity className="w-5 h-5" /> },
+      { id: "queue", label: tx("Triage", "Avisos"), icon: <AlertTriangle className="w-5 h-5" />, badge: triageCount },
+      { id: "roster", label: tx("Roster", "Plantilla"), icon: <Users className="w-5 h-5" /> },
+      { id: "telemetry", label: tx("Strength", "Fuerza"), icon: <TrendingUp className="w-5 h-5" /> },
+      { id: "builder", label: tx("Programs", "Programas"), icon: <Layers className="w-5 h-5" /> },
+      { id: "messages", label: tx("Chat", "Chat"), icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
     ];
   } else if (currentRole === "org_admin") {
     navItems = [
-      { id: "overview", label: "Team", icon: <Users className="w-5 h-5" /> },
-      { id: "billing", label: "Billing", icon: <CreditCard className="w-5 h-5" /> },
+      { id: "overview", label: tx("Team", "Equipo"), icon: <Users className="w-5 h-5" /> },
+      { id: "billing", label: tx("Billing", "Facturas"), icon: <CreditCard className="w-5 h-5" /> },
     ];
   } else if (currentRole === "platform_admin") {
     navItems = [
-      { id: "overview", label: "Metrics", icon: <ShieldCheck className="w-5 h-5" /> },
-      { id: "audit", label: "Audit", icon: <TrendingUp className="w-5 h-5" /> },
+      { id: "overview", label: tx("Metrics", "Métricas"), icon: <ShieldCheck className="w-5 h-5" /> },
+      { id: "audit", label: tx("Audit", "Auditoría"), icon: <TrendingUp className="w-5 h-5" /> },
     ];
   }
 

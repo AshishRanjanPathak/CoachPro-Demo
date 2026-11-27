@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { UserRole } from "@/types";
 import { verifyUserPassword } from "@/lib/accountSecurity";
+import { useLanguage } from "@/lib/i18n";
+import { LanguageSwitch } from "@/components/shared/LanguageSwitch";
 import {
   Dumbbell,
   Activity,
@@ -17,6 +19,7 @@ import {
 
 export function LoginPage() {
   const { login, state } = useAuth();
+  const { tx } = useLanguage();
   const [selectedRole, setSelectedRole] = useState<"athlete" | "coach" | "admin">("coach");
   const [email, setEmail] = useState("sarah@apexperformance.com");
   const [password, setPassword] = useState("password123");
@@ -28,25 +31,34 @@ export function LoginPage() {
   const roleMeta = {
     athlete: {
       actualRole: "athlete" as UserRole,
-      title: "Athlete",
-      copy: "Access your workouts, submit daily recovery, and track your progress.",
-      btnText: "Sign in to Athlete Space",
+      title: tx("Athlete", "Atleta"),
+      copy: tx(
+        "Access your workouts, submit daily recovery, and track your progress.",
+        "Accede a tus entrenamientos, registra tu recuperación y sigue tu progreso."
+      ),
+      btnText: tx("Sign in to Athlete Space", "Entrar al Espacio Atleta"),
       defaultEmail: "alex.chen@example.com",
       icon: <Dumbbell className="w-4 h-4" />
     },
     coach: {
       actualRole: "coach" as UserRole,
-      title: "Coach",
-      copy: "Manage your athletes, attention queue, programs, and performance reports.",
-      btnText: "Sign in to Coach Console",
+      title: tx("Coach", "Entrenador"),
+      copy: tx(
+        "Manage your athletes, attention queue, programs, and performance reports.",
+        "Gestiona tus atletas, avisos prioritarios, programas e informes."
+      ),
+      btnText: tx("Sign in to Coach Console", "Entrar a Consola Coach"),
       defaultEmail: "sarah@apexperformance.com",
       icon: <Activity className="w-4 h-4" />
     },
     admin: {
       actualRole: "platform_admin" as UserRole,
-      title: "Admin",
-      copy: "Manage your organization, team seats, billing, and SaaS infrastructure.",
-      btnText: "Sign in to Platform Admin",
+      title: tx("Admin", "Admin"),
+      copy: tx(
+        "Manage your organization, team seats, billing, and SaaS infrastructure.",
+        "Administra tu organización, miembros, facturación y auditoría."
+      ),
+      btnText: tx("Sign in to Platform Admin", "Entrar a Panel Admin"),
       defaultEmail: "elena@coachpro.io",
       icon: <Shield className="w-4 h-4" />
     }
@@ -63,11 +75,11 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      setErrorMsg("Please fill in all credentials.");
+      setErrorMsg(tx("Please fill in all credentials.", "Por favor completa todas tus credenciales."));
       return;
     }
     if (password.length < 6) {
-      setErrorMsg("Password must be at least 6 characters.");
+      setErrorMsg(tx("Password must be at least 6 characters.", "La contraseña debe tener al menos 6 caracteres."));
       return;
     }
 
@@ -82,7 +94,7 @@ export function LoginPage() {
       const valid = await verifyUserPassword(matchedUser.id, password);
       if (!valid) {
         setIsLoading(false);
-        setErrorMsg("Incorrect password for this account.");
+        setErrorMsg(tx("Incorrect password for this account.", "Contraseña incorrecta para esta cuenta."));
         return;
       }
     }
@@ -93,7 +105,7 @@ export function LoginPage() {
   };
 
   const handleGoogleAuth = () => {
-    setInfoNotice("Connecting to Google Workspace Single Sign-On...");
+    setInfoNotice(tx("Connecting to Google Workspace Single Sign-On...", "Conectando con Google Workspace SSO..."));
     setTimeout(() => {
       login(currentInfo.actualRole, email);
     }, 700);
@@ -102,8 +114,8 @@ export function LoginPage() {
   return (
     <div className="min-h-screen w-full bg-background text-foreground flex flex-col justify-between p-4 sm:p-6 antialiased selection:bg-brand/20">
       <div className="w-full max-w-md mx-auto flex flex-col gap-5 py-2">
-        {/* Top Brand Header matching Bonobo Logo */}
-        <header className="flex items-center justify-between pt-1">
+        {/* Top Brand Header + EN / ES Switch */}
+        <header className="flex items-center justify-between pt-1 gap-3">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-xl overflow-hidden bg-black border border-white/10 flex items-center justify-center shadow-xs shrink-0">
               <img
@@ -116,12 +128,17 @@ export function LoginPage() {
               <span className="text-xl font-black tracking-wider text-foreground uppercase font-mono">BONOBO</span>
             </div>
           </div>
+
+          <LanguageSwitch />
         </header>
 
         {/* Clean Hero Photo */}
         <div className="relative w-full rounded-2xl overflow-hidden aspect-[16/9] shadow-xs border border-border bg-card">
           <img
-            alt="Athletic coach and performer training with dumbbell in fitness studio"
+            alt={tx(
+              "Athletic coach and performer training with dumbbell in fitness studio",
+              "Entrenador y atleta entrenando con mancuerna en estudio deportivo"
+            )}
             className="w-full h-full object-cover object-center"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuC39imyrZkBFlpeFJcAuajRxNQm3xM-AYPtmuPhOrS3L1yqeAbhqdCXJcO1a-kTkBjUuRaxQGE-WGGFY2-5d_dDQlxs1mECUCFJupDXwX2CF3FOY50DaMs2psC_R2tQkNrTZuObllzflUerL4Xw__Lqf3O3K-yc9GdY4RQvaEwkEw53E5eMlkfeF7_fbgh3I5xJHJ2FVtOxTCjCOPC9DClSo2KclqloV126PQDQRXcq"
           />
@@ -130,10 +147,10 @@ export function LoginPage() {
         {/* Concise Heading */}
         <div className="flex flex-col gap-0.5 text-left">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-            Sign in to BONOBO
+            {tx("Sign in to BONOBO", "Inicia sesión en BONOBO")}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Choose your role to continue.
+            {tx("Choose your role to continue.", "Elige tu rol para continuar.")}
           </p>
         </div>
 
@@ -174,7 +191,7 @@ export function LoginPage() {
             {/* Email Input */}
             <div className="flex flex-col gap-1.5 text-left">
               <label className="text-xs font-semibold text-foreground cursor-pointer" htmlFor="email">
-                Email address
+                {tx("Email address", "Correo electrónico")}
               </label>
               <input
                 id="email"
@@ -189,7 +206,7 @@ export function LoginPage() {
                   setEmail(e.target.value);
                   setErrorMsg(null);
                 }}
-                placeholder="you@example.com…"
+                placeholder={tx("you@example.com…", "tu@ejemplo.com…")}
                 className="w-full h-11 px-3.5 bg-background rounded-lg text-sm text-foreground placeholder:text-muted-foreground border border-border focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand focus-visible:outline-hidden transition-colors"
               />
             </div>
@@ -198,14 +215,21 @@ export function LoginPage() {
             <div className="flex flex-col gap-1.5 text-left">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-foreground cursor-pointer" htmlFor="password">
-                  Password
+                  {tx("Password", "Contraseña")}
                 </label>
                 <button
                   type="button"
-                  onClick={() => setInfoNotice("Password reset link sent to registered email.")}
+                  onClick={() =>
+                    setInfoNotice(
+                      tx(
+                        "Password reset link sent to registered email.",
+                        "Enlace de recuperación enviado al correo registrado."
+                      )
+                    )
+                  }
                   className="text-xs font-semibold text-brand hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-hidden rounded"
                 >
-                  Forgot password?
+                  {tx("Forgot password?", "¿Olvidaste tu contraseña?")}
                 </button>
               </div>
               <div className="relative flex items-center">
@@ -222,12 +246,12 @@ export function LoginPage() {
                     setPassword(e.target.value);
                     setErrorMsg(null);
                   }}
-                  placeholder="Enter your password…"
+                  placeholder={tx("Enter your password…", "Ingresa tu contraseña…")}
                   className="w-full h-11 pl-3.5 pr-11 bg-background rounded-lg text-sm text-foreground placeholder:text-muted-foreground border border-border focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand focus-visible:outline-hidden transition-colors"
                 />
                 <button
                   type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? tx("Hide password", "Ocultar contraseña") : tx("Show password", "Mostrar contraseña")}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-0 top-0 bottom-0 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-hidden rounded-r-lg transition-colors cursor-pointer"
                 >
@@ -259,7 +283,7 @@ export function LoginPage() {
               disabled={isLoading}
               className="w-full h-11 rounded-lg bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-xs hover:opacity-90 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-hidden cursor-pointer mt-1 min-h-[44px]"
             >
-              <span>{isLoading ? "Authenticating…" : currentInfo.btnText}</span>
+              <span>{isLoading ? tx("Authenticating…", "Iniciando sesión…") : currentInfo.btnText}</span>
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </form>
@@ -268,7 +292,7 @@ export function LoginPage() {
           <div className="relative flex py-1 items-center">
             <div className="flex-grow bg-border h-[1px]"></div>
             <span className="flex-shrink mx-3 text-muted-foreground text-[11px] uppercase tracking-wider font-medium">
-              or continue with
+              {tx("or continue with", "o continúa con")}
             </span>
             <div className="flex-grow bg-border h-[1px]"></div>
           </div>
@@ -297,19 +321,26 @@ export function LoginPage() {
                 fill="#EA4335"
               />
             </svg>
-            <span>Continue with Google Workspace</span>
+            <span>{tx("Continue with Google Workspace", "Continuar con Google Workspace")}</span>
           </button>
 
           {/* Access Request Prompt */}
           <div className="pt-1 text-center">
             <p className="text-xs text-muted-foreground">
-              Don’t have an account?{" "}
+              {tx("Don’t have an account?", "¿No tienes una cuenta?")}{" "}
               <button
                 type="button"
-                onClick={() => setInfoNotice("Enterprise access request form dispatched to admissions.")}
+                onClick={() =>
+                  setInfoNotice(
+                    tx(
+                      "Enterprise access request form dispatched to admissions.",
+                      "Solicitud de acceso enviada al equipo de soporte."
+                    )
+                  )
+                }
                 className="font-semibold text-brand hover:underline ml-1 cursor-pointer"
               >
-                Request access
+                {tx("Request access", "Solicitar acceso")}
               </button>
             </p>
           </div>

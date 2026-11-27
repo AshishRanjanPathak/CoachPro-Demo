@@ -35,9 +35,11 @@ import {
   Clock,
   Copy
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export function ProgramBuilder() {
   const { state, addProgram, deleteProgram, updateAthleteProfile, currentUser } = useAuth();
+  const { tx } = useLanguage();
 
   // Top-level Navigation: "library" (browse & assign) vs "create" (focused builder)
   const [activeView, setActiveView] = useState<"library" | "create">("library");
@@ -528,7 +530,7 @@ export function ProgramBuilder() {
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>Program Library</span>
+            <span>{tx("Program Library", "Biblioteca de Programas")}</span>
             <span
               className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
                 activeView === "library" ? "bg-primary-foreground/15 text-primary-foreground" : "bg-secondary text-muted-foreground"
@@ -551,7 +553,7 @@ export function ProgramBuilder() {
             }`}
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>+ Create Program</span>
+            <span>{tx("+ Create Program", "+ Crear Programa")}</span>
           </button>
         </div>
 
@@ -567,7 +569,7 @@ export function ProgramBuilder() {
             className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer border-brand/30 text-brand hover:bg-brand/10"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>New Program</span>
+            <span>{tx("New Program", "Nuevo Programa")}</span>
           </Button>
         )}
       </div>
@@ -583,9 +585,12 @@ export function ProgramBuilder() {
                 <div className="w-12 h-12 rounded-2xl bg-brand/10 text-brand flex items-center justify-center mx-auto">
                   <Layers className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold text-foreground">No Programs in Library Yet</h3>
+                <h3 className="text-base font-bold text-foreground">{tx("No Programs in Library Yet", "Aún No Hay Programas en la Biblioteca")}</h3>
                 <p className="text-xs text-muted-foreground">
-                  Build custom periodized templates with sets, reps, and target weights, then assign them directly to your athletes or squads.
+                  {tx(
+                    "Build custom periodized templates with sets, reps, and target weights, then assign them directly to your athletes or squads.",
+                    "Crea plantillas personalizadas con series, repeticiones y cargas, y asígnalas directamente a tus atletas o grupos."
+                  )}
                 </p>
                 <Button
                   type="button"
@@ -594,7 +599,7 @@ export function ProgramBuilder() {
                   onClick={() => setActiveView("create")}
                   className="gap-2 font-bold cursor-pointer mt-2"
                 >
-                  <Plus className="w-4 h-4" /> Create Your First Program
+                  <Plus className="w-4 h-4" /> {tx("Create Your First Program", "Crear Tu Primer Programa")}
                 </Button>
               </div>
             </Card>
@@ -629,11 +634,11 @@ export function ProgramBuilder() {
                         <div className="flex items-center gap-2 shrink-0 text-xs text-muted-foreground flex-wrap">
                           <span className="inline-flex items-center gap-1 bg-secondary/60 px-2.5 py-1 rounded-lg">
                             <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                            <strong className="text-foreground">{prog.targetWeeks}</strong> wks
+                            <strong className="text-foreground">{prog.targetWeeks}</strong> {tx("wks", "sem")}
                           </span>
                           <span className="inline-flex items-center gap-1 bg-secondary/60 px-2.5 py-1 rounded-lg">
                             <Dumbbell className="w-3.5 h-3.5 text-muted-foreground" />
-                            <strong className="text-foreground">{prog.days.length}</strong> days/wk
+                            <strong className="text-foreground">{prog.days.length}</strong> {tx("days/wk", "días/sem")}
                           </span>
                         </div>
                       </div>
@@ -644,18 +649,18 @@ export function ProgramBuilder() {
                           {isAssigned ? (
                             <Badge variant="outline" className="gap-1.5 font-semibold text-xs py-1 px-2.5 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                               <Users className="w-3.5 h-3.5" />
-                              <span>{assignedAthletes.length} Athletes Assigned</span>
+                              <span>{assignedAthletes.length} {tx("Athletes Assigned", "Atletas Asignados")}</span>
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="text-muted-foreground text-xs py-1 px-2.5">
-                              Not assigned to any athlete
+                              {tx("Not assigned to any athlete", "Sin atletas asignados")}
                             </Badge>
                           )}
 
                           {isAssigned && (
                             <span className="text-[11px] text-muted-foreground truncate max-w-xs hidden md:inline">
                               {assignedAthletes.slice(0, 3).map(a => a.name).join(", ")}
-                              {assignedAthletes.length > 3 && ` +${assignedAthletes.length - 3} more`}
+                              {assignedAthletes.length > 3 && ` +${assignedAthletes.length - 3} ${tx("more", "más")}`}
                             </span>
                           )}
                         </div>
@@ -669,7 +674,7 @@ export function ProgramBuilder() {
                             onClick={() => setExpandedProgramId(isExpanded ? null : prog.id)}
                             className="text-xs gap-1 text-muted-foreground hover:text-foreground h-9 px-2.5 cursor-pointer"
                           >
-                            <span>{isExpanded ? "Hide Days" : "View Days"}</span>
+                            <span>{isExpanded ? tx("Hide Days", "Ocultar Días") : tx("View Days", "Ver Días")}</span>
                             {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                           </Button>
 
@@ -679,10 +684,10 @@ export function ProgramBuilder() {
                             size="sm"
                             onClick={() => handleCloneAndCustomize(prog)}
                             className="text-xs gap-1 h-9 px-2.5 cursor-pointer border-border hover:bg-secondary text-muted-foreground hover:text-foreground"
-                            title="Clone this template into the builder to customize for an athlete"
+                            title={tx("Clone this template into the builder to customize for an athlete", "Clonar esta plantilla en el constructor para personalizarla")}
                           >
                             <Copy className="w-3.5 h-3.5" />
-                            <span className="hidden lg:inline">Clone &amp; Tweak</span>
+                            <span className="hidden lg:inline">{tx("Clone & Tweak", "Clonar y Editar")}</span>
                           </Button>
 
                           <Button
@@ -691,10 +696,10 @@ export function ProgramBuilder() {
                             size="sm"
                             onClick={() => handleOpenAssignModal(prog)}
                             className="h-9 px-3.5 text-xs font-bold gap-1.5 shadow-xs cursor-pointer min-h-[36px]"
-                            title={`Assign ${prog.title} to athletes or squads`}
+                            title={`${tx("Assign", "Asignar")} ${prog.title}`}
                           >
                             <UserPlus className="w-3.5 h-3.5" />
-                            <span>Assign Athletes</span>
+                            <span>{tx("Assign Athletes", "Asignar Atletas")}</span>
                           </Button>
 
                           <Button
@@ -703,8 +708,8 @@ export function ProgramBuilder() {
                             size="sm"
                             onClick={() => setConfirmDeleteProg(prog)}
                             className="h-9 w-9 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl cursor-pointer"
-                            title={`Delete program ${prog.title}`}
-                            aria-label={`Delete program ${prog.title}`}
+                            title={`${tx("Delete program", "Eliminar programa")} ${prog.title}`}
+                            aria-label={`${tx("Delete program", "Eliminar programa")} ${prog.title}`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -715,7 +720,7 @@ export function ProgramBuilder() {
                       {isExpanded && (
                         <div className="pt-3 border-t border-border/80 space-y-2.5 animate-in fade-in duration-200">
                           <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-                            Training Schedule &amp; Prescriptions ({prog.days.length} Days)
+                            {tx("Training Schedule & Prescriptions", "Calendario y Prescripciones")} ({prog.days.length} {tx("Days", "Días")})
                           </span>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             {prog.days.map(d => (

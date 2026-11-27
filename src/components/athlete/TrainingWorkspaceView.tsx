@@ -6,6 +6,7 @@ import { resolveActiveSessionContext } from "@/lib/store";
 import { WorkoutLoggerModal } from "@/components/athlete/WorkoutLoggerModal";
 import { ExerciseDetailModal } from "@/components/exercise/ExerciseDetailModal";
 import { resolveExerciseThumbnail } from "@/lib/exercises";
+import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import {
 
 export function TrainingWorkspaceView() {
   const { state, resetWorkoutSession } = useAuth();
+  const { locale, tx } = useLanguage();
   const [loggerOpen, setLoggerOpen] = useState(false);
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | undefined>(undefined);
   const [detailModalExercise, setDetailModalExercise] = useState<{ id: string; name: string } | null>(null);
@@ -30,13 +32,13 @@ export function TrainingWorkspaceView() {
 
   useEffect(() => {
     setCurrentDateStr(
-      new Date().toLocaleDateString(undefined, {
+      new Date().toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
         weekday: "long",
         month: "short",
         day: "numeric"
       })
     );
-  }, []);
+  }, [locale]);
 
   const { session, program, prescriptions, plannedSets: totalPrescribedSets } = resolveActiveSessionContext(state);
 
@@ -70,7 +72,7 @@ export function TrainingWorkspaceView() {
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-mono uppercase tracking-wider text-brand font-semibold">
-              Today&apos;s Training
+              {tx("Today's Training", "Entreno de Hoy")}
             </span>
             <span className="text-border">•</span>
             <span className="text-xs text-muted-foreground flex items-center gap-1 font-mono">
@@ -87,34 +89,34 @@ export function TrainingWorkspaceView() {
               className="text-xs font-semibold h-9 px-3 rounded-lg"
             >
               <Plus className="w-3.5 h-3.5 text-brand" aria-hidden="true" />
-              <span>Quick Log</span>
+              <span>{tx("Quick Log", "Registro Rápido")}</span>
             </Button>
 
             {isCompleted ? (
               <Badge variant="outline" className="text-[11px] font-medium border-success/30 bg-success/10 text-success">
-                <CheckCircle2 className="w-3 h-3 mr-1" aria-hidden="true" /> Completed
+                <CheckCircle2 className="w-3 h-3 mr-1" aria-hidden="true" /> {tx("Completed", "Completado")}
               </Badge>
             ) : (
               <Badge variant="outline" className="text-[11px] font-medium">
-                In Progress
+                {tx("In Progress", "En Curso")}
               </Badge>
             )}
           </div>
         </div>
 
         <h2 className="text-xl sm:text-2xl font-bold heading-tight text-foreground">
-          {session.dayName || "Strength & Conditioning Session"}
+          {session.dayName || tx("Strength & Conditioning Session", "Sesión de Fuerza y Acondicionamiento")}
         </h2>
         <p className="text-muted-foreground text-xs sm:text-sm mt-1">
-          {session.programTitle || program?.title || "Strength Program"}
+          {session.programTitle || program?.title || tx("Strength Program", "Programa de Fuerza")}
         </p>
 
         {/* Session Progress Indicator */}
         <div className="mt-4 pt-3.5 border-t border-border">
           <div className="flex justify-between items-center text-xs font-medium text-muted-foreground mb-1.5">
-            <span>Progress</span>
+            <span>{tx("Progress", "Progreso")}</span>
             <span className="font-semibold text-foreground tabular-nums">
-              {completedSetsCount} / {totalPrescribedSets} sets
+              {completedSetsCount} / {totalPrescribedSets} {tx("sets", "series")}
             </span>
           </div>
           <Progress value={progressPercent} className="h-1.5" />
@@ -126,10 +128,10 @@ export function TrainingWorkspaceView() {
         <CardContent className="p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Exercises
+              {tx("Exercises", "Ejercicios")}
             </span>
             <span className="text-xs text-muted-foreground tabular-nums">
-              {prescriptions.length} total
+              {prescriptions.length} {tx("total", "en total")}
             </span>
           </div>
 
@@ -137,7 +139,7 @@ export function TrainingWorkspaceView() {
           <div className="divide-y divide-border border border-border rounded-xl overflow-hidden bg-card">
             {prescriptions.length === 0 ? (
               <div className="p-5 text-center text-xs text-muted-foreground">
-                No exercises prescribed in this block yet. Tap <strong className="text-foreground">Quick Log</strong> above to log any exercise.
+                {tx("No exercises prescribed in this block yet. Tap Quick Log above to log any exercise.", "Aún no hay ejercicios prescritos. Toca Registro Rápido arriba para añadir cualquier ejercicio.")}
               </div>
             ) : prescriptions.map((rx, idx) => {
               const loggedSets = session.sets.filter(s => s.exerciseId === rx.exerciseId);
@@ -190,12 +192,12 @@ export function TrainingWorkspaceView() {
                           aria-label={`View 2-pose demonstration for ${rx.exerciseName}`}
                         >
                           <Eye className="w-3 h-3" aria-hidden="true" />
-                          <span>Guide</span>
+                          <span>{tx("Guide", "Guía")}</span>
                         </button>
                       </div>
 
                       <div className="text-xs sm:text-sm text-muted-foreground mt-1 flex flex-wrap items-center gap-2 tabular-nums">
-                        <span className="font-medium text-foreground">{rx.sets}&nbsp;sets × {rx.repTarget}&nbsp;reps</span>
+                        <span className="font-medium text-foreground">{rx.sets}&nbsp;{tx("sets", "series")} × {rx.repTarget}&nbsp;reps</span>
                         <span>•</span>
                         <span className="font-medium text-foreground">{rx.targetLoadKg}&nbsp;kg</span>
                         {rx.targetRpe && (
@@ -219,7 +221,7 @@ export function TrainingWorkspaceView() {
                       variant={isRxComplete ? "outline" : "secondary"}
                       className={isRxComplete ? "tabular-nums text-xs px-2.5 py-1 font-semibold border-success/30 bg-success/10 text-success" : "tabular-nums text-xs px-2.5 py-1 font-semibold"}
                     >
-                      {loggedSets.length}&nbsp;/&nbsp;{rx.sets}&nbsp;sets
+                      {loggedSets.length}&nbsp;/&nbsp;{rx.sets}&nbsp;{tx("sets", "series")}
                     </Badge>
 
                     <Button
@@ -228,10 +230,10 @@ export function TrainingWorkspaceView() {
                       size="sm"
                       onClick={() => handleLogExerciseCard(rx.exerciseId)}
                       className="font-bold text-xs h-10 px-4 rounded-xl min-h-[44px] cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-ring flex items-center gap-1.5"
-                      aria-label={`Log set for ${rx.exerciseName}`}
+                      aria-label={tx(`Log set for ${rx.exerciseName}`, `Registrar serie de ${rx.exerciseName}`)}
                     >
                       <Plus className="w-3.5 h-3.5" aria-hidden="true" />
-                      <span>{isRxComplete ? "Log Extra Set" : "Log Set"}</span>
+                      <span>{isRxComplete ? tx("Log Extra Set", "Serie Extra") : tx("Log Set", "Registrar Serie")}</span>
                     </Button>
                   </div>
                 </div>
@@ -251,7 +253,7 @@ export function TrainingWorkspaceView() {
                 onClick={resetWorkoutSession}
                 className="text-xs min-h-[48px] px-4 rounded-xl focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
               >
-                <RotateCcw className="w-4 h-4 mr-1.5" aria-hidden="true" /> Reset
+                <RotateCcw className="w-4 h-4 mr-1.5" aria-hidden="true" /> {tx("Reset", "Reiniciar")}
               </Button>
             )}
 
@@ -268,7 +270,9 @@ export function TrainingWorkspaceView() {
               className="w-full sm:w-auto font-bold text-sm shadow-xs min-h-[48px] px-6 rounded-xl focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
             >
               <Play className="w-4 h-4 mr-2 fill-current" aria-hidden="true" />
-              {completedSetsCount === 0 ? "Start Today's Workout" : "Continue Logging Sets"}
+              {completedSetsCount === 0
+                ? tx("Start Today's Workout", "Empezar Entreno de Hoy")
+                : tx("Continue Logging Sets", "Seguir Registrando Series")}
             </Button>
           </div>
         </CardFooter>

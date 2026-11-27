@@ -19,6 +19,7 @@ import {
 import { BonoboAvatar } from "./BonoboAvatar";
 import { UnlockTrackModal } from "./UnlockTrackModal";
 import { soundController } from "@/lib/audio";
+import { useLanguage } from "@/lib/i18n";
 import {
   Sparkles,
   Volume2,
@@ -82,11 +83,70 @@ const COMPANION_QUOTES: Record<string, string[]> = {
   ]
 };
 
+const COMPANION_QUOTES_ES: Record<string, string[]> = {
+  happy: [
+    "Si no registras la serie, ¿la barra siquiera se movió? La ciencia dice que no.",
+    "¡Toma agua! La mitad de tu resistencia es simplemente no parecer una pasa.",
+    "Un entreno = +2 plátanos. Sí, acepto sobornos en potasio.",
+    "¡Listo cuando tú lo estés! Solo toca Registrar tras tu última serie."
+  ],
+  focused: [
+    "Aprieta el core, mueve kilos y guarda tu serie al terminar.",
+    "Técnica tan limpia que el espejo del gym está tomando notas.",
+    "Mi cinta suma +5 de apoyo moral por repetición.",
+    "El coach lo escribió; ahora hacemos que la gravedad se arrepienta."
+  ],
+  caring: [
+    "Los días suaves también cuentan — el músculo crece descansando.",
+    "¡Avisado para Sarah! Toma agua y cuida las rodillas hoy.",
+    "Descansa como campeón hoy para volar mañana con los pesos.",
+    "¡Escucha tus articulaciones, no a tu ego!"
+  ],
+  celebrating: [
+    "¡¡NIVEL DE PODER SUBIENDO!! ¡Nuevo récord + ki de Bonobo! ⚡🍌",
+    "¡Mira cómo suben esos números! Imparable hoy.",
+    "¡Ganancias registradas! Invítame un plátano para celebrar.",
+    "¡Choca esos cinco! ✋"
+  ],
+  pumped: [
+    "Congestión post-entreno + series guardadas = ruta rápida a Súper Bonobo ⚡",
+    "Mi pelo se eriza cada vez que bajas profundo en sentadilla.",
+    "¡Peso ligero! (Bueno, peso serio y técnica impecable).",
+    "¡Sigue registrando — tu próxima evolución está mirando!"
+  ],
+  content: [
+    "¡Listo! Registra tus series justo al salir de entrenar.",
+    "Chequeo de hidratación: Bonobo ya se tomó 3 cafés imaginarios.",
+    "Series constantes hoy = nuevas evoluciones mañana.",
+    "Tócame cuando necesites ánimo o un plátano."
+  ],
+  sleepy: [
+    "Zzz... el músculo crece durmiendo, no viendo redes sociales.",
+    "Protocolo de descanso: buena comida, agua y cero culpa.",
+    "Recargando energía ki para las cargas de mañana... 🛌",
+    "Día tranquilo. Hasta los campeones echan siesta."
+  ],
+  hungry: [
+    "¡Huele a entreno! Registra tus series y gana un plátano 🍌",
+    "Reserva de plátanos vacía. Emergencia deportiva detectada.",
+    "¡Completa el entreno de hoy y hago una transformación anime!",
+    "Esperando combustible post-entreno..."
+  ]
+};
+
+const STAGE_NAMES_ES: Record<number, { name: string; badge: string }> = {
+  1: { name: "Baby Bonobo", badge: "Fase 1 • Novato" },
+  2: { name: "Mono de Hierro", badge: "Fase 2 • Hierro" },
+  3: { name: "Súper Bonobo", badge: "Fase 3 • Súper" },
+  4: { name: "Bonobo Ápex", badge: "Fase 4 • Final" },
+};
+
 interface BonoboCompanionCardProps {
   onOpenAssistant?: () => void;
 }
 
 export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProps = {}) {
+  const { isEs, tx } = useLanguage();
   const [companion, setCompanion] = useState<CompanionState>(loadCompanionState);
   const [isEating, setIsEating] = useState(false);
   const [evolvedNotice, setEvolvedNotice] = useState<string | null>(null);
@@ -203,8 +263,12 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
   const nextStage = getNextEvolutionStage(companion.level);
   const displayedStageNumber = resolveDisplayStage(companion);
   const displayedStage = EVOLUTION_STAGES.find((s) => s.stage === displayedStageNumber) || currentStage;
+  const displayedStageName = isEs ? STAGE_NAMES_ES[displayedStageNumber]?.name || displayedStage.name : displayedStage.name;
+  const displayedStageBadge = isEs ? STAGE_NAMES_ES[displayedStageNumber]?.badge || displayedStage.badgeTitle : displayedStage.badgeTitle;
+  const nextStageName = nextStage && isEs ? STAGE_NAMES_ES[nextStage.stage]?.name || nextStage.name : nextStage?.name;
 
-  const quotes = COMPANION_QUOTES[companion.mood] || COMPANION_QUOTES.content;
+  const quoteBank = isEs ? COMPANION_QUOTES_ES : COMPANION_QUOTES;
+  const quotes = quoteBank[companion.mood] || quoteBank.content;
   const currentQuote = quotes[currentQuoteIndex % quotes.length];
   const xpPercent = Math.min(100, Math.round((companion.xp / companion.xpToNextLevel) * 100));
 
@@ -260,7 +324,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
           />
           <span className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold border border-border bg-secondary text-muted-foreground tabular-nums">
             <Sparkles className="h-3 w-3 text-warning" aria-hidden="true" />
-            <span>Lv. {companion.level} • {displayedStage.name}</span>
+            <span>{tx("Lv.", "Nv.")} {companion.level} • {displayedStageName}</span>
           </span>
         </div>
 
@@ -272,7 +336,11 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                 {companion.name}
               </h3>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold border shrink-0 ${themeStyle.accentColor}`}>
-                {displayedStage.stage >= 3 ? `⚡ ${displayedStage.name}` : companion.mood === "sleepy" ? "🛌 Rested" : displayedStage.badgeTitle}
+                {displayedStage.stage >= 3
+                  ? `⚡ ${displayedStageName}`
+                  : companion.mood === "sleepy"
+                  ? tx("🛌 Rested", "🛌 Descansado")
+                  : displayedStageBadge}
               </span>
             </div>
 
@@ -281,9 +349,9 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
               <button
                 type="button"
                 onClick={toggleSound}
-                title={muted ? "Unmute sounds" : "Mute sounds"}
+                title={muted ? tx("Unmute sounds", "Activar sonido") : tx("Mute sounds", "Silenciar sonido")}
                 className="p-2 rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors duration-150 active:scale-[0.97] min-h-[36px] min-w-[36px] flex items-center justify-center"
-                aria-label="Toggle audio effects"
+                aria-label={tx("Toggle audio effects", "Alternar efectos de sonido")}
               >
                 {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4 text-success" />}
               </button>
@@ -291,9 +359,9 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
               <button
                 type="button"
                 onClick={() => setClosetOpen(true)}
-                title="Customize Outfits"
+                title={tx("Customize Outfits", "Personalizar Equipo")}
                 className="p-2 rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors duration-150 active:scale-[0.97] min-h-[36px] min-w-[36px] flex items-center justify-center"
-                aria-label="Open cosmetic closet"
+                aria-label={tx("Open cosmetic closet", "Abrir armario")}
               >
                 <Shirt className="h-4 w-4 text-warning" />
               </button>
@@ -301,9 +369,9 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
               <button
                 type="button"
                 onClick={() => setThemeOpen(true)}
-                title="Switch Theme Vibe"
+                title={tx("Switch Theme Vibe", "Cambiar Color")}
                 className="p-2 rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors duration-150 active:scale-[0.97] min-h-[36px] min-w-[36px] flex items-center justify-center"
-                aria-label="Switch aesthetic theme"
+                aria-label={tx("Switch aesthetic theme", "Cambiar tema de tarjeta")}
               >
                 <Palette className="h-4 w-4 text-brand" />
               </button>
@@ -335,7 +403,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                 <span>{companion.xp} / {companion.xpToNextLevel} XP</span>
                 {nextStage && (
                   <span className="text-[10px] text-muted-foreground/80 hidden sm:inline">
-                    • {nextStage.name} at Lv.{nextStage.minLevel}
+                    • {nextStageName} {tx(`at Lv.${nextStage.minLevel}`, `al Nv.${nextStage.minLevel}`)}
                   </span>
                 )}
               </span>
@@ -344,7 +412,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                 onClick={() => setTrackOpen(true)}
                 className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
               >
-                Evolutions &amp; Gear →
+                {tx("Evolutions & Gear →", "Evoluciones y Equipo →")}
               </button>
             </div>
             <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
@@ -359,7 +427,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
           <div className="mt-3 pt-3 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
             <div className="flex items-center justify-between sm:justify-start gap-2">
               <span className="text-xs font-mono text-muted-foreground tabular-nums">
-                🍌 {companion.bananaInventory || 0} stash
+                🍌 {companion.bananaInventory || 0} {tx("stash", "en mochila")}
               </span>
               <button
                 type="button"
@@ -370,9 +438,13 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                     ? "bg-warning/15 border-warning/30 text-warning hover:bg-warning/20 cursor-pointer"
                     : "bg-secondary/40 border-border text-muted-foreground cursor-not-allowed opacity-60"
                 }`}
-                title={(companion.bananaInventory || 0) > 0 ? "Feed 1 earned banana to Bonobo" : "Complete workouts or daily check-ins to earn bananas"}
+                title={
+                  (companion.bananaInventory || 0) > 0
+                    ? tx("Feed 1 earned banana to Bonobo", "Dar 1 plátano a Bonobo")
+                    : tx("Complete workouts or daily check-ins to earn bananas", "Completa entrenos o chequeos para ganar plátanos")
+                }
               >
-                <span>{(companion.bananaInventory || 0) > 0 ? "Feed 1 🍌" : "0 Bananas"}</span>
+                <span>{(companion.bananaInventory || 0) > 0 ? tx("Feed 1 🍌", "Dar 1 🍌") : tx("0 Bananas", "0 Plátanos")}</span>
               </button>
             </div>
 
@@ -383,7 +455,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                 className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand/10 border border-brand/25 text-brand text-xs font-semibold hover:bg-brand/15 transition-[transform,background-color] duration-150 ease-[var(--ease-out)] active:scale-[0.97] min-h-[36px] cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Talk to Bonobo AI</span>
+                <span>{tx("Talk to Bonobo AI", "Hablar con Bonobo IA")}</span>
                 <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             )}
@@ -397,10 +469,10 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
           <DialogHeader>
             <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">
               <Shirt className="h-4 w-4 text-warning" />
-              Bonobo&apos;s Closet &amp; Gear
+              {tx("Bonobo's Closet & Gear", "Armario y Equipo de Bonobo")}
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Select headwear and handheld props unlocked by leveling up.
+              {tx("Select headwear and handheld props unlocked by leveling up.", "Elige gorros y objetos desbloqueados al subir de nivel.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -415,22 +487,22 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
               prop={companion.equippedProp}
             />
             <span className="mt-2 text-[11px] font-mono text-muted-foreground">
-              {companion.name} • {displayedStage.name}
+              {companion.name} • {displayedStageName}
             </span>
           </div>
 
           {/* Headwear Selector */}
           <div className="space-y-2 mt-3">
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              Headwear
+              {tx("Headwear", "Cabeza")}
             </h4>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: "none", label: "No Hat", levelReq: 1 },
-                { id: "red_headband", label: "🔴 Retro Headband", levelReq: 1 },
-                { id: "beanie", label: "🧶 Cozy Beanie", levelReq: 2 },
-                { id: "scouter", label: "🟢 Power Scouter", levelReq: 4 },
-                { id: "gold_crown", label: "👑 Champion Crown", levelReq: 5 }
+                { id: "none", label: tx("No Hat", "Sin Gorro"), levelReq: 1 },
+                { id: "red_headband", label: tx("🔴 Retro Headband", "🔴 Cinta Retro"), levelReq: 1 },
+                { id: "beanie", label: tx("🧶 Cozy Beanie", "🧶 Gorro Tejido"), levelReq: 2 },
+                { id: "scouter", label: tx("🟢 Power Scouter", "🟢 Escáuter"), levelReq: 4 },
+                { id: "gold_crown", label: tx("👑 Champion Crown", "👑 Corona Campeón"), levelReq: 5 }
               ].map((item) => {
                 const isUnlocked = companion.unlockedHeadwear.includes(item.id as CompanionHeadwear);
                 const isEquipped = companion.equippedHeadwear === item.id;
@@ -452,7 +524,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                     {isEquipped ? (
                       <Check className="h-3.5 w-3.5 text-brand shrink-0" />
                     ) : !isUnlocked ? (
-                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">Lv.{item.levelReq}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">{tx("Lv.", "Nv.")}{item.levelReq}</span>
                     ) : null}
                   </button>
                 );
@@ -463,15 +535,15 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
           {/* Props Selector */}
           <div className="space-y-2 mt-4">
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              Handheld Items
+              {tx("Handheld Items", "En Mano")}
             </h4>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: "none", label: "Empty Hands", levelReq: 1 },
-                { id: "banana", label: "🍌 Fresh Banana", levelReq: 1 },
-                { id: "tiny_dumbbell", label: "🏋️ Mini Dumbbell", levelReq: 1 },
-                { id: "iced_coffee", label: "🥤 Iced Latte", levelReq: 3 },
-                { id: "golden_banana", label: "✨ Golden Banana", levelReq: 7 }
+                { id: "none", label: tx("Empty Hands", "Manos Libres"), levelReq: 1 },
+                { id: "banana", label: tx("🍌 Fresh Banana", "🍌 Plátano"), levelReq: 1 },
+                { id: "tiny_dumbbell", label: tx("🏋️ Mini Dumbbell", "🏋️ Mancuerna"), levelReq: 1 },
+                { id: "iced_coffee", label: tx("🥤 Iced Latte", "🥤 Café Helado"), levelReq: 3 },
+                { id: "golden_banana", label: tx("✨ Golden Banana", "✨ Plátano Dorado"), levelReq: 7 }
               ].map((item) => {
                 const isUnlocked = companion.unlockedProps.includes(item.id as CompanionProp);
                 const isEquipped = companion.equippedProp === item.id;
@@ -493,7 +565,7 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
                     {isEquipped ? (
                       <Check className="h-3.5 w-3.5 text-brand shrink-0" />
                     ) : !isUnlocked ? (
-                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">Lv.{item.levelReq}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">{tx("Lv.", "Nv.")}{item.levelReq}</span>
                     ) : null}
                   </button>
                 );
@@ -509,19 +581,22 @@ export function BonoboCompanionCard({ onOpenAssistant }: BonoboCompanionCardProp
           <DialogHeader>
             <DialogTitle className="text-base font-bold flex items-center gap-2 heading-tight">
               <Palette className="h-4 w-4 text-brand" />
-              Accent Vibe
+              {tx("Accent Vibe", "Color de Tarjeta")}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Choose a subtle accent stripe and progress color for your companion card.
+              {tx(
+                "Choose a subtle accent stripe and progress color for your companion card.",
+                "Elige un acento sutil para la tarjeta de tu compañero."
+              )}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid grid-cols-2 gap-2.5 mt-3">
             {[
-              { id: "jungle", label: "🌿 Jungle", desc: "Clean emerald accent" },
-              { id: "cyber", label: "⚡ Graphite", desc: "Crisp contrast accent" },
-              { id: "cafe", label: "☕ Amber", desc: "Warm espresso amber" },
-              { id: "obsidian", label: "◽ Classic", desc: "Minimal monochrome" }
+              { id: "jungle", label: tx("🌿 Jungle", "🌿 Jungla"), desc: tx("Clean emerald accent", "Acento esmeralda") },
+              { id: "cyber", label: tx("⚡ Graphite", "⚡ Grafito"), desc: tx("Crisp contrast accent", "Contraste nítido") },
+              { id: "cafe", label: tx("☕ Amber", "☕ Ámbar"), desc: tx("Warm espresso amber", "Ámbar cálido") },
+              { id: "obsidian", label: tx("◽ Classic", "◽ Clásico"), desc: tx("Minimal monochrome", "Monocromo mínimo") }
             ].map((th) => {
               const isSelected = companion.theme === th.id;
               return (

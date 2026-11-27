@@ -38,6 +38,8 @@ import {
   createInitialsAvatarDataUrl,
   loadAccountPreferences,
 } from "@/lib/accountSecurity";
+import { useLanguage } from "@/lib/i18n";
+import { LanguageSwitch } from "@/components/shared/LanguageSwitch";
 
 interface NavbarProps {
   activeTab?: string;
@@ -46,6 +48,7 @@ interface NavbarProps {
 
 export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {}) {
   const { currentUser, currentRole, state, logout } = useAuth();
+  const { locale, tx } = useLanguage();
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       try {
@@ -181,6 +184,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
           sessionStatus: session.status,
           hasCheckedInToday,
           bananaInventory: bananaCount,
+          locale,
         })
       : [];
 
@@ -191,11 +195,24 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
     setNotifPermission(res);
     if (res === "granted") {
       sendBrowserWorkoutReminder(
-        "Bonobo Reminders Active",
-        visibleReminders[0]?.message || "We'll remind you to log your sets right after your workout!"
+        tx("Bonobo Reminders Active", "Recordatorios de Bonobo Activos"),
+        visibleReminders[0]?.message ||
+          tx(
+            "We'll remind you to log your sets right after your workout!",
+            "¡Te recordaremos registrar tus series justo después de entrenar!"
+          )
       );
     }
   };
+
+  const roleDisplayName =
+    currentRole === "platform_admin"
+      ? tx("Platform Admin", "Admin Plataforma")
+      : currentRole === "org_admin"
+      ? tx("Org Admin", "Admin Org")
+      : currentRole === "coach"
+      ? tx("Coach", "Entrenador")
+      : tx("Athlete", "Atleta");
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card transition-colors duration-150 safe-area-pt">
@@ -214,17 +231,25 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
           </div>
         </div>
 
-        {/* Athlete Reminders Bell, Theme Toggle, User Info & Sign Out */}
+        {/* Language Switch, Reminders Bell, Theme Toggle, Profile Menu & Sign Out */}
         <div className="flex items-center gap-2 shrink-0">
+          <LanguageSwitch compact className="hidden sm:inline-flex" />
+
           {currentRole === "athlete" && (
             <div className="relative" ref={bellRef}>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => setBellOpen(prev => !prev)}
-                title="Workout Reminders"
-                aria-label={`Workout reminders (${visibleReminders.length} pending)`}
+                onClick={() => {
+                  setProfileMenuOpen(false);
+                  setBellOpen(prev => !prev);
+                }}
+                title={tx("Workout Reminders", "Recordatorios de Entreno")}
+                aria-label={tx(
+                  `Workout reminders (${visibleReminders.length} pending)`,
+                  `Recordatorios de entreno (${visibleReminders.length} pendientes)`
+                )}
                 aria-expanded={bellOpen}
                 className="relative text-muted-foreground hover:text-foreground h-9 w-9 p-0 rounded-lg min-h-[40px] min-w-[40px]"
               >
@@ -239,14 +264,14 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
               {bellOpen && (
                 <div
                   role="dialog"
-                  aria-label="Workout logging notifications"
+                  aria-label={tx("Workout logging notifications", "Notificaciones de entrenamiento")}
                   className="fixed sm:absolute right-3 left-3 sm:left-auto sm:right-0 top-14 sm:top-full sm:mt-2 sm:w-88 rounded-2xl border border-border bg-card shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 origin-top-right"
                 >
                   <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-secondary/30">
                     <div>
                       <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
                         <BellRing className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
-                        <span>Post-Workout Reminders</span>
+                        <span>{tx("Post-Workout Reminders", "Recordatorios Post-Entreno")}</span>
                       </h4>
                     </div>
 
@@ -260,7 +285,9 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                             : "border-border bg-card text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        {notifPermission === "granted" ? "Browser Pings On ✓" : "Enable Pings"}
+                        {notifPermission === "granted"
+                          ? tx("Browser Pings On ✓", "Avisos Activos ✓")
+                          : tx("Enable Pings", "Activar Avisos")}
                       </button>
                     )}
                   </div>
@@ -271,9 +298,14 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                         <div className="w-8 h-8 rounded-full bg-success/15 text-success flex items-center justify-center mx-auto">
                           <Check className="w-4 h-4" />
                         </div>
-                        <p className="text-xs font-semibold text-foreground">All logged for today!</p>
+                        <p className="text-xs font-semibold text-foreground">
+                          {tx("All logged for today!", "¡Todo registrado hoy!")}
+                        </p>
                         <p className="text-[11px] text-muted-foreground">
-                          Your sets and check-in are safe. Bonobo approves.
+                          {tx(
+                            "Your sets and check-in are safe. Bonobo approves.",
+                            "Tus series y chequeo están a salvo. Bonobo lo aprueba."
+                          )}
                         </p>
                         {dismissedIds.length > 0 && (
                           <button
@@ -281,7 +313,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                             onClick={() => setDismissedIds(resetDismissedRemindersForToday())}
                             className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
                           >
-                            Show hidden reminders
+                            {tx("Show hidden reminders", "Mostrar avisos ocultos")}
                           </button>
                         )}
                       </div>
@@ -304,7 +336,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                             <button
                               type="button"
                               onClick={() => setDismissedIds(dismissReminderForToday(rem.id))}
-                              aria-label={`Dismiss ${rem.title}`}
+                              aria-label={tx(`Dismiss ${rem.title}`, `Ocultar ${rem.title}`)}
                               className="p-1 -m-1 rounded-md text-muted-foreground hover:text-foreground cursor-pointer"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -332,7 +364,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                               onClick={() => setDismissedIds(dismissReminderForToday(rem.id))}
                               className="text-[11px] text-muted-foreground hover:text-foreground cursor-pointer"
                             >
-                              Remind later
+                              {tx("Remind later", "Luego")}
                             </button>
                           </div>
                         </div>
@@ -348,8 +380,8 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
             variant="ghost"
             size="sm"
             onClick={toggleTheme}
-            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            title={isDark ? tx("Switch to Light Mode", "Cambiar a Modo Claro") : tx("Switch to Dark Mode", "Cambiar a Modo Oscuro")}
+            aria-label={isDark ? tx("Switch to light mode", "Cambiar a modo claro") : tx("Switch to dark mode", "Cambiar a modo oscuro")}
             className="text-muted-foreground hover:text-foreground h-9 w-9 p-0 rounded-lg min-h-[40px] min-w-[40px]"
           >
             {isDark ? <Sun className="w-4 h-4 text-warning" aria-hidden="true" /> : <Moon className="w-4 h-4 text-muted-foreground" aria-hidden="true" />}
@@ -363,9 +395,9 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                 setBellOpen(false);
                 setProfileMenuOpen((prev) => !prev);
               }}
-              aria-label="Open profile and account settings"
+              aria-label={tx("Open profile and account settings", "Abrir configuración de perfil y cuenta")}
               aria-expanded={profileMenuOpen}
-              title="Profile & Security Settings"
+              title={tx("Profile & Security Settings", "Perfil y Seguridad")}
               className="flex items-center gap-2 rounded-full sm:rounded-xl pl-0.5 pr-1 sm:pl-2 sm:pr-1.5 py-1 border border-transparent hover:border-border hover:bg-secondary/70 transition-colors cursor-pointer active:scale-[0.98]"
             >
               <div className="text-right hidden sm:block">
@@ -376,7 +408,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                   )}
                 </div>
                 <div className="text-[11px] text-muted-foreground capitalize mt-0.5">
-                  {currentUser.role.replace("_", " ")}
+                  {roleDisplayName}
                 </div>
               </div>
               <img
@@ -392,8 +424,8 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
             {profileMenuOpen && (
               <div
                 role="menu"
-                aria-label="Profile settings menu"
-                className="fixed sm:absolute right-3 left-3 sm:left-auto sm:right-0 top-14 sm:top-full sm:mt-2 sm:w-68 rounded-2xl border border-border bg-card shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 origin-top-right"
+                aria-label={tx("Profile settings menu", "Menú de configuración")}
+                className="fixed sm:absolute right-3 left-3 sm:left-auto sm:right-0 top-14 sm:top-full sm:mt-2 sm:w-72 rounded-2xl border border-border bg-card shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 origin-top-right"
               >
                 <div className="p-3.5 border-b border-border bg-secondary/30 flex items-center gap-3">
                   <img
@@ -406,7 +438,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                     <p className="text-[11px] text-muted-foreground truncate">{currentUser.email}</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <span className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary text-foreground border border-border">
-                        {currentUser.role.replace("_", " ")}
+                        {roleDisplayName}
                       </span>
                       {twoFactorEnabled && (
                         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-success/10 text-success border border-success/25">
@@ -417,6 +449,13 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                   </div>
                 </div>
 
+                <div className="px-3 py-2 border-b border-border flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-muted-foreground">
+                    {tx("Language", "Idioma")}
+                  </span>
+                  <LanguageSwitch compact />
+                </div>
+
                 <div className="p-1.5 space-y-0.5">
                   <button
                     type="button"
@@ -425,7 +464,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-foreground hover:bg-secondary/70 transition-colors cursor-pointer"
                   >
                     <Camera className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                    <span>Profile &amp; Picture</span>
+                    <span>{tx("Profile & Picture", "Perfil y Foto")}</span>
                   </button>
 
                   <button
@@ -435,7 +474,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-foreground hover:bg-secondary/70 transition-colors cursor-pointer"
                   >
                     <Lock className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                    <span>Change Password &amp; Security</span>
+                    <span>{tx("Change Password & Security", "Contraseña y Seguridad")}</span>
                   </button>
 
                   <button
@@ -445,7 +484,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-foreground hover:bg-secondary/70 transition-colors cursor-pointer"
                   >
                     <Sliders className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                    <span>Workspace Preferences</span>
+                    <span>{tx("Workspace Preferences", "Preferencias")}</span>
                   </button>
                 </div>
 
@@ -460,7 +499,7 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" aria-hidden="true" />
-                    <span>Sign Out</span>
+                    <span>{tx("Sign Out", "Cerrar Sesión")}</span>
                   </button>
                 </div>
               </div>
@@ -470,8 +509,8 @@ export function Navbar({ activeTab: _activeTab, onTabChange }: NavbarProps = {})
             variant="ghost"
             size="sm"
             onClick={logout}
-            title="Sign Out"
-            aria-label="Sign out of BONOBO"
+            title={tx("Sign Out", "Cerrar Sesión")}
+            aria-label={tx("Sign out of BONOBO", "Cerrar sesión en BONOBO")}
             className="text-muted-foreground hover:text-destructive h-9 px-2 min-h-[40px]"
           >
             <LogOut className="w-4 h-4" aria-hidden="true" />

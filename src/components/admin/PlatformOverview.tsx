@@ -5,9 +5,11 @@ import { useAuth } from "@/domains/auth/AuthContext";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/i18n";
 
 export function PlatformOverview() {
   const { state } = useAuth();
+  const { tx } = useLanguage();
 
   return (
     <div className="space-y-6">
@@ -15,49 +17,49 @@ export function PlatformOverview() {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card className="p-4 border-border shadow-xs">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Platform MRR
+            {tx("Platform MRR", "MRR Plataforma")}
           </div>
           <div className="text-2xl font-bold text-foreground tabular-nums mt-1">
             $48,350
           </div>
           <div className="text-xs text-success mt-0.5 font-medium tabular-nums">
-            +14.2% MoM Expansion
+            {tx("+14.2% MoM Expansion", "+14.2% mensual")}
           </div>
         </Card>
 
         <Card className="p-4 border-border shadow-xs">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Active Tenants
+            {tx("Active Tenants", "Organizaciones")}
           </div>
           <div className="text-2xl font-bold text-foreground tabular-nums mt-1">
             42 Orgs
           </div>
           <div className="text-xs text-muted-foreground mt-0.5 font-medium tabular-nums">
-            100% SLA uptime
+            {tx("100% SLA uptime", "100% disponibilidad")}
           </div>
         </Card>
 
         <Card className="p-4 border-border shadow-xs">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Total Athletes
+            {tx("Total Athletes", "Atletas Totales")}
           </div>
           <div className="text-2xl font-bold text-foreground tabular-nums mt-1">
             1,248
           </div>
           <div className="text-xs text-brand mt-0.5 font-medium tabular-nums">
-            94% 30d Retention
+            {tx("94% 30d Retention", "94% retención 30d")}
           </div>
         </Card>
 
         <Card className="p-4 border-border shadow-xs">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Workout Sets Persisted
+            {tx("Workout Sets Persisted", "Series Registradas")}
           </div>
           <div className="text-2xl font-bold text-foreground tabular-nums mt-1">
             428,910
           </div>
           <div className="text-xs text-muted-foreground mt-0.5 font-medium">
-            Postgres Sharded
+            {tx("Synced Live", "Sincronización Activa")}
           </div>
         </Card>
       </div>
@@ -66,22 +68,25 @@ export function PlatformOverview() {
       <Card className="border-border shadow-xs">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">Security & Compliance</Badge>
+            <Badge variant="secondary">{tx("Security & Compliance", "Seguridad y Control")}</Badge>
           </div>
-          <CardTitle className="mt-1">Real-Time Platform Audit Log</CardTitle>
+          <CardTitle className="mt-1">{tx("Real-Time Platform Audit Log", "Registro de Auditoría en Vivo")}</CardTitle>
           <CardDescription>
-            Immutable event stream tracking data mutations, authentication changes, and workout commits
+            {tx(
+              "Immutable event stream tracking data mutations, authentication changes, and workout commits",
+              "Historial de cambios de cuenta, accesos y registros de entrenamiento"
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Actor</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Target Entity</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{tx("Timestamp", "Fecha")}</TableHead>
+                <TableHead>{tx("Actor", "Usuario")}</TableHead>
+                <TableHead>{tx("Action", "Acción")}</TableHead>
+                <TableHead>{tx("Target Entity", "Objetivo")}</TableHead>
+                <TableHead>{tx("Status", "Estado")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

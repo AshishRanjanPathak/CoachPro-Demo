@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Trophy, TrendingUp, Flame, CheckCircle, Dumbbell } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 interface HistoryPoint {
   date: string;
@@ -131,6 +132,7 @@ function generateBezierPath(points: { x: number; y: number }[]): string {
 
 export function AthleteProgressView() {
   const { state, currentUser } = useAuth();
+  const { tx } = useLanguage();
   const athlete = resolveActiveAthlete(state, currentUser?.id);
 
   const personalRecords = useMemo(
@@ -228,11 +230,11 @@ export function AthleteProgressView() {
             </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Recent All-Time PRs
+                {tx("Recent All-Time PRs", "Récords Personales")}
               </div>
               <div className="text-2xl font-bold text-foreground tabular-nums mt-0.5 flex items-baseline gap-1">
                 <span ref={prCountRef}>{athlete?.recentPrCount ?? 0}</span>
-                <span className="text-sm font-normal text-muted-foreground">Records</span>
+                <span className="text-sm font-normal text-muted-foreground">{tx("Records", "Récords")}</span>
               </div>
             </div>
           </div>
@@ -245,7 +247,7 @@ export function AthleteProgressView() {
             </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Workout Adherence
+                {tx("Workout Adherence", "Cumplimiento")}
               </div>
               <div className="text-2xl font-bold text-foreground tabular-nums mt-0.5 flex items-baseline gap-0.5">
                 <span ref={adherenceRef}>{athlete?.adherencePercentage ?? 0}</span>
@@ -262,11 +264,11 @@ export function AthleteProgressView() {
             </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Current Training Streak
+                {tx("Current Training Streak", "Racha Actual")}
               </div>
               <div className="text-2xl font-bold text-foreground tabular-nums mt-0.5 flex items-baseline gap-1">
                 <span ref={streakRef}>{athlete?.currentStreakDays ?? 0}</span>
-                <span className="text-sm font-normal text-muted-foreground">Days</span>
+                <span className="text-sm font-normal text-muted-foreground">{tx("Days", "Días")}</span>
               </div>
             </div>
           </div>
@@ -280,10 +282,13 @@ export function AthleteProgressView() {
             <div>
               <div className="flex items-center gap-2">
                 <Dumbbell className="w-4 h-4 text-brand" />
-                <CardTitle className="text-base font-bold">{selectedExercise} Progression</CardTitle>
+                <CardTitle className="text-base font-bold">{selectedExercise} — {tx("Progression", "Progresión")}</CardTitle>
               </div>
               <CardDescription className="text-xs mt-0.5">
-                Top set working load across verified {timeRange === "1M" ? "4-week" : "12-week"} training history
+                {tx(
+                  `Top set working load across verified ${timeRange === "1M" ? "4-week" : "12-week"} training history`,
+                  `Carga máxima en tus últimas ${timeRange === "1M" ? "4 semanas" : "12 semanas"}`
+                )}
               </CardDescription>
             </div>
 
@@ -464,13 +469,13 @@ export function AthleteProgressView() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Verified Personal Records</CardTitle>
+              <CardTitle>{tx("Verified Personal Records", "Récords Personales")}</CardTitle>
               <CardDescription>
-                Tap any exercise row below to load its progressive overload curve
+                {tx("Tap any exercise row below to load its progressive overload curve", "Toca cualquier ejercicio abajo para ver su gráfica de progreso")}
               </CardDescription>
             </div>
             <Badge variant="outline" className="text-xs font-mono">
-              5 Tracked Movements
+              5 {tx("Tracked Movements", "Ejercicios")}
             </Badge>
           </div>
         </CardHeader>
@@ -478,11 +483,11 @@ export function AthleteProgressView() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Exercise</TableHead>
-                <TableHead>Best Performed</TableHead>
-                <TableHead>Estimated 1RM</TableHead>
-                <TableHead>Date Achieved</TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead>{tx("Exercise", "Ejercicio")}</TableHead>
+                <TableHead>{tx("Best Performed", "Mejor Marca")}</TableHead>
+                <TableHead>{tx("Estimated 1RM", "1RM Estimado")}</TableHead>
+                <TableHead>{tx("Date Achieved", "Fecha")}</TableHead>
+                <TableHead className="text-right">{tx("Action", "Acción")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

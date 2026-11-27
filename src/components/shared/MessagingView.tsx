@@ -8,21 +8,31 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Send, MessageSquare, CheckCheck, ChevronLeft } from "lucide-react";
 import { useKeyboardViewport } from "@/hooks/useKeyboardViewport";
+import { useLanguage } from "@/lib/i18n";
 
 interface MessagingViewProps {
   initialRecipientId?: string;
 }
 
-const ATHLETE_QUICK_REPLIES = [
+const ATHLETE_QUICK_REPLIES_EN = [
   "Done! Survived today's session 🏋️",
   "Legs are officially jelly 🦵",
-  "New PR incoming soon 🔥",
+  "Do I have to log warmups too? 😅",
   "Quick exercise swap question 🤔",
+];
+
+const ATHLETE_QUICK_REPLIES_ES = [
+  "¡Listo! Sobreviví al entreno 🏋️",
+  "Las piernas son gelatina 🦵",
+  "¿También registro el calentamiento? 😅",
+  "Duda rápida sobre un ejercicio 🤔",
 ];
 
 export function MessagingView({ initialRecipientId }: MessagingViewProps) {
   const { state, currentUser, sendMessage } = useAuth();
+  const { isEs, tx } = useLanguage();
   const [inputText, setInputText] = useState("");
+  const quickReplies = isEs ? ATHLETE_QUICK_REPLIES_ES : ATHLETE_QUICK_REPLIES_EN;
 
   const isCoach = currentUser?.role === "coach";
   const defaultRecipient = isCoach
@@ -70,8 +80,10 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
           }`}
         >
           <div className="p-3.5 sm:p-4 border-b border-border bg-secondary/30">
-            <h3 className="font-bold text-sm text-foreground">Athlete Chats ({state.athletes.length})</h3>
-            <p className="text-xs text-muted-foreground">Tap an athlete to message</p>
+            <h3 className="font-bold text-sm text-foreground">
+              {tx(`Athlete Chats (${state.athletes.length})`, `Chats de Atletas (${state.athletes.length})`)}
+            </h3>
+            <p className="text-xs text-muted-foreground">{tx("Tap an athlete to message", "Toca un atleta para escribir")}</p>
           </div>
 
           <div className="divide-y divide-border overflow-y-auto flex-1 no-scrollbar" role="tablist" aria-label="Athlete threads">
@@ -148,7 +160,9 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
             <div>
               <h3 className="font-bold text-sm text-foreground">{activeRecipient.name}</h3>
               <p className="text-[11px] text-muted-foreground">
-                {isCoach ? (("squad" in activeRecipient && activeRecipient.squad) || "Athlete") : "Coach • Replies fast (mostly between coffee sips)"}
+                {isCoach
+                  ? ("squad" in activeRecipient && activeRecipient.squad) || tx("Athlete", "Atleta")
+                  : tx("Coach • Replies fast (mostly between coffee sips)", "Coach • Responde rápido (entre sorbos de café)")}
               </p>
             </div>
           </div>
@@ -159,8 +173,15 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
           {conversationMessages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground space-y-2">
               <MessageSquare className="w-8 h-8 opacity-40" />
-              <p className="text-xs font-medium">No messages yet with {activeRecipient.name}.</p>
-              <p className="text-[11px]">Drop a quick workout update, PR brag, or question below.</p>
+              <p className="text-xs font-medium">
+                {tx(`No messages yet with ${activeRecipient.name}.`, `Aún no hay mensajes con ${activeRecipient.name}.`)}
+              </p>
+              <p className="text-[11px]">
+                {tx(
+                  "Drop a quick workout update, PR brag, or question below.",
+                  "Envía un resumen del entreno, un récord o una duda abajo."
+                )}
+              </p>
             </div>
           ) : (
             conversationMessages.map((msg) => {
@@ -200,7 +221,7 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
         >
           {!isCoach && (
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-              {ATHLETE_QUICK_REPLIES.map((preset) => (
+              {quickReplies.map((preset) => (
                 <button
                   key={preset}
                   type="button"
@@ -219,8 +240,8 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
               name="chatMessage"
               autoComplete="off"
               enterKeyHint="send"
-              aria-label={`Message to ${activeRecipient.name}`}
-              placeholder={`Message ${activeRecipient.name}…`}
+              aria-label={tx(`Message to ${activeRecipient.name}`, `Mensaje para ${activeRecipient.name}`)}
+              placeholder={tx(`Message ${activeRecipient.name}…`, `Escribe a ${activeRecipient.name}…`)}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="text-base sm:text-xs h-11 flex-1 min-h-[44px]"
@@ -228,11 +249,11 @@ export function MessagingView({ initialRecipientId }: MessagingViewProps) {
             <Button
               type="submit"
               variant="default"
-              aria-label="Send message"
+              aria-label={tx("Send message", "Enviar mensaje")}
               className="gap-1.5 h-11 px-3.5 sm:px-4 shrink-0 font-semibold min-h-[44px] min-w-[44px] cursor-pointer shadow-xs"
             >
               <Send className="w-4 h-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Send</span>
+              <span className="hidden sm:inline">{tx("Send", "Enviar")}</span>
             </Button>
           </form>
         </CardFooter>

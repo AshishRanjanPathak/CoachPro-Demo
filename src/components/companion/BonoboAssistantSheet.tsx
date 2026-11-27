@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { parseBonoboNaturalLanguage, BonoboNlpResult, ParsedWorkoutExercise, ParsedInjuryTriage } from "@/lib/bonoboNlp";
 import { loadCompanionState, saveCompanionState, addCompanionXp, resolveDisplayStage, CompanionState, CompanionMode } from "@/lib/companion";
+import { useLanguage } from "@/lib/i18n";
 import { soundController } from "@/lib/audio";
 import { speechController } from "@/lib/speech";
 import {
@@ -49,6 +50,7 @@ interface MessageItem {
 
 export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
   const { state, addWorkoutSets, addCheckIn, currentUser } = useAuth();
+  const { locale, tx } = useLanguage();
   const [companion, setCompanion] = useState<CompanionState>(loadCompanionState);
   const [inputText, setInputText] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -60,12 +62,15 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
   const [hasSavedKey, setHasSavedKey] = useState(() => hasCustomGeminiApiKey());
   const [aiUsage, setAiUsage] = useState<DailyAiUsage>(() => getDailyAiUsage(currentUser?.id));
 
-  const [messages, setMessages] = useState<MessageItem[]>([
+  const [messages, setMessages] = useState<MessageItem[]>(() => [
     {
       id: "welcome",
       sender: "bonobo",
-      text: "Yo! I'm Bonobo 🦍 Drop what you lifted after your workout, report anything sore, or just say hey.",
-      timestamp: "Just now"
+      text: tx(
+        "Yo! I'm Bonobo 🦍 Drop what you lifted after your workout, report anything sore, or just say hey.",
+        "¡Buenas! Soy Bonobo 🦍 Cuéntame qué levantaste después de entrenar, si algo duele, o saluda."
+      ),
+      timestamp: tx("Just now", "Ahora")
     }
   ]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -148,7 +153,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
 
     try {
       // Local fallback parser ready for immediate resilience
-      const localNlp = parseBonoboNaturalLanguage(text, state.exercises);
+      const localNlp = parseBonoboNaturalLanguage(text, state.exercises, locale);
 
       // Check daily rate limit before dispatching
       const currentQuota = getDailyAiUsage(currentUser?.id);
@@ -245,7 +250,7 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
       }
     } catch {
       // Offline / Network error fallback
-      const fallbackNlp = parseBonoboNaturalLanguage(text, state.exercises);
+      const fallbackNlp = parseBonoboNaturalLanguage(text, state.exercises, locale);
       const fallbackMsg: MessageItem = {
         id: `bnb-${Date.now()}`,
         sender: "bonobo",
@@ -684,31 +689,31 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
       <div className="px-3 pt-2 pb-1 border-t border-border/60 bg-secondary/20 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
         <button
           type="button"
-          onClick={() => handleSendMessage("Did 4 sets of barbell squats 140kg for 5 reps")}
+          onClick={() => handleSendMessage(tx("Did 4 sets of barbell squats 140kg for 5 reps", "Hice 4 series sentadillas 140kg x 5 reps"))}
           className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-secondary whitespace-nowrap cursor-pointer transition-colors"
         >
-          🏋️ Squats 140kg × 5
+          {tx("🏋️ Squats 140kg × 5", "🏋️ Sentadillas 140kg × 5")}
         </button>
         <button
           type="button"
-          onClick={() => handleSendMessage("Did 3 sets bench press 90kg for 8 reps")}
+          onClick={() => handleSendMessage(tx("Did 3 sets bench press 90kg for 8 reps", "Hice 3 series press banca 90kg x 8 reps"))}
           className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-secondary whitespace-nowrap cursor-pointer transition-colors"
         >
-          💪 Bench 90kg × 8
+          {tx("💪 Bench 90kg × 8", "💪 Banca 90kg × 8")}
         </button>
         <button
           type="button"
-          onClick={() => handleSendMessage("Sharp pain on my right knee after squats")}
+          onClick={() => handleSendMessage(tx("Sharp pain on my right knee after squats", "Dolor agudo en mi rodilla derecha tras sentadillas"))}
           className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10 whitespace-nowrap cursor-pointer transition-colors"
         >
-          🩹 Knee pain report
+          {tx("🩹 Knee pain report", "🩹 Aviso dolor rodilla")}
         </button>
         <button
           type="button"
-          onClick={() => handleSendMessage("Slept 5 hours feeling super fatigued")}
+          onClick={() => handleSendMessage(tx("Slept 5 hours feeling super fatigued", "Dormí 5 horas y me siento muy cansado"))}
           className="text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-secondary whitespace-nowrap cursor-pointer transition-colors"
         >
-          💤 5 hrs sleep / fatigue
+          {tx("💤 5 hrs sleep / fatigue", "💤 5h sueño / fatiga")}
         </button>
       </div>
 
@@ -722,14 +727,18 @@ export function BonoboAssistantSheet({ onClose }: { onClose?: () => void }) {
           className={`h-11 w-11 p-0 rounded-xl shrink-0 cursor-pointer min-h-[44px] transition-[border-color,background-color,box-shadow,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] ${
             isListening ? "ring-4 ring-destructive/25" : "hover:border-brand"
           }`}
-          title={isListening ? "Listening... tap to stop" : "Speak to Bonobo (Hands-free voice)"}
+          title={isListening ? tx("Listening... tap to stop", "Escuchando... toca para parar") : tx("Speak to Bonobo (Hands-free voice)", "Hablar con Bonobo")}
         >
           <Mic className={`w-5 h-5 ${isListening ? "animate-pulse" : "text-foreground"}`} />
         </Button>
 
         <Input
           type="text"
-          placeholder={isListening ? "Listening... speak now" : "Ask about training, workouts, or recovery…"}
+          placeholder={
+            isListening
+              ? tx("Listening... speak now", "Escuchando... habla ahora")
+              : tx("Ask about training, workouts, or recovery…", "Pregunta sobre entreno, series o recuperación…")
+          }
           value={inputText}
           onChange={e => setInputText(e.target.value)}
           onKeyDown={e => {

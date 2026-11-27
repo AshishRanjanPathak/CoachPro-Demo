@@ -7,9 +7,11 @@ import { soundController } from "@/lib/audio";
 import { addCompanionXp, loadCompanionState, saveCompanionState } from "@/lib/companion";
 import { useAuth } from "@/domains/auth/AuthContext";
 import { resolveActiveSessionContext } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n";
 
 export function DailyMicroWin() {
   const { state, addWorkoutSets, addCheckIn } = useAuth();
+  const { tx } = useLanguage();
   const [companion, setCompanion] = useState(loadCompanionState);
   const [workoutLogged, setWorkoutLogged] = useState(false);
   const [restDayConfirmed, setRestDayConfirmed] = useState(false);
@@ -101,7 +103,7 @@ export function DailyMicroWin() {
       <div className="flex items-center justify-between mb-2.5">
         <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
           <Sparkles className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-          <span>Quick Check-Ins</span>
+          <span>{tx("Quick Check-Ins", "Acciones Rápidas")}</span>
         </h4>
       </div>
 
@@ -120,7 +122,9 @@ export function DailyMicroWin() {
           <div className="flex items-center gap-2 min-w-0">
             <Droplets className={`h-4 w-4 shrink-0 ${companion.hasHydratedToday ? "text-success" : "text-brand"}`} />
             <span className="text-xs font-semibold truncate">
-              {companion.hasHydratedToday ? `Hydrated (${companion.waterStreakDays}d)` : "Hydrate"}
+              {companion.hasHydratedToday
+                ? tx(`Hydrated (${companion.waterStreakDays}d)`, `Hidratado (${companion.waterStreakDays}d)`)
+                : tx("Hydrate", "Hidratarse")}
             </span>
           </div>
           {companion.hasHydratedToday ? (
@@ -146,7 +150,7 @@ export function DailyMicroWin() {
           <div className="flex items-center gap-2 min-w-0">
             <Moon className={`h-4 w-4 shrink-0 ${restDayConfirmed ? "text-brand" : "text-muted-foreground"}`} />
             <span className="text-xs font-semibold truncate">
-              {restDayConfirmed ? "Resting" : "Rest Day"}
+              {restDayConfirmed ? tx("Resting", "Descansando") : tx("Rest Day", "Día Libre")}
             </span>
           </div>
           {restDayConfirmed ? (
@@ -172,7 +176,9 @@ export function DailyMicroWin() {
           <div className="flex items-center gap-2 min-w-0">
             <Zap className="h-4 w-4 text-success shrink-0" />
             <span className="text-xs font-semibold truncate">
-              {workoutLogged ? "Logged" : `Complete ${prescriptionCount} Lifts`}
+              {workoutLogged
+                ? tx("Logged", "Registrado")
+                : tx(`Complete ${prescriptionCount} Lifts`, `Completar ${prescriptionCount} Ej.`)}
             </span>
           </div>
           {workoutLogged ? (

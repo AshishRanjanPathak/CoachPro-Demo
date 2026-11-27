@@ -1,5 +1,5 @@
 /**
- * Athlete Workout & Recovery Reminder Engine.
+ * Athlete Workout & Recovery Reminder Engine (EN / ES).
  * Computes non-intrusive, humorous post-workout logging reminders from live state
  * and stores daily dismiss preferences cleanly in localStorage.
  */
@@ -25,6 +25,7 @@ export interface ComputeReminderParams {
   sessionStatus: "not_started" | "in_progress" | "completed" | "abandoned";
   hasCheckedInToday: boolean;
   bananaInventory: number;
+  locale?: "en" | "es";
 }
 
 export function getAthleteReminders({
@@ -33,27 +34,33 @@ export function getAthleteReminders({
   sessionStatus,
   hasCheckedInToday,
   bananaInventory,
+  locale = "en",
 }: ComputeReminderParams): AthleteReminder[] {
+  const isEs = locale === "es";
   const reminders: AthleteReminder[] = [];
   const remainingSets = Math.max(0, plannedSets - completedSets);
 
   if (completedSets === 0 && sessionStatus !== "completed") {
     reminders.push({
       id: "workout_unlogged",
-      title: "Haven't logged today's workout yet",
-      message:
-        "Don't forget to log your sets right after your workout — Bonobo gets hangry when gains go unrecorded.",
-      actionLabel: "Log After Workout",
+      title: isEs ? "Aún no registraste el entreno de hoy" : "Haven't logged today's workout yet",
+      message: isEs
+        ? "No olvides registrar tus series justo después de entrenar — Bonobo se pone gruñón si las ganancias no cuentan."
+        : "Don't forget to log your sets right after your workout — Bonobo gets hangry when gains go unrecorded.",
+      actionLabel: isEs ? "Registrar al Terminar" : "Log After Workout",
       targetTab: "training",
       tone: "warning",
     });
   } else if (completedSets > 0 && remainingSets > 0 && sessionStatus !== "completed") {
     reminders.push({
       id: "workout_unfinished",
-      title: `${remainingSets} set${remainingSets === 1 ? "" : "s"} left to log`,
-      message:
-        "You're already on the board! Log your remaining sets after your last rep so today's streak counts.",
-      actionLabel: "Continue Workout",
+      title: isEs
+        ? `Faltan ${remainingSets} ${remainingSets === 1 ? "serie" : "series"} por registrar`
+        : `${remainingSets} set${remainingSets === 1 ? "" : "s"} left to log`,
+      message: isEs
+        ? "¡Ya estás en marcha! Registra el resto después de tu última serie para mantener tu racha."
+        : "You're already on the board! Log your remaining sets after your last rep so today's streak counts.",
+      actionLabel: isEs ? "Seguir Entreno" : "Continue Workout",
       targetTab: "training",
       tone: "warning",
     });
@@ -62,10 +69,11 @@ export function getAthleteReminders({
   if (!hasCheckedInToday) {
     reminders.push({
       id: "checkin_unlogged",
-      title: "Daily check-in still waiting",
-      message:
-        "Bonobo is guessing your soreness with a coin flip. Drop a 10-second sleep & readiness note.",
-      actionLabel: "Check In",
+      title: isEs ? "Chequeo diario pendiente" : "Daily check-in still waiting",
+      message: isEs
+        ? "Bonobo está adivinando tus agujetas a cara o cruz. Dedica 10 segundos a registrar sueño y energía."
+        : "Bonobo is guessing your soreness with a coin flip. Drop a 10-second sleep & readiness note.",
+      actionLabel: isEs ? "Chequear Ahora" : "Check In",
       targetTab: "recovery",
       tone: "info",
     });
@@ -74,10 +82,13 @@ export function getAthleteReminders({
   if (sessionStatus === "completed" && bananaInventory > 0) {
     reminders.push({
       id: "bananas_ready",
-      title: `${bananaInventory} earned banana${bananaInventory === 1 ? "" : "s"} in your bag`,
-      message:
-        "All sets logged! Feed Bonobo from your stash for bonus Evolution XP.",
-      actionLabel: "Feed Bonobo",
+      title: isEs
+        ? `${bananaInventory} ${bananaInventory === 1 ? "plátano ganado" : "plátanos ganados"} en tu mochila`
+        : `${bananaInventory} earned banana${bananaInventory === 1 ? "" : "s"} in your bag`,
+      message: isEs
+        ? "¡Entreno registrado! Alimenta a Bonobo con tu reserva para ganar XP de Evolución."
+        : "All sets logged! Feed Bonobo from your stash for bonus Evolution XP.",
+      actionLabel: isEs ? "Dar Plátano" : "Feed Bonobo",
       targetTab: "home",
       tone: "success",
     });

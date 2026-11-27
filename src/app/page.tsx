@@ -23,6 +23,7 @@ import { PricingView } from "@/components/public/PricingView";
 import { BonoboAssistantSheet } from "@/components/companion/BonoboAssistantSheet";
 import { AthleteProfile } from "@/types";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
+import { useLanguage } from "@/lib/i18n";
 import {
   Home as HomeIcon,
   Dumbbell,
@@ -41,6 +42,7 @@ import {
 
 function AppContent() {
   const { currentRole, isAuthenticated } = useAuth();
+  const { tx } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (currentRole === "coach") return "dashboard";
     if (currentRole === "org_admin" || currentRole === "platform_admin") return "overview";
@@ -54,12 +56,12 @@ function AppContent() {
     switch (currentRole) {
       case "athlete":
         return [
-          { id: "home", label: "Today", icon: <HomeIcon className="w-4 h-4" /> },
-          { id: "training", label: "Workout", icon: <Dumbbell className="w-4 h-4" /> },
-          { id: "recovery", label: "Recovery", icon: <HeartPulse className="w-4 h-4" /> },
+          { id: "home", label: tx("Today", "Hoy"), icon: <HomeIcon className="w-4 h-4" /> },
+          { id: "training", label: tx("Workout", "Entreno"), icon: <Dumbbell className="w-4 h-4" /> },
+          { id: "recovery", label: tx("Recovery", "Recuperación"), icon: <HeartPulse className="w-4 h-4" /> },
           {
             id: "bonobo",
-            label: "Bonobo AI",
+            label: tx("Bonobo AI", "Bonobo IA"),
             icon: (
               <img
                 src="/icon.png"
@@ -68,30 +70,30 @@ function AppContent() {
               />
             )
           },
-          { id: "progress", label: "Progress", icon: <TrendingUp className="w-4 h-4" /> },
-          { id: "messages", label: "Coach Chat", icon: <MessageSquare className="w-4 h-4" /> },
-          { id: "pricing", label: "Subscription", icon: <CreditCard className="w-4 h-4" /> }
+          { id: "progress", label: tx("Progress", "Progreso"), icon: <TrendingUp className="w-4 h-4" /> },
+          { id: "messages", label: tx("Coach Chat", "Chat Coach"), icon: <MessageSquare className="w-4 h-4" /> },
+          { id: "pricing", label: tx("Subscription", "Suscripción"), icon: <CreditCard className="w-4 h-4" /> }
         ];
       case "coach":
         return [
-          { id: "dashboard", label: "Coach Hub", icon: <Activity className="w-4 h-4 text-brand" /> },
-          { id: "queue", label: "Attention Queue", icon: <AlertTriangle className="w-4 h-4 text-destructive" /> },
-          { id: "roster", label: "Athlete Roster", icon: <Users className="w-4 h-4" /> },
-          { id: "telemetry", label: "Strength", icon: <TrendingUp className="w-4 h-4" /> },
-          { id: "builder", label: "Program Builder", icon: <Layers className="w-4 h-4" /> },
-          { id: "exercises", label: "Exercise Library", icon: <BookOpen className="w-4 h-4" /> },
-          { id: "messages", label: "Athlete Messages", icon: <MessageSquare className="w-4 h-4" /> },
-          { id: "pricing", label: "Plans & Pricing", icon: <CreditCard className="w-4 h-4" /> }
+          { id: "dashboard", label: tx("Coach Hub", "Panel Coach"), icon: <Activity className="w-4 h-4 text-brand" /> },
+          { id: "queue", label: tx("Attention Queue", "Avisos Prioritarios"), icon: <AlertTriangle className="w-4 h-4 text-destructive" /> },
+          { id: "roster", label: tx("Athlete Roster", "Plantilla"), icon: <Users className="w-4 h-4" /> },
+          { id: "telemetry", label: tx("Strength", "Fuerza"), icon: <TrendingUp className="w-4 h-4" /> },
+          { id: "builder", label: tx("Program Builder", "Programas"), icon: <Layers className="w-4 h-4" /> },
+          { id: "exercises", label: tx("Exercise Library", "Ejercicios"), icon: <BookOpen className="w-4 h-4" /> },
+          { id: "messages", label: tx("Athlete Messages", "Mensajes"), icon: <MessageSquare className="w-4 h-4" /> },
+          { id: "pricing", label: tx("Plans & Pricing", "Planes y Precios"), icon: <CreditCard className="w-4 h-4" /> }
         ];
       case "org_admin":
         return [
-          { id: "overview", label: "Team Seats & Billing", icon: <Users className="w-4 h-4" /> },
-          { id: "pricing", label: "Plans & Pricing", icon: <CreditCard className="w-4 h-4" /> }
+          { id: "overview", label: tx("Team Seats & Billing", "Equipo y Facturación"), icon: <Users className="w-4 h-4" /> },
+          { id: "pricing", label: tx("Plans & Pricing", "Planes y Precios"), icon: <CreditCard className="w-4 h-4" /> }
         ];
       case "platform_admin":
         return [
-          { id: "overview", label: "SaaS Metrics & Audit", icon: <ShieldCheck className="w-4 h-4" /> },
-          { id: "pricing", label: "Plans & Pricing", icon: <CreditCard className="w-4 h-4" /> }
+          { id: "overview", label: tx("SaaS Metrics & Audit", "Métricas y Auditoría"), icon: <ShieldCheck className="w-4 h-4" /> },
+          { id: "pricing", label: tx("Plans & Pricing", "Planes y Precios"), icon: <CreditCard className="w-4 h-4" /> }
         ];
       default:
         return [];

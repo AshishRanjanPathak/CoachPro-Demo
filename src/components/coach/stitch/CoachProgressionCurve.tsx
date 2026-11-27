@@ -18,6 +18,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { TrendingUp, ChevronDown, Dumbbell, Search, X } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 export interface TelemetryPoint {
   date: string;
@@ -219,6 +220,7 @@ function buildClientExerciseHistory(
 
 export function CoachProgressionCurve() {
   const { state } = useAuth();
+  const { tx } = useLanguage();
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>(
     () => state.athletes[0]?.id || "usr-athlete-1"
   );
@@ -368,10 +370,10 @@ export function CoachProgressionCurve() {
               <TrendingUp className="w-5 h-5 text-foreground" aria-hidden="true" />
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
-                  Strength &amp; Progress
+                  {tx("Strength & Progress", "Fuerza y Progreso")}
                 </h1>
                 <p className="text-xs text-muted-foreground">
-                  {currentAthlete.name} • {athleteProgram?.title || "Strength Block"}
+                  {currentAthlete.name} • {athleteProgram?.title || tx("Strength Block", "Bloque de Fuerza")}
                 </p>
               </div>
             </div>
@@ -424,7 +426,7 @@ export function CoachProgressionCurve() {
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                   <Input
                     type="text"
-                    placeholder="Find any exercise…"
+                    placeholder={tx("Find any exercise…", "Buscar cualquier ejercicio…")}
                     value={exerciseSearch}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -519,7 +521,13 @@ export function CoachProgressionCurve() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card className="p-4 border-border bg-card">
           <div className="text-[11px] font-mono uppercase text-muted-foreground">
-            {isCardio ? "Peak Distance" : isIsometric ? "Peak Hold" : isBodyweightOnly ? "Peak Reps" : "Peak Est. 1RM"}
+            {isCardio
+              ? tx("Peak Distance", "Distancia Máx.")
+              : isIsometric
+                ? tx("Peak Hold", "Retención Máx.")
+                : isBodyweightOnly
+                  ? tx("Peak Reps", "Reps Máx.")
+                  : tx("Peak Est. 1RM", "1RM Est. Máx.")}
           </div>
           <div className="text-2xl font-bold tabular-nums text-foreground mt-1">
             {peakEst1rm}{" "}
@@ -531,7 +539,7 @@ export function CoachProgressionCurve() {
 
         <Card className="p-4 border-border bg-card">
           <div className="text-[11px] font-mono uppercase text-muted-foreground">
-            {isCardio ? "Best Run" : isIsometric ? "Hold Time" : "Best Load"}
+            {isCardio ? tx("Best Run", "Mejor Carrera") : isIsometric ? tx("Hold Time", "Tiempo") : tx("Best Load", "Mejor Carga")}
           </div>
           <div className="text-2xl font-bold tabular-nums text-foreground mt-1">
             {isCardio ? `${peakWorkingWeight}` : peakWorkingWeight > 0 ? `${peakWorkingWeight}` : "BW"}{" "}
@@ -542,7 +550,7 @@ export function CoachProgressionCurve() {
         </Card>
 
         <Card className="p-4 border-border bg-card">
-          <div className="text-[11px] font-mono uppercase text-muted-foreground">Window Gain</div>
+          <div className="text-[11px] font-mono uppercase text-muted-foreground">{tx("Window Gain", "Progreso del Periodo")}</div>
           <div className="text-2xl font-bold tabular-nums text-success mt-1">
             {deltaVal >= 0 ? `+${deltaVal}` : deltaVal}{" "}
             <span className="text-xs font-normal text-muted-foreground">({deltaPct >= 0 ? `+${deltaPct}` : deltaPct}%)</span>
@@ -551,7 +559,7 @@ export function CoachProgressionCurve() {
 
         <Card className="p-4 border-border bg-card">
           <div className="text-[11px] font-mono uppercase text-muted-foreground">
-            {isCardio ? "Total Time" : "Period Volume"}
+            {isCardio ? tx("Total Time", "Tiempo Total") : tx("Period Volume", "Volumen Total")}
           </div>
           <div className="text-2xl font-bold tabular-nums text-foreground mt-1">
             {isCardio || isBodyweightOnly ? totalTonnage : `${(totalTonnage / 1000).toFixed(1)}k`}{" "}
@@ -576,18 +584,18 @@ export function CoachProgressionCurve() {
           <div className="flex items-center gap-1 bg-secondary p-1 rounded-lg border border-border self-start sm:self-auto">
             {(isCardio
               ? [
-                  { id: "weight" as MetricKey, label: "Distance (km)" },
-                  { id: "reps" as MetricKey, label: "Duration (min)" },
+                  { id: "weight" as MetricKey, label: tx("Distance (km)", "Distancia (km)") },
+                  { id: "reps" as MetricKey, label: tx("Duration (min)", "Duración (min)") },
                 ]
               : isBodyweightOnly
                 ? [
-                    { id: "reps" as MetricKey, label: isIsometric ? "Hold (s)" : "Reps" },
-                    { id: "tonnage" as MetricKey, label: isIsometric ? "Total Hold" : "Total Reps" },
+                    { id: "reps" as MetricKey, label: isIsometric ? tx("Hold (s)", "Retención (s)") : "Reps" },
+                    { id: "tonnage" as MetricKey, label: isIsometric ? tx("Total Hold", "Retención Total") : tx("Total Reps", "Reps Totales") },
                   ]
                 : [
-                    { id: "est1rm" as MetricKey, label: "Est. 1RM" },
-                    { id: "weight" as MetricKey, label: "Weight" },
-                    { id: "tonnage" as MetricKey, label: "Volume" },
+                    { id: "est1rm" as MetricKey, label: tx("Est. 1RM", "1RM Est.") },
+                    { id: "weight" as MetricKey, label: tx("Weight", "Peso") },
+                    { id: "tonnage" as MetricKey, label: tx("Volume", "Volumen") },
                     { id: "reps" as MetricKey, label: "Reps" },
                   ]
             ).map((m) => (
@@ -668,10 +676,10 @@ export function CoachProgressionCurve() {
       <Card className="border-border bg-card">
         <CardHeader className="pb-3 flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-bold">
-            Session Log — {selectedExercise.name}
+            {tx("Session Log", "Registro de Sesiones")} — {selectedExercise.name}
           </CardTitle>
           <Badge variant="secondary" className="font-mono text-xs tabular-nums">
-            {historyPoints.length} sessions
+            {historyPoints.length} {tx("sessions", "sesiones")}
           </Badge>
         </CardHeader>
         <CardContent>
@@ -679,13 +687,21 @@ export function CoachProgressionCurve() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>{isCardio ? "Distance" : "Load"}</TableHead>
-                  <TableHead>{isCardio ? "Duration" : isIsometric ? "Hold" : "Reps"}</TableHead>
+                  <TableHead>{tx("Date", "Fecha")}</TableHead>
+                  <TableHead>{isCardio ? tx("Distance", "Distancia") : tx("Load", "Carga")}</TableHead>
+                  <TableHead>{isCardio ? tx("Duration", "Duración") : isIsometric ? tx("Hold", "Retención") : "Reps"}</TableHead>
                   <TableHead>RPE</TableHead>
-                  {!isBodyweightOnly && !isCardio && <TableHead>Est. 1RM</TableHead>}
-                  <TableHead>{isCardio ? "Time" : isIsometric ? "Total Hold" : isBodyweightOnly ? "Total Reps" : "Volume"}</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  {!isBodyweightOnly && !isCardio && <TableHead>{tx("Est. 1RM", "1RM Est.")}</TableHead>}
+                  <TableHead>
+                    {isCardio
+                      ? tx("Time", "Tiempo")
+                      : isIsometric
+                        ? tx("Total Hold", "Retención Total")
+                        : isBodyweightOnly
+                          ? tx("Total Reps", "Reps Totales")
+                          : tx("Volume", "Volumen")}
+                  </TableHead>
+                  <TableHead className="text-right">{tx("Status", "Estado")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -693,7 +709,7 @@ export function CoachProgressionCurve() {
                   <TableRow key={`${row.date}-${idx}`}>
                     <TableCell className="font-mono text-xs font-medium">{row.date}</TableCell>
                     <TableCell className="font-bold tabular-nums">
-                      {isCardio ? `${row.weight} km` : row.weight > 0 ? `${row.weight} kg` : "BW"}
+                      {isCardio ? `${row.weight} km` : row.weight > 0 ? `${row.weight} kg` : tx("BW", "PC")}
                     </TableCell>
                     <TableCell className="tabular-nums">
                       {row.reps}{isIsometric ? "s" : isCardio ? " min" : ""}
@@ -709,13 +725,13 @@ export function CoachProgressionCurve() {
                     </TableCell>
                     <TableCell className="text-right">
                       {row.source === "live" ? (
-                        <Badge variant="default" className="text-[10px]">Live</Badge>
+                        <Badge variant="default" className="text-[10px]">{tx("Live", "En vivo")}</Badge>
                       ) : row.isPr ? (
                         <Badge variant="outline" className="text-[10px] border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                          Peak
+                          {tx("Peak", "Máx.")}
                         </Badge>
                       ) : (
-                        <Badge variant="secondary" className="text-[10px]">Logged</Badge>
+                        <Badge variant="secondary" className="text-[10px]">{tx("Logged", "Registrado")}</Badge>
                       )}
                     </TableCell>
                   </TableRow>

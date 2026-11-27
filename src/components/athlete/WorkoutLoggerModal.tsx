@@ -35,6 +35,7 @@ import { Exercise, ExercisePrescription, WorkoutSet } from "@/types";
 import { getExerciseIndex, resolveExerciseThumbnail } from "@/lib/exercises";
 import { ExerciseDetailModal } from "@/components/exercise/ExerciseDetailModal";
 import { addCompanionXp } from "@/lib/companion";
+import { useLanguage } from "@/lib/i18n";
 
 export interface WorkoutLoggerModalProps {
   open: boolean;
@@ -58,6 +59,7 @@ export function WorkoutLoggerModal({
   initialMode = "batch"
 }: WorkoutLoggerModalProps) {
   const { state, addWorkoutSets, removeWorkoutSets, completeWorkoutSession } = useAuth();
+  const { isEs, tx } = useLanguage();
   const { session, prescriptions } = resolveActiveSessionContext(state);
   const exercises = state.exercises || [];
   const repDbIndex = React.useMemo(() => getExerciseIndex(), []);
@@ -496,35 +498,62 @@ export function WorkoutLoggerModal({
               }}
               className="text-xs text-brand hover:underline font-medium cursor-pointer min-h-[44px] flex items-center px-1"
             >
-              {mode === "quick_set" ? "Switch to Multi-Set Wizard" : "Quick Single-Set Mode"}
+              {mode === "quick_set"
+                ? tx("Switch to Multi-Set Wizard", "Cambiar a Asistente Multi-Serie")
+                : tx("Quick Single-Set Mode", "Modo Rápido de Serie Única")}
             </button>
           )}
         </div>
 
         <DialogTitle className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-foreground text-left">
-          {mode === "quick_set" && (step === 6 ? "Set Recorded Successfully!" : `Log Set ${nextSetNumber} of ${activeRx?.sets || 4}`)}
+          {mode === "quick_set" &&
+            (step === 6
+              ? tx("Set Recorded Successfully!", "¡Serie Registrada con Éxito!")
+              : isEs
+                ? `Registrar Serie ${nextSetNumber} de ${activeRx?.sets || 4}`
+                : `Log Set ${nextSetNumber} of ${activeRx?.sets || 4}`)}
           {mode === "batch" && (
             <>
-              {step === 1 && "What exercise did you do?"}
-              {step === 2 && "How much weight did you use?"}
-              {step === 3 && (isTimedExercise ? "How long did you perform this?" : isCardio ? "What distance and time did you complete?" : "How many reps did you complete?")}
-              {step === 4 && "How many sets did you complete?"}
-              {step === 5 && "Review and Confirm"}
-              {step === 6 && "Exercise Logged Successfully!"}
+              {step === 1 && tx("What exercise did you do?", "¿Qué ejercicio hiciste?")}
+              {step === 2 && tx("How much weight did you use?", "¿Cuánto peso usaste?")}
+              {step === 3 &&
+                (isTimedExercise
+                  ? tx("How long did you perform this?", "¿Cuánto tiempo lo realizaste?")
+                  : isCardio
+                    ? tx("What distance and time did you complete?", "¿Qué distancia y tiempo completaste?")
+                    : tx("How many reps did you complete?", "¿Cuántas repeticiones hiciste?"))}
+              {step === 4 && tx("How many sets did you complete?", "¿Cuántas series completaste?")}
+              {step === 5 && tx("Review and Confirm", "Revisar y Confirmar")}
+              {step === 6 && tx("Exercise Logged Successfully!", "¡Ejercicio Registrado con Éxito!")}
             </>
           )}
         </DialogTitle>
 
         <DialogDescription className="text-xs sm:text-sm text-muted-foreground text-left">
-          {mode === "quick_set" && (step === 6 ? "Your set has been saved to your training ledger." : `Confirm or adjust load for ${exerciseName}. Prescribed: ${activeRx?.targetLoadKg || 0}kg × ${activeRx?.repTarget || "5"} reps.`)}
+          {mode === "quick_set" &&
+            (step === 6
+              ? tx("Your set has been saved to your training ledger.", "Tu serie se guardó en tu registro.")
+              : isEs
+                ? `Confirma o ajusta la carga para ${exerciseName}. Objetivo: ${activeRx?.targetLoadKg || 0}kg × ${activeRx?.repTarget || "5"} reps.`
+                : `Confirm or adjust load for ${exerciseName}. Prescribed: ${activeRx?.targetLoadKg || 0}kg × ${activeRx?.repTarget || "5"} reps.`)}
           {mode === "batch" && (
             <>
-              {step === 1 && "Select the movement from your prescribed list or library below."}
-              {step === 2 && (isDumbbell ? "Enter the weight per dumbbell in each hand." : isWeightedBodyweight ? "Enter any added external weight (vest/belt)." : "Enter the total load lifted.")}
-              {step === 3 && (isTimedExercise ? "Enter duration in minutes and seconds." : isCardio ? "Enter completed duration and distance." : "Count only completed, full-range repetitions.")}
-              {step === 4 && "Enter the number of completed sets. Default uses the same weight and reps."}
-              {step === 5 && "Check the summary below before saving to your training ledger."}
-              {step === 6 && "Your training ledger and session progress have been updated."}
+              {step === 1 && tx("Select the movement from your prescribed list or library below.", "Elige el movimiento de tu rutina o de la biblioteca.")}
+              {step === 2 &&
+                (isDumbbell
+                  ? tx("Enter the weight per dumbbell in each hand.", "Ingresa el peso por cada mancuerna.")
+                  : isWeightedBodyweight
+                    ? tx("Enter any added external weight (vest/belt).", "Ingresa el peso extra agregado (chaleco/cinturón).")
+                    : tx("Enter the total load lifted.", "Ingresa la carga total levantada."))}
+              {step === 3 &&
+                (isTimedExercise
+                  ? tx("Enter duration in minutes and seconds.", "Ingresa la duración en minutos y segundos.")
+                  : isCardio
+                    ? tx("Enter completed duration and distance.", "Ingresa la duración y distancia completadas.")
+                    : tx("Count only completed, full-range repetitions.", "Cuenta solo repeticiones completas."))}
+              {step === 4 && tx("Enter the number of completed sets. Default uses the same weight and reps.", "Ingresa el número de series completadas.")}
+              {step === 5 && tx("Check the summary below before saving to your training ledger.", "Revisa el resumen antes de guardar tu registro.")}
+              {step === 6 && tx("Your training ledger and session progress have been updated.", "Tu registro y progreso de la sesión se han actualizado.")}
             </>
           )}
         </DialogDescription>
@@ -537,14 +566,14 @@ export function WorkoutLoggerModal({
             aria-valuenow={step}
             aria-valuemin={1}
             aria-valuemax={5}
-            aria-label={`Step ${step} of 5`}
+            aria-label={isEs ? `Paso ${step} de 5` : `Step ${step} of 5`}
           >
             {[
-              { s: 1, label: "Exercise" },
-              { s: 2, label: "Weight" },
+              { s: 1, label: tx("Exercise", "Ejercicio") },
+              { s: 2, label: tx("Weight", "Peso") },
               { s: 3, label: "Reps" },
-              { s: 4, label: "Sets" },
-              { s: 5, label: "Confirm" }
+              { s: 4, label: tx("Sets", "Series") },
+              { s: 5, label: tx("Confirm", "Confirmar") }
             ].map(({ s, label }) => {
               const isPassed = step > s;
               const isCurrent = step === s;
@@ -590,8 +619,10 @@ export function WorkoutLoggerModal({
             <div className="space-y-2">
               <h3 className="text-xl font-bold text-foreground">
                 {lastLoggedSummary?.sets && lastLoggedSummary.sets > 1
-                  ? `${lastLoggedSummary.sets} Sets Logged Successfully!`
-                  : "Set Logged Successfully!"}
+                  ? isEs
+                    ? `¡${lastLoggedSummary.sets} Series Registradas!`
+                    : `${lastLoggedSummary.sets} Sets Logged Successfully!`
+                  : tx("Set Logged Successfully!", "¡Serie Registrada con Éxito!")}
               </h3>
               <p className="text-sm font-semibold text-brand">
                 {lastLoggedSummary?.exerciseName}
@@ -599,7 +630,7 @@ export function WorkoutLoggerModal({
 
               <div className="inline-flex flex-wrap items-center justify-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border text-sm font-mono mt-1">
                 {lastLoggedSummary?.isBodyweight ? (
-                  <Badge variant="outline" className="text-xs">Bodyweight</Badge>
+                  <Badge variant="outline" className="text-xs">{tx("Bodyweight", "Peso Corporal")}</Badge>
                 ) : (
                   <span className="font-bold text-foreground">
                     {lastLoggedSummary?.weight} kg
@@ -617,7 +648,10 @@ export function WorkoutLoggerModal({
                 )}
                 <span>•</span>
                 <span className="text-brand font-bold">
-                  {lastLoggedSummary?.sets} set{lastLoggedSummary && lastLoggedSummary.sets > 1 ? "s" : ""}
+                  {lastLoggedSummary?.sets}{" "}
+                  {isEs
+                    ? lastLoggedSummary && lastLoggedSummary.sets > 1 ? "series" : "serie"
+                    : `set${lastLoggedSummary && lastLoggedSummary.sets > 1 ? "s" : ""}`}
                 </span>
               </div>
 
@@ -625,7 +659,11 @@ export function WorkoutLoggerModal({
               <div className="pt-1">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold">
                   <span>🍌</span>
-                  <span>Bonobo enjoyed a snack & gained +{(lastLoggedSummary?.sets || 1) * 25} XP!</span>
+                  <span>
+                    {isEs
+                      ? `¡Bonobo disfrutó un snack y ganó +${(lastLoggedSummary?.sets || 1) * 25} XP!`
+                      : `Bonobo enjoyed a snack & gained +${(lastLoggedSummary?.sets || 1) * 25} XP!`}
+                  </span>
                 </div>
               </div>
             </div>
@@ -633,9 +671,9 @@ export function WorkoutLoggerModal({
             {/* Session Progress Update Banner */}
             <div className="p-4 rounded-xl bg-card border border-border text-left space-y-2 max-w-md mx-auto">
               <div className="flex justify-between items-center text-xs text-muted-foreground font-medium">
-                <span>Updated Session Progress</span>
+                <span>{tx("Updated Session Progress", "Progreso Actualizado de la Sesión")}</span>
                 <span className="font-bold text-foreground tabular-nums">
-                  {totalCompletedSets} / {totalPrescribedSets} sets ({progressPercent}%)
+                  {totalCompletedSets} / {totalPrescribedSets} {tx("sets", "series")} ({progressPercent}%)
                 </span>
               </div>
               <div
@@ -671,7 +709,7 @@ export function WorkoutLoggerModal({
                 }}
                 className="font-bold text-sm min-h-[52px] rounded-xl cursor-pointer shadow-xs flex-1"
               >
-                Continue Workout
+                {tx("Continue Workout", "Continuar Entreno")}
               </Button>
 
               {lastLoggedSetIds.length > 0 && (
@@ -682,7 +720,7 @@ export function WorkoutLoggerModal({
                   className="font-semibold text-xs min-h-[52px] rounded-xl cursor-pointer border-border hover:bg-destructive/10 hover:text-destructive flex items-center justify-center gap-1.5"
                 >
                   <RotateCcw className="w-4 h-4" aria-hidden="true" />
-                  Undo Logging
+                  {tx("Undo Logging", "Deshacer Registro")}
                 </Button>
               )}
             </div>
@@ -731,7 +769,7 @@ export function WorkoutLoggerModal({
                       title="Inspect start and peak poses"
                     >
                       <Eye className="w-3 h-3 text-brand" aria-hidden="true" />
-                      <span>Poses & Guide</span>
+                      <span>{tx("Poses & Guide", "Fases y Guía")}</span>
                     </button>
                   </div>
                   <span className="text-xs text-muted-foreground block mt-0.5 capitalize truncate">
@@ -741,7 +779,7 @@ export function WorkoutLoggerModal({
               </div>
 
               <Badge variant="outline" className="font-mono text-xs px-2.5 py-1 shrink-0">
-                Set {nextSetNumber} of {activeRx?.sets || 4}
+                {isEs ? `Serie ${nextSetNumber} de ${activeRx?.sets || 4}` : `Set ${nextSetNumber} of ${activeRx?.sets || 4}`}
               </Badge>
             </div>
 
@@ -749,13 +787,13 @@ export function WorkoutLoggerModal({
             {!isPureBodyweight && !isTimedExercise && (
               <div className="space-y-2 text-center">
                 <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  <span>Weight ({weightUnit.toUpperCase()})</span>
+                  <span>{tx("Weight", "Peso")} ({weightUnit.toUpperCase()})</span>
                   <button
                     type="button"
                     onClick={() => setWeightUnit(u => (u === "kg" ? "lbs" : "kg"))}
                     className="text-brand hover:underline font-semibold cursor-pointer"
                   >
-                    Switch to {weightUnit === "kg" ? "LBS" : "KG"}
+                    {tx("Switch to", "Cambiar a")} {weightUnit === "kg" ? "LBS" : "KG"}
                   </button>
                 </div>
 
@@ -911,7 +949,7 @@ export function WorkoutLoggerModal({
                 className="w-full font-bold text-base min-h-[56px] rounded-2xl shadow-md cursor-pointer flex items-center justify-center gap-2"
               >
                 <Check className="w-5 h-5" aria-hidden="true" />
-                <span>Confirm & Log Set {nextSetNumber}</span>
+                <span>{isEs ? `Confirmar y Registrar Serie ${nextSetNumber}` : `Confirm & Log Set ${nextSetNumber}`}</span>
               </Button>
             </div>
           </div>
@@ -933,11 +971,11 @@ export function WorkoutLoggerModal({
                       id={searchInputId}
                       type="search"
                       enterKeyHint="search"
-                      placeholder="Search 700+ exercises by name, muscle, or equipment..."
+                      placeholder={tx("Search 700+ exercises by name, muscle, or equipment...", "Buscar entre 700+ ejercicios por nombre, músculo o equipo...")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10 pr-9 h-12 text-sm rounded-xl bg-card border-border"
-                      aria-label="Search exercise options"
+                      aria-label={tx("Search exercise options", "Buscar ejercicios")}
                     />
                     {searchQuery && (
                       <button
@@ -960,7 +998,7 @@ export function WorkoutLoggerModal({
                     className="h-12 px-4 rounded-xl font-bold gap-1.5 shrink-0 cursor-pointer shadow-xs"
                   >
                     <Search className="w-4 h-4" />
-                    <span>Search</span>
+                    <span>{tx("Search", "Buscar")}</span>
                   </Button>
                 </div>
 
@@ -968,9 +1006,9 @@ export function WorkoutLoggerModal({
                 {prescriptions.length > 0 && !searchQuery && (
                   <div className="space-y-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
-                      Today's Workout Program:
+                      {tx("Today's Workout Program:", "Rutina de Hoy:")}
                     </span>
-                    <div className="space-y-2" role="group" aria-label="Prescribed movements">
+                    <div className="space-y-2" role="group" aria-label={tx("Prescribed movements", "Movimientos prescritos")}>
                       {prescriptions.map((rx) => {
                         const count = session.sets.filter(s => s.exerciseId === rx.exerciseId).length;
                         const isDone = count >= rx.sets;
@@ -990,10 +1028,10 @@ export function WorkoutLoggerModal({
                             <div>
                               <div className="flex items-center gap-2">
                                 <h4 className="font-bold text-sm sm:text-base text-foreground">{rx.exerciseName}</h4>
-                                <Badge variant="outline" className="text-[10px] uppercase">Prescribed</Badge>
+                                <Badge variant="outline" className="text-[10px] uppercase">{tx("Prescribed", "Prescrito")}</Badge>
                               </div>
                               <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
-                                Goal: {rx.sets} sets × {rx.repTarget} reps @ {rx.targetLoadKg || 0} kg
+                                {tx("Goal:", "Objetivo:")} {rx.sets} {tx("sets", "series")} × {rx.repTarget} reps @ {rx.targetLoadKg || 0} kg
                               </p>
                             </div>
 
@@ -1006,7 +1044,7 @@ export function WorkoutLoggerModal({
                                     : "tabular-nums text-xs"
                                 }
                               >
-                                {count} / {rx.sets} sets
+                                {count} / {rx.sets} {tx("sets", "series")}
                               </Badge>
                               <ChevronRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                             </div>
@@ -1020,7 +1058,7 @@ export function WorkoutLoggerModal({
                 {/* Section B: General Exercise Library */}
                 <div className="space-y-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
-                    {searchQuery ? "Search Results:" : "Exercise Library:"}
+                    {searchQuery ? tx("Search Results:", "Resultados:") : tx("Exercise Library:", "Biblioteca de Ejercicios:")}
                   </span>
                   <div className="space-y-2 max-h-56 overflow-y-auto pr-1" role="group" aria-label="Exercise library list">
                     {filteredExercises.map((ex) => {
@@ -1273,40 +1311,40 @@ export function WorkoutLoggerModal({
 
                   {/* Skip option for bodyweight / unweighted */}
                   <div className="pt-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => {
+                          setIsWeightSkipped(true);
+                          setWeight(0);
+                          setStep(3);
+                        }}
+                        className="text-xs text-muted-foreground hover:text-foreground cursor-pointer min-h-[44px]"
+                      >
+                        {tx("Skip — This exercise doesn't use additional weight", "Saltar — Este ejercicio no usa peso adicional")}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Navigation Footer */}
+                  <div className="flex items-center justify-between pt-4 border-t border-border">
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => {
-                        setIsWeightSkipped(true);
-                        setWeight(0);
-                        setStep(3);
-                      }}
-                      className="text-xs text-muted-foreground hover:text-foreground cursor-pointer min-h-[44px]"
+                      onClick={() => setStep(1)}
+                      className="gap-1.5 text-xs min-h-[48px] rounded-xl"
                     >
-                      Skip — This exercise doesn't use additional weight
+                      <ArrowLeft className="w-4 h-4" /> {tx("Back", "Atrás")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="default"
+                      onClick={() => setStep(3)}
+                      className="gap-2 font-bold text-sm min-h-[48px] px-6 rounded-xl cursor-pointer"
+                    >
+                      {tx("Next: Repetitions", "Siguiente: Repeticiones")} <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
-                </div>
-
-                {/* Navigation Footer */}
-                <div className="flex items-center justify-between pt-4 border-t border-border">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setStep(1)}
-                    className="gap-1.5 text-xs min-h-[48px] rounded-xl"
-                  >
-                    <ArrowLeft className="w-4 h-4" /> Back
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="default"
-                    onClick={() => setStep(3)}
-                    className="gap-2 font-bold text-sm min-h-[48px] px-6 rounded-xl cursor-pointer"
-                  >
-                    Next: Repetitions <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </div>
               </div>
             )}
 
@@ -1600,7 +1638,7 @@ export function WorkoutLoggerModal({
                     onClick={() => setStep(isPureBodyweight ? 1 : 2)}
                     className="gap-1.5 text-xs min-h-[48px] rounded-xl"
                   >
-                    <ArrowLeft className="w-4 h-4" /> Back
+                    <ArrowLeft className="w-4 h-4" /> {tx("Back", "Atrás")}
                   </Button>
                   <Button
                     type="button"
@@ -1608,7 +1646,7 @@ export function WorkoutLoggerModal({
                     onClick={() => setStep(4)}
                     className="gap-2 font-bold text-sm min-h-[48px] px-6 rounded-xl cursor-pointer"
                   >
-                    Next: Number of Sets <ArrowRight className="w-4 h-4" />
+                    {tx("Next: Number of Sets", "Siguiente: Series")} <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
@@ -1802,7 +1840,7 @@ export function WorkoutLoggerModal({
                     onClick={() => setStep(3)}
                     className="gap-1.5 text-xs min-h-[48px] rounded-xl"
                   >
-                    <ArrowLeft className="w-4 h-4" /> Back
+                    <ArrowLeft className="w-4 h-4" /> {tx("Back", "Atrás")}
                   </Button>
                   <Button
                     type="button"
@@ -1810,7 +1848,7 @@ export function WorkoutLoggerModal({
                     onClick={() => setStep(5)}
                     className="gap-2 font-bold text-sm min-h-[48px] px-6 rounded-xl cursor-pointer"
                   >
-                    Review & Confirm <ArrowRight className="w-4 h-4" />
+                    {tx("Review & Confirm", "Revisar y Confirmar")} <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
@@ -1825,16 +1863,16 @@ export function WorkoutLoggerModal({
                 <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border space-y-3.5 shadow-sm">
                   <div className="flex items-center justify-between border-b border-border/80 pb-3">
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Exercise Summary
+                      {tx("Exercise Summary", "Resumen del Ejercicio")}
                     </span>
                     <Badge variant="secondary" className="font-mono text-xs px-2.5 py-0.5">
-                      {setsCount} {setsCount === 1 ? "Set" : "Sets"} Planned
+                      {setsCount} {setsCount === 1 ? tx("Set Planned", "Serie Planeada") : tx("Sets Planned", "Series Planeadas")}
                     </Badge>
                   </div>
 
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between items-center py-1 border-b border-border/40">
-                      <span className="text-muted-foreground">Exercise:</span>
+                      <span className="text-muted-foreground">{tx("Exercise:", "Ejercicio:")}</span>
                       <div className="flex items-center gap-2">
                         {currentExerciseThumb && (
                           <img
@@ -1848,42 +1886,42 @@ export function WorkoutLoggerModal({
                           type="button"
                           onClick={() => setShowTechniqueGuide(true)}
                           className="text-[11px] font-medium text-brand hover:underline inline-flex items-center gap-0.5 cursor-pointer ml-1 bg-brand/5 px-1.5 py-0.5 rounded border border-brand/20"
-                          title="Inspect 2-pose demonstration"
+                          title={tx("Inspect 2-pose demonstration", "Ver demostración en 2 fases")}
                         >
                           <Eye className="w-3 h-3 text-brand" />
-                          <span>Poses</span>
+                          <span>{tx("Poses", "Fases")}</span>
                         </button>
                       </div>
                     </div>
 
                     <div className="flex justify-between items-center py-1 border-b border-border/40">
-                      <span className="text-muted-foreground">Weight:</span>
+                      <span className="text-muted-foreground">{tx("Weight:", "Peso:")}</span>
                       <strong className="text-foreground">
-                        {isWeightSkipped ? "Bodyweight (No added weight)" : `${weight} kg (${Math.round(weight * 2.20462)} lbs)`}
+                        {isWeightSkipped ? tx("Bodyweight (No added weight)", "Peso Corporal (Sin carga extra)") : `${weight} kg (${Math.round(weight * 2.20462)} lbs)`}
                       </strong>
                     </div>
 
                     <div className="flex justify-between items-center py-1 border-b border-border/40">
                       <span className="text-muted-foreground">
-                        {isTimedExercise ? "Duration:" : isCardio ? "Distance & Time:" : "Reps per Set:"}
+                        {isTimedExercise ? tx("Duration:", "Duración:") : isCardio ? tx("Distance & Time:", "Distancia y Tiempo:") : tx("Reps per Set:", "Reps por Serie:")}
                       </span>
                       <strong className="text-foreground">
                         {isTimedExercise
-                          ? `${minutes} min ${seconds > 0 ? `${seconds} sec` : ""}`
+                          ? `${minutes} min ${seconds > 0 ? `${seconds} seg` : ""}`
                           : isCardio
-                          ? `${distanceKm} km in ${minutes} min`
-                          : `${reps} repetitions`}
+                          ? `${distanceKm} km / ${minutes} min`
+                          : `${reps} reps`}
                       </strong>
                     </div>
 
                     <div className="flex justify-between items-center py-1 border-b border-border/40">
-                      <span className="text-muted-foreground">Sets to Log:</span>
+                      <span className="text-muted-foreground">{tx("Sets to Log:", "Series a Registrar:")}</span>
                       <strong className="text-brand font-mono font-bold text-base">{setsCount}</strong>
                     </div>
 
                     {!isWeightSkipped && reps > 0 && !isTimedExercise && (
                       <div className="flex justify-between items-center py-1 text-xs text-muted-foreground">
-                        <span>Total Estimated Volume:</span>
+                        <span>{tx("Total Estimated Volume:", "Volumen Total Estimado:")}</span>
                         <span className="font-mono font-semibold text-foreground">
                           {(weight * reps * setsCount).toLocaleString()} kg
                         </span>
@@ -1900,10 +1938,10 @@ export function WorkoutLoggerModal({
                     disabled={isSubmitting}
                     onClick={() => handleCommitLogs(setsCount)}
                     className="w-full font-bold text-base min-h-[56px] rounded-2xl shadow-md cursor-pointer flex items-center justify-center gap-2"
-                    aria-label="Save Exercise"
+                    aria-label={tx("Save Exercise", "Guardar Ejercicio")}
                   >
                     <Check className="w-5 h-5" aria-hidden="true" />
-                    <span>{isSubmitting ? "Saving..." : "Save Exercise"}</span>
+                    <span>{isSubmitting ? tx("Saving...", "Guardando...") : tx("Save Exercise", "Guardar Ejercicio")}</span>
                   </Button>
 
                   <Button
@@ -1912,7 +1950,7 @@ export function WorkoutLoggerModal({
                     onClick={() => setStep(4)}
                     className="w-full font-semibold text-xs min-h-[48px] rounded-xl border-border cursor-pointer"
                   >
-                    Go Back and Edit
+                    {tx("Go Back and Edit", "Volver y Editar")}
                   </Button>
                 </div>
               </div>
@@ -1929,7 +1967,7 @@ export function WorkoutLoggerModal({
           onClick={() => onOpenChange(false)}
           className="text-xs text-muted-foreground hover:text-foreground min-h-[44px]"
         >
-          Cancel
+          {tx("Cancel", "Cancelar")}
         </Button>
 
         {session.sets.length > 0 && step !== 6 && (
@@ -1944,7 +1982,7 @@ export function WorkoutLoggerModal({
             }}
             className="text-xs font-semibold min-h-[44px] px-4 rounded-xl"
           >
-            Complete Workout Session
+            {tx("Complete Workout Session", "Completar Sesión de Entreno")}
           </Button>
         )}
       </DialogFooter>

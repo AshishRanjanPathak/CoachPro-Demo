@@ -47,14 +47,19 @@ export interface BonoboNlpResult {
 const EXERCISE_SYNONYMS: Record<string, string> = {
   squat: "Barbell Back Squat",
   squats: "Barbell Back Squat",
+  sentadilla: "Barbell Back Squat",
+  sentadillas: "Barbell Back Squat",
   "back squat": "Barbell Back Squat",
   "front squat": "Front Squat",
   bench: "Barbell Bench Press",
+  banca: "Barbell Bench Press",
+  "press banca": "Barbell Bench Press",
   "bench press": "Barbell Bench Press",
   "incline bench": "Incline Barbell Bench Press",
   "dumbbell bench": "Dumbbell Bench Press",
   deadlift: "Conventional Deadlift",
   deadlifts: "Conventional Deadlift",
+  "peso muerto": "Conventional Deadlift",
   rdl: "Romanian Deadlift",
   "romanian deadlift": "Romanian Deadlift",
   overhead: "Barbell Overhead Press",
@@ -121,7 +126,12 @@ const INJURY_TRIGGERS = [
   "clicking",
   "throbbing",
   "exhausted",
-  "destroyed"
+  "destroyed",
+  "dolor",
+  "duele",
+  "molestia",
+  "agujetas",
+  "cansado"
 ];
 
 // Body parts mapping
@@ -129,14 +139,17 @@ const BODY_PARTS = [
   "right knee",
   "left knee",
   "knee",
+  "rodilla",
   "patellar",
   "left shoulder",
   "right shoulder",
   "shoulder",
+  "hombro",
   "lower back",
   "lumbar",
   "upper back",
   "back",
+  "espalda",
   "hamstring",
   "glute",
   "quad",
@@ -152,7 +165,8 @@ const BODY_PARTS = [
  */
 export function parseBonoboNaturalLanguage(
   input: string,
-  catalog: Array<{ id: string; name: string; category?: string }> = getExerciseIndex()
+  catalog: Array<{ id: string; name: string; category?: string }> = getExerciseIndex(),
+  locale: "en" | "es" = "en"
 ): BonoboNlpResult {
   const cleanInput = input.trim();
   const lower = cleanInput.toLowerCase();
@@ -222,7 +236,10 @@ export function parseBonoboNaturalLanguage(
     return {
       intent: "injury_report",
       rawInput: cleanInput,
-      summary: `Flagged ${severity} pain in ${formattedLocation}.`,
+      summary:
+        locale === "es"
+          ? `Se detectó dolor (${severity}) en ${formattedLocation}.`
+          : `Flagged ${severity} pain in ${formattedLocation}.`,
       requiresConfirmation: true,
       injuryData: {
         hasInjury: true,
@@ -234,9 +251,13 @@ export function parseBonoboNaturalLanguage(
         readinessScore,
         details: cleanInput,
         clinicalAlert:
-          severity === "severe"
-            ? "⚠️ Severe pain detected. Confirming will immediately flag your profile on Coach Sarah's Priority Attention Queue."
-            : "ℹ️ Pain reported. Confirming will log your recovery check-in and alert your coach."
+          locale === "es"
+            ? severity === "severe"
+              ? "⚠️ Dolor severo detectado. Al confirmar, se avisará de inmediato a tu entrenadora Sarah."
+              : "ℹ️ Molestia reportada. Al confirmar, se registrará en tu recuperación y se notificará a tu coach."
+            : severity === "severe"
+              ? "⚠️ Severe pain detected. Confirming will immediately flag your profile on Coach Sarah's Priority Attention Queue."
+              : "ℹ️ Pain reported. Confirming will log your recovery check-in and alert your coach."
       }
     };
   }
@@ -249,9 +270,12 @@ export function parseBonoboNaturalLanguage(
     return {
       intent: "workout_log",
       rawInput: cleanInput,
-      summary: `Found ${parsedExercises.length} ${
-        parsedExercises.length === 1 ? "exercise" : "exercises"
-      } in your update!`,
+      summary:
+        locale === "es"
+          ? `¡Encontré ${parsedExercises.length} ${parsedExercises.length === 1 ? "ejercicio" : "ejercicios"} en tu registro!`
+          : `Found ${parsedExercises.length} ${
+              parsedExercises.length === 1 ? "exercise" : "exercises"
+            } in your update!`,
       requiresConfirmation: true,
       workoutData: {
         exercises: parsedExercises,
@@ -264,9 +288,9 @@ export function parseBonoboNaturalLanguage(
   return {
     intent: "chat",
     rawInput: cleanInput,
-    summary: "Chat response",
+    summary: locale === "es" ? "Respuesta de chat" : "Chat response",
     requiresConfirmation: false,
-    chatResponse: generateChatResponse(lower)
+    chatResponse: generateChatResponse(lower, locale)
   };
 }
 
@@ -279,8 +303,8 @@ function extractWorkoutExercises(
 ): ParsedWorkoutExercise[] {
   const results: ParsedWorkoutExercise[] = [];
 
-  // Split by common separators ("and", ",", ";", "\n", "then", "+")
-  const segments = text.split(/(?:,|\band\b|;|\n|\bthen\b|\+)/i);
+  // Split by common separators ("and", "y", ",", ";", "\n", "then", "+")
+  const segments = text.split(/(?:,|\band\b|\by\b|;|\n|\bthen\b|\+)/i);
 
   segments.forEach((seg, idx) => {
     const s = seg.trim();
@@ -320,9 +344,9 @@ function extractWorkoutExercises(
       e => e.name.toLowerCase().includes(matchedFromKey.toLowerCase())
     ) || { id: `ex-${matchedFromKey || "custom"}`, name: matchedExName };
 
-    // 2. Extract Sets (e.g. "4 sets", "4x", "4 sets of")
+    // 2. Extract Sets (e.g. "4 sets", "4 series", "4x", "4 sets of")
     let sets = 3;
-    const setsMatch = s.match(/(\d+)\s*(?:sets|set|x\s*\d)/i);
+    const setsMatch = s.match(/(\d+)\s*(?:series|serie|sets|set|x\s*\d)/i);
     if (setsMatch) {
       sets = parseInt(setsMatch[1]);
     } else {
@@ -370,26 +394,41 @@ function extractWorkoutExercises(
 }
 
 /**
- * Helper: Contextual funny & simple chat replies
+ * Helper: Contextual funny & simple chat replies (EN / ES)
  */
-function generateChatResponse(lower: string): string {
-  if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey")) {
-    return "Yo! Ready to move heavy metal or pretend stretching was the hard part today? 🦍";
+function generateChatResponse(lower: string, locale: "en" | "es" = "en"): string {
+  const isEs = locale === "es" || /\b(hola|buenas|agua|cansado|plátano|entreno|sentadilla)\b/i.test(lower);
+  if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey") || lower.includes("hola") || lower.includes("buenas")) {
+    return isEs
+      ? "¡Buenas! 👋 ¿Listo para mover kilos o fingir que estirar fue la parte difícil hoy? 🦍"
+      : "Yo! Ready to move heavy metal or pretend stretching was the hard part today? 🦍";
   }
-  if (lower.includes("how are you") || lower.includes("feeling")) {
-    return "Operating on 100% potassium and pure gym hype! Remember to log your sets after your workout!";
+  if (lower.includes("how are you") || lower.includes("feeling") || lower.includes("cómo estás")) {
+    return isEs
+      ? "¡Al 100% de potasio y motivación de gimnasio! Acuérdate de registrar tus series al acabar."
+      : "Operating on 100% potassium and pure gym hype! Remember to log your sets after your workout!";
   }
-  if (lower.includes("water") || lower.includes("hydrate")) {
-    return "Go chug a glass of water! If your muscles are dehydrated, cramps get invited to the party.";
+  if (lower.includes("water") || lower.includes("hydrate") || lower.includes("agua") || lower.includes("hidrata")) {
+    return isEs
+      ? "¡Tómate un buen vaso de agua! Un músculo deshidratado es invitación directa a los calambres."
+      : "Go chug a glass of water! If your muscles are dehydrated, cramps get invited to the party.";
   }
-  if (lower.includes("eat") || lower.includes("food") || lower.includes("protein") || lower.includes("banana")) {
-    return "Real athletes eat protein + carbs after training. Bonobos accept earned bananas for Evolution XP 🍌";
+  if (lower.includes("eat") || lower.includes("food") || lower.includes("protein") || lower.includes("banana") || lower.includes("comer") || lower.includes("plátano")) {
+    return isEs
+      ? "Proteína y carbohidratos tras entrenar para los atletas; ¡Bonobo acepta plátanos por XP de Evolución! 🍌"
+      : "Real athletes eat protein + carbs after training. Bonobos accept earned bananas for Evolution XP 🍌";
   }
-  if (lower.includes("evolve") || lower.includes("evolution") || lower.includes("saiyan") || lower.includes("level")) {
-    return "Log workouts and daily check-ins to stack XP! Wait till you see my Super Bonobo form at Level 5 ⚡";
+  if (lower.includes("evolve") || lower.includes("evolution") || lower.includes("evoluc") || lower.includes("saiyan") || lower.includes("level") || lower.includes("nivel")) {
+    return isEs
+      ? "¡Registra entrenos y chequeos para subir de XP! Espera a ver mi forma Súper Bonobo al Nivel 5 ⚡"
+      : "Log workouts and daily check-ins to stack XP! Wait till you see my Super Bonobo form at Level 5 ⚡";
   }
-  if (lower.includes("motivation") || lower.includes("motivate") || lower.includes("tired")) {
-    return "Even showing up half-awake beats the couch by 100%. Two honest sets and you can brag about it all day!";
+  if (lower.includes("motivation") || lower.includes("motivate") || lower.includes("tired") || lower.includes("cansado") || lower.includes("motivac")) {
+    return isEs
+      ? "Presentarte medio dormido ya le gana al sofá por goleada. ¡Dos buenas series hoy y a presumir!"
+      : "Even showing up half-awake beats the couch by 100%. Two honest sets and you can brag about it all day!";
   }
-  return "Tell me what you lifted (like '4 sets squats 140kg x 5 reps') after your session, or tell me how your body feels!";
+  return isEs
+    ? "¡Dime qué levantaste (ej. '4 series sentadillas 140kg x 5 reps') al terminar o cuéntame cómo te sientes!"
+    : "Tell me what you lifted (like '4 sets squats 140kg x 5 reps') after your session, or tell me how your body feels!";
 }
